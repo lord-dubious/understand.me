@@ -1,0 +1,166 @@
+flowchart TD
+    %% Discovery and Entry
+    A[User Discovers Platform] --> B[Sign Up/Login]
+    B --> C{New User?}
+    
+    %% New User Onboarding
+    C -->|Yes| D[AI-Powered Onboarding]
+    D --> E[Enhanced Personality Assessment<br/>15-20 Questions<br/>Communication Style<br/>Values & Behaviors]
+    E --> F[Platform Tutorial]
+    F --> G[Main Dashboard]
+    
+    %% Returning User
+    C -->|No| H[Returning User Dashboard]
+    H --> I{Choose Action}
+    I -->|New Session| G
+    I -->|View Previous Sessions| J[Session History]
+    I -->|Growth Tab| K[Personal Growth Dashboard]
+    %% Session History Access
+    J --> L{Action Choice}
+    L -->|View Only| LA[View Summaries & History]
+    L -->|Request Reopen| LB{Are You Host?}
+    LB -->|Yes| LC[Reopen Session Options]
+    LB -->|No| LD[Send Reopen Request to Host]
+    LC --> M[Resume/Restart Session]
+    LD --> LE[Request Sent]
+    LA --> G
+    LE --> G
+    
+    %% Main Path Selection
+    G --> N{Choose Path}
+    N -->|Start Session| O[HOST: Describe Conflict]
+    N -->|Join Session| P[PARTICIPANT: Enter Session Code]
+    
+    %% Host Flow
+    O --> Q[AI Problem Analysis]
+    Q --> R[Review AI Summary]
+    R --> S[Configure Session Type]
+    S --> T{Session Type}
+    
+    %% Session Type Selection
+    T -->|Joint Remote| U[Add Participants<br/>Send Invitations]
+    T -->|Joint Same-Device| V[Same-Device Setup]
+    T -->|Individual| W[Individual Session Start]
+    
+    %% Invitation Process
+    U --> X[Send Multi-Channel Invitations<br/>Email/SMS/Links]
+    X --> Y[Track Invitation Status]
+    Y --> Z{All Accepted?}
+    Z -->|No| AA[Host Notified Immediately]
+    AA --> AB{Host Decision}
+    AB -->|Continue Solo| W
+    AB -->|Wait/Send Reminders| AC[Send Reminders]
+    AC --> Y
+    Z -->|Yes| AD[All Participants Ready]
+    
+    %% Participant Flow
+    P --> AE[Receive Detailed Invitation]
+    AE --> AF{Accept Invitation?}
+    AF -->|No| AG[Decline & Host Notified]
+    AF -->|Yes| AH[Provide Your Perspective]
+    AH --> AI[Configure Privacy Settings]
+    AI --> AD
+    
+    %% Pre-Session Preparation
+    AD --> AJ[AI Synthesizes All Inputs]
+    AJ --> AK[AI Dynamic Adaptation<br/>Based on Personalities<br/>& Conflict Type]
+    AK --> AL[Establish Session Goals & Rules]
+    AL --> AM[All Parties Agree]
+    
+    %% Same-Device Setup
+    V --> AN[User Identification<br/>Color/Avatar Selection<br/>Max 2 Users]
+    AN --> AO[Sequential Personality Assessment<br/>On Same Device]
+    AO --> AP[Device Sharing Interface]
+    AP --> AJ
+    
+    %% Individual Session
+    W --> AQ[Individual Session Start<br/>Independent Journey]
+    AQ --> AR[AI Role Adaptation<br/>Coaching Mode]
+    AR --> AS{Convert to Joint?<br/>If Other Users Involved}
+    AS -->|Yes & User Agrees| U
+    AS -->|No| AT[Modified 5-Phase Process<br/>Explore→Clarify→Strategize→Prepare]
+    AT --> AU[Personal Action Plan]
+    AU --> AV[Private Summary & Sign-off]
+    
+    %% Main Mediation Session
+    AM --> AW[Five-Phase AI Mediation<br/>+ Achievement Badges Visible]
+    AW --> AX[Phase 1: Prepare]
+    AX --> AY[Phase 2: Express]
+    AY --> AZ{Same Device?}
+    AZ -->|Yes| BA[Tap-to-Talk Interface<br/>Turn-Based Input]
+    AZ -->|No| BB[Individual Input]
+    BA --> BC[Phase 3: Understand]
+    BB --> BC
+    BC --> BD[Phase 4: Resolve]
+    BD --> BE[Phase 5: Heal]
+    
+    %% Session Completion
+    BE --> BF[AI Generates Summary<br/>& Action Plan]
+    BF --> BG[Participants Review]
+    BG --> BH{Same Device?}
+    BH -->|Yes| BI[Sequential Sign-off<br/>Each User Approves]
+    BH -->|No| BJ[Individual Digital Sign-off]
+    BI --> BK[Session Complete]
+    BJ --> BK
+    
+    %% Post-Session
+    BK --> BL[Session Evaluation]
+    BL --> BM{Schedule Follow-up?}
+    BM -->|Yes| BN[Schedule Check-in]
+    BM -->|No| BO[Update Growth Tab]
+    BN --> BP[Send Calendar Invites]
+    BP --> BO
+    
+    %% Growth Tab Updates
+    BO --> CB[AI Updates Personal Insights]
+    CB --> CC[Achievement Badges]
+    CC --> CD[Recommended Resources]
+    CD --> CE[Future Conflict Prevention]
+    
+    %% Follow-up Check-in with Reminders
+    BJ --> BQ[Check-in Notification]
+    BQ --> BR{Response Received?}
+    BR -->|No| BS[Send Reminders]
+    BS --> BT{Still No Response?}
+    BT -->|Yes| BU[Mark as Incomplete]
+    BT -->|No| BV[Participant Responds]
+    BR -->|Yes| BV
+    BV --> BW[Lightweight Follow-up Session]
+    BW --> BX[Review Action Items]
+    BX --> BY[Update Progress Status]
+    BY --> BZ[Check-in Summary]
+    BZ --> CA{Another Check-in Needed?}
+    CA -->|Yes| BJ
+    CA -->|No| BK
+    BU --> BK
+    
+    %% Growth Tab Access
+    K --> CF[View Progress Dashboard]
+    CF --> CG[Communication Insights]
+    CG --> CH[Recommended Resources]
+    CH --> CI[Long-term Progress Tracking]
+    CI --> CJ{Return to Main?}
+    CJ -->|Yes| G
+    CJ -->|No| CF
+    
+    %% Return Paths
+    AV --> G
+    CE --> G
+    M --> AW
+    
+    %% Additional Connections
+    AG --> AA
+    
+    %% Styling
+    classDef aiProcess fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef decision fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef process fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef user fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    
+    %% Apply styles
+    class D,E,Q,AJ,AK,AR,AW,AX,AY,BC,BD,BE,BF,CB,CC,CD,CE aiProcess
+    class C,I,L,N,T,Z,AB,AF,AS,AZ,BH,BM,BR,BT,CA,CJ,LB decision
+    class O,R,S,U,V,W,X,Y,AH,AI,AL,AN,AO,AP,AT,AU,BA,BB,BG,BL,BN,BP,BW,BX,BY,BZ,CF,CG,CH,CI,LC,LD,LA,BS,BV process
+    class BK,AV,M,BU success
+    class A,B,G,H,P,K,J,AA,AC,AG,LE user
