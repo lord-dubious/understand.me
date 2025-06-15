@@ -40,6 +40,215 @@
 
 ---
 
+## UI Wireframe Map & Component Specifications
+
+### Complete Wireframe Structure
+
+```
+App Structure:
+├── Landing Page
+│   ├── Hero Section (Value Proposition)
+│   ├── Features Overview
+│   ├── Trust Indicators
+│   └── CTA Section
+├── Authentication
+│   ├── Login Form
+│   ├── Registration Form
+│   └── Social Login Options
+├── Onboarding Flow
+│   ├── Welcome Screen
+│   ├── Personality Assessment (15-20 questions)
+│   ├── Platform Tutorial
+│   └── Completion Badge
+├── Main Dashboard
+│   ├── Header (Navigation, Profile, Notifications)
+│   ├── Quick Actions Panel
+│   │   ├── Start New Session (Primary CTA)
+│   │   ├── Join Session (Code Input)
+│   │   └── Emergency Resources
+│   ├── Session Status Cards
+│   │   ├── Active Sessions
+│   │   ├── Pending Invitations
+│   │   └── Scheduled Follow-ups
+│   ├── Recent Activity Feed
+│   └── Growth Progress Widget
+├── Session Creation Flow
+│   ├── Conflict Description
+│   │   ├── Text Input Area
+│   │   ├── Voice Recording Button
+│   │   ├── File Upload Zone
+│   │   │   ├── Image/Screenshot Upload
+│   │   │   ├── Document Upload
+│   │   │   └── Video Message Recording
+│   │   └── AI Assistance Panel
+│   ├── AI Analysis Review
+│   │   ├── Conflict Summary Display
+│   │   ├── Key Issues Identified
+│   │   ├── Suggested Approach
+│   │   └── Edit/Refine Options
+│   ├── Session Configuration
+│   │   ├── Session Type Selection
+│   │   │   ├── Joint Session
+│   │   │   ├── Same-Device Session
+│   │   │   └── Individual Session
+│   │   ├── Participant Management
+│   │   ├── Privacy Settings
+│   │   └── Duration Preferences
+│   └── Invitation Management
+│       ├── Email Invitations
+│       ├── Session Code Generation
+│       └── Invitation Status Tracking
+├── Session Interface
+│   ├── Session Header
+│   │   ├── Phase Progress Indicator
+│   │   ├── Session Timer
+│   │   ├── Participant Status
+│   │   └── Emergency Exit
+│   ├── Main Content Area
+│   │   ├── AI Mediator Panel
+│   │   │   ├── AI Avatar
+│   │   │   ├── Current Guidance
+│   │   │   └── Phase Instructions
+│   │   ├── Message Thread
+│   │   │   ├── Participant Messages
+│   │   │   ├── AI Responses
+│   │   │   └── System Messages
+│   │   └── Multimedia Context Panel
+│   │       ├── Uploaded Files Viewer
+│   │       ├── Shared Screenshots
+│   │       └── Reference Documents
+│   ├── Input Area
+│   │   ├── Text Input (with AI suggestions)
+│   │   ├── Voice Recording Controls
+│   │   ├── File Attachment Button
+│   │   └── Send/Submit Button
+│   ├── Same-Device Controls (when applicable)
+│   │   ├── User Switching Interface
+│   │   │   ├── User 1 Button (Color-coded)
+│   │   │   ├── User 2 Button (Color-coded)
+│   │   │   └── Active Speaker Indicator
+│   │   ├── Tap-to-Talk Interface
+│   │   └── Turn Timer
+│   └── Sidebar (Desktop)
+│       ├── Session Goals
+│       ├── Emotional Climate Indicator
+│       ├── Progress Metrics
+│       └── Quick Actions
+├── Session History
+│   ├── Session List View
+│   │   ├── Session Cards
+│   │   │   ├── Date/Time
+│   │   │   ├── Participants
+│   │   │   ├── Status
+│   │   │   └── Quick Actions
+│   │   └── Filter/Search Options
+│   ├── Session Detail View
+│   │   ├── Session Summary
+│   │   ├── Message History
+│   │   ├── Attached Files
+│   │   ├── AI Analysis
+│   │   ├── Action Items
+│   │   └── Follow-up Options
+│   └── Session Analytics
+│       ├── Emotional Journey Chart
+│       ├── Participation Balance
+│       └── Resolution Progress
+└── Growth Dashboard
+    ├── Personal Insights Panel
+    │   ├── Communication Skills Radar
+    │   ├── Emotional Intelligence Metrics
+    │   └── Conflict Resolution Trends
+    ├── Achievement Gallery
+    │   ├── Earned Badges
+    │   ├── Milestone Celebrations
+    │   └── Progress Streaks
+    ├── Learning Resources
+    │   ├── Recommended Articles
+    │   ├── Interactive Exercises
+    │   └── Video Content
+    └── Goal Setting
+        ├── Personal Development Goals
+        ├── Skill Improvement Targets
+        └── Progress Tracking
+```
+
+### Detailed Component Wireframes
+
+#### 1. Multimedia Input Component
+```
+┌─────────────────────────────────────────┐
+│ File Upload & Context Enhancement       │
+├─────────────────────────────────────────┤
+│ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐        │
+│ │ 📷  │ │ 📄  │ │ 🎥  │ │ 🎵  │        │
+│ │Image│ │ Doc │ │Video│ │Audio│        │
+│ └─────┘ └─────┘ └─────┘ └─────┘        │
+├─────────────────────────────────────────┤
+│ Drag & Drop Zone                        │
+│ "Drop files here or click to browse"    │
+├─────────────────────────────────────────┤
+│ Uploaded Files:                         │
+│ ┌─────────────────────────────────────┐ │
+│ │ 📷 screenshot.png                   │ │
+│ │ AI Analysis: Shows frustrated       │ │
+│ │ expressions, cluttered workspace    │ │
+│ │ [View] [Remove]                     │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+#### 2. Same-Device Session Interface
+```
+┌─────────────────────────────────────────┐
+│ Session: Workplace Conflict Resolution  │
+│ Phase: Express (2/5) ⏱️ 15:30          │
+├─────────────────────────────────────────┤
+│ AI Mediator: "Let's hear from both     │
+│ perspectives. Sarah, would you like     │
+│ to share first?"                        │
+├─────────────────────────────────────────┤
+│ ┌─────────────┐ ┌─────────────────────┐ │
+│ │   USER 1    │ │     USER 2          │ │
+│ │   (Sarah)   │ │     (Mike)          │ │
+│ │   🟢 ACTIVE │ │   ⚪ WAITING       │ │
+│ └─────────────┘ └─────────────────────┘ │
+├─────────────────────────────────────────┤
+│ Message Input Area:                     │
+│ ┌─────────────────────────────────────┐ │
+│ │ Type your message here...           │ │
+│ └─────────────────────────────────────┘ │
+│ [🎤 Voice] [📎 Attach] [➤ Send]        │
+├─────────────────────────────────────────┤
+│ Context Files: 📄 project_timeline.pdf │
+│ AI Insight: "Timeline shows overlap    │
+│ in responsibilities"                    │
+└─────────────────────────────────────────┘
+```
+
+#### 3. Voice Recording Interface
+```
+┌─────────────────────────────────────────┐
+│ Voice Message Recording                 │
+├─────────────────────────────────────────┤
+│        ┌─────────────────┐              │
+│        │       🎤        │              │
+│        │   ●  REC        │              │
+│        │   00:15         │              │
+│        └─────────────────┘              │
+├─────────────────────────────────────────┤
+│ ████████████░░░░░░░░░░░░░░░░░░░░        │
+│ Audio Level                             │
+├─────────────────────────────────────────┤
+│ [⏹️ Stop] [⏸️ Pause] [🗑️ Delete]        │
+├─────────────────────────────────────────┤
+│ Transcription (Live):                   │
+│ "I feel like the project deadlines     │
+│ are unrealistic given our current..."   │
+└─────────────────────────────────────────┘
+```
+
+---
+
 ## UX/UI Design Specifications
 
 ### User Personas & Key Journeys
@@ -119,9 +328,12 @@
 ##### Conflict Description Interface
 - **Input Methods**:
   - Text input with guided prompts
-  - Voice input option (future enhancement)
+  - Voice input with real-time transcription
+  - File uploads (images, documents, screenshots)
+  - Video/audio message recording
   - Structured form with categories
 - **AI Assistance**: Real-time suggestions and clarifying questions
+- **Context Enhancement**: AI analysis of uploaded files for better understanding
 - **Privacy Controls**: Visibility settings for sensitive information
 
 ##### AI Problem Analysis Review
@@ -234,6 +446,13 @@ Font Sizes (Mobile-first):
    - Quality indicators
    - Fallback text alternatives
 
+5. **Multimedia Input Components**
+   - File upload with drag-and-drop
+   - Image/screenshot capture
+   - Video message recording
+   - Document viewer with AI analysis
+   - Media gallery for session context
+
 ### Accessibility & PWA Considerations
 
 #### Accessibility Requirements
@@ -271,10 +490,11 @@ Font Sizes (Mobile-first):
 - **File Storage**: AWS S3 or Cloudinary for audio files
 
 #### AI & Voice Services
-- **LLM**: Google Generative AI SDK (@google/generative-ai)
+- **LLM**: Google GenAI SDK (@google/genai)
 - **Voice Synthesis**: ElevenLabs API
 - **Speech-to-Text**: Web Speech API (primary) + Google Speech-to-Text (fallback)
 - **NLP**: Google Cloud Natural Language API (sentiment analysis)
+- **File Processing**: Support for images, documents, audio, and video analysis
 
 ### Core Architecture Components
 
@@ -297,6 +517,29 @@ interface SessionContext {
   emotionalStates: EmotionalState[]
   previousInteractions: Interaction[]
   personalityProfiles: PersonalityProfile[]
+  attachedFiles: MultimediaInput[]
+  contextualInsights: FileInsight[]
+}
+
+interface MultimediaInput {
+  id: string
+  type: 'image' | 'document' | 'video' | 'audio'
+  filename: string
+  mimeType: string
+  size: number
+  base64Data?: string
+  url?: string
+  uploadedAt: Date
+  uploadedBy: string
+  aiAnalysis?: string
+}
+
+interface FileInsight {
+  fileId: string
+  insight: string
+  relevance: 'high' | 'medium' | 'low'
+  category: 'evidence' | 'context' | 'emotion' | 'communication'
+  confidence: number
 }
 ```
 
@@ -347,11 +590,37 @@ model Session {
   currentPhase      SessionPhase?
   participants      SessionParticipant[]
   messages          SessionMessage[]
+  files             SessionFile[]
   aiAnalysis        Json?
   actionPlan        String?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   completedAt       DateTime?
+}
+
+model SessionFile {
+  id            String      @id @default(cuid())
+  sessionId     String
+  session       Session     @relation(fields: [sessionId], references: [id])
+  uploadedBy    String
+  uploader      User        @relation(fields: [uploadedBy], references: [id])
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  fileType      FileType
+  storageUrl    String
+  aiAnalysis    String?
+  insights      Json?
+  createdAt     DateTime    @default(now())
+}
+
+enum FileType {
+  IMAGE
+  DOCUMENT
+  VIDEO
+  AUDIO
+  SCREENSHOT
 }
 
 enum SessionType {
@@ -543,15 +812,17 @@ class ElevenLabsService {
 ### Google GenAI Decision Engine Implementation
 
 ```typescript
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 class ConflictResolutionAI {
-  private genAI: GoogleGenerativeAI
-  private model: any
+  private genAI: GoogleGenAI
+  private textModel: any
+  private visionModel: any
 
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenerativeAI(apiKey)
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' })
+    this.genAI = new GoogleGenAI(apiKey)
+    this.textModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+    this.visionModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro-vision' })
   }
 
   async analyzeConflict(description: string, userContext: UserContext): Promise<ConflictAnalysis> {
@@ -565,19 +836,95 @@ class ConflictResolutionAI {
 
   async generateMediationResponse(
     userInput: string,
-    sessionContext: SessionContext
+    sessionContext: SessionContext,
+    attachedFiles?: MultimediaInput[]
   ): Promise<MediationResponse> {
-    const prompt = this.buildMediationPrompt(userInput, sessionContext)
+    let prompt = this.buildMediationPrompt(userInput, sessionContext)
 
-    const result = await this.model.generateContent(prompt)
+    // Analyze attached files if present
+    if (attachedFiles && attachedFiles.length > 0) {
+      const fileAnalysis = await this.analyzeMultimediaFiles(attachedFiles)
+      prompt += `\n\nAdditional Context from Files: ${fileAnalysis}`
+    }
+
+    const result = await this.textModel.generateContent(prompt)
     const response = result.response.text()
 
     return {
       text: response,
       emotionalTone: await this.analyzeEmotionalTone(response),
       suggestedActions: await this.extractActions(response),
-      phaseRecommendation: this.assessPhaseTransition(sessionContext, response)
+      phaseRecommendation: this.assessPhaseTransition(sessionContext, response),
+      fileInsights: attachedFiles ? await this.extractFileInsights(attachedFiles) : undefined
     }
+  }
+
+  async analyzeMultimediaFiles(files: MultimediaInput[]): Promise<string> {
+    const analyses = await Promise.all(
+      files.map(async (file) => {
+        switch (file.type) {
+          case 'image':
+            return await this.analyzeImage(file)
+          case 'document':
+            return await this.analyzeDocument(file)
+          case 'video':
+            return await this.analyzeVideo(file)
+          case 'audio':
+            return await this.analyzeAudio(file)
+          default:
+            return `Unknown file type: ${file.type}`
+        }
+      })
+    )
+
+    return analyses.join('\n')
+  }
+
+  async analyzeImage(imageFile: MultimediaInput): Promise<string> {
+    const prompt = `
+      Analyze this image in the context of a conflict resolution session.
+      Look for:
+      - Emotional expressions or body language
+      - Environmental context that might affect the conflict
+      - Any visual evidence related to the dispute
+      - Communication patterns visible in the image
+
+      Provide insights that could help a mediator understand the situation better.
+    `
+
+    const result = await this.visionModel.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageFile.base64Data,
+          mimeType: imageFile.mimeType
+        }
+      }
+    ])
+
+    return result.response.text()
+  }
+
+  async analyzeDocument(documentFile: MultimediaInput): Promise<string> {
+    // Extract text from document first (using OCR or document parsing)
+    const extractedText = await this.extractTextFromDocument(documentFile)
+
+    const prompt = `
+      Analyze this document content in the context of a conflict resolution session:
+
+      Document Content: "${extractedText}"
+
+      Identify:
+      - Key facts or evidence related to the conflict
+      - Communication patterns or tone
+      - Important dates, agreements, or commitments
+      - Potential misunderstandings or miscommunications
+
+      Provide insights for mediation.
+    `
+
+    const result = await this.textModel.generateContent(prompt)
+    return result.response.text()
   }
 
   private buildConflictAnalysisPrompt(description: string, context: UserContext): string {
@@ -807,7 +1154,88 @@ class AIModelTester {
 
 ## Deployment Configuration
 
-### Docker Configuration
+### Unified Platform Deployment (Recommended)
+
+#### Option 1: Vercel (Recommended for MVP)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy with environment variables
+vercel --env DATABASE_URL=$DATABASE_URL \
+       --env GOOGLE_GENAI_API_KEY=$GOOGLE_GENAI_API_KEY \
+       --env ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY \
+       --env NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+```
+
+**Vercel Configuration (vercel.json):**
+```json
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "GOOGLE_GENAI_API_KEY": "@google-genai-key",
+    "ELEVENLABS_API_KEY": "@elevenlabs-key"
+  }
+}
+```
+
+#### Option 2: Railway (Great for Full-Stack)
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login and deploy
+railway login
+railway init
+railway up
+```
+
+**Railway Configuration:**
+```toml
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[variables]
+NODE_ENV = "production"
+PORT = "3000"
+```
+
+#### Option 3: Render (Simple and Reliable)
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: understand-me
+    env: node
+    plan: starter
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_GENAI_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+```
+
+### Docker Configuration (Optional)
 
 ```dockerfile
 FROM node:18-alpine AS base
@@ -843,7 +1271,55 @@ ENV HOSTNAME "0.0.0.0"
 CMD ["node", "server.js"]
 ```
 
-### Kubernetes Deployment
+### Database Options
+
+#### Option 1: Supabase (Recommended)
+```bash
+# Supabase provides PostgreSQL + Auth + Storage
+# Perfect for our multimedia file needs
+
+# Setup
+npm install @supabase/supabase-js
+```
+
+**Supabase Configuration:**
+```typescript
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+// File upload for multimedia
+export async function uploadFile(file: File, bucket: string) {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(`${Date.now()}-${file.name}`, file)
+
+  return { data, error }
+}
+```
+
+#### Option 2: PlanetScale + Cloudinary
+```bash
+# PlanetScale for database
+# Cloudinary for file storage
+
+npm install @planetscale/database cloudinary
+```
+
+#### Option 3: Neon + AWS S3
+```bash
+# Neon for PostgreSQL
+# AWS S3 for file storage
+
+npm install @neondatabase/serverless aws-sdk
+```
+
+### Kubernetes Deployment (Optional - Enterprise Scale)
+
+**Note: Only needed for enterprise deployments with high traffic. For most use cases, unified platforms like Vercel/Railway are sufficient.**
 
 ```yaml
 apiVersion: apps/v1
@@ -873,11 +1349,11 @@ spec:
             secretKeyRef:
               name: app-secrets
               key: database-url
-        - name: GOOGLE_AI_API_KEY
+        - name: GOOGLE_GENAI_API_KEY
           valueFrom:
             secretKeyRef:
               name: app-secrets
-              key: google-ai-key
+              key: google-genai-key
         - name: ELEVENLABS_API_KEY
           valueFrom:
             secretKeyRef:
@@ -890,12 +1366,6 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
 ```
 
 This comprehensive documentation provides everything needed to build the Understand.me platform, from detailed design specifications to complete technical implementation guides. The documentation is structured to support both immediate development needs and long-term platform evolution.
