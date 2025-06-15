@@ -40,6 +40,165 @@
 
 ---
 
+## Complete User Flow Diagram (Mermaid)
+
+### Interactive Flow Chart
+
+```mermaid
+flowchart TD
+    %% Discovery and Entry
+    A[User Discovers Platform] --> B[Sign Up/Login]
+    B --> C{New User?}
+
+    %% New User Onboarding
+    C -->|Yes| D[AI-Powered Onboarding]
+    D --> E[Enhanced Personality Assessment<br/>15-20 Questions<br/>Communication Style<br/>Values & Behaviors]
+    E --> F[Platform Tutorial]
+    F --> G[Main Dashboard]
+
+    %% Returning User
+    C -->|No| H[Returning User Dashboard]
+    H --> I{Choose Action}
+    I -->|New Session| G
+    I -->|View Previous Sessions| J[Session History]
+    I -->|Growth Tab| K[Personal Growth Dashboard]
+
+    %% Session History Access
+    J --> L{Action Choice}
+    L -->|View Only| LA[View Summaries & History]
+    L -->|Request Reopen| LB{Are You Host?}
+    LB -->|Yes| LC[Reopen Session Options]
+    LB -->|No| LD[Send Reopen Request to Host]
+    LC --> M[Resume/Restart Session]
+    LD --> LE[Request Sent]
+    LA --> G
+    LE --> G
+
+    %% Main Path Selection
+    G --> N{Choose Path}
+    N -->|Start Session| O[HOST: Describe Conflict<br/>📝 Text + 🎤 Voice + 📎 Files]
+    N -->|Join Session| P[PARTICIPANT: Enter Session Code]
+
+    %% Host Flow with Multimedia
+    O --> Q[AI Problem Analysis<br/>🤖 Analyzes Text, Images, Documents]
+    Q --> R[Review AI Summary<br/>📊 Conflict Insights + File Analysis]
+    R --> S[Configure Session Type]
+    S --> T{Session Type}
+
+    %% Session Type Selection
+    T -->|Joint Remote| U[Add Participants<br/>Send Invitations]
+    T -->|Joint Same-Device| V[Same-Device Setup<br/>👥 Shared Screen Interface]
+    T -->|Individual| W[Individual Session Start]
+
+    %% Invitation Process
+    U --> X[Send Multi-Channel Invitations<br/>📧 Email/📱 SMS/🔗 Links]
+    X --> Y[Track Invitation Status]
+    Y --> Z{All Accepted?}
+    Z -->|No| AA[Host Notified Immediately]
+    AA --> AB{Host Decision}
+    AB -->|Continue Solo| W
+    AB -->|Wait/Send Reminders| AC[Send Reminders]
+    AC --> Y
+    Z -->|Yes| AD[All Participants Ready]
+
+    %% Participant Flow
+    P --> AE[Receive Detailed Invitation<br/>📄 Context + Files Shared]
+    AE --> AF{Accept Invitation?}
+    AF -->|No| AG[Decline & Host Notified]
+    AF -->|Yes| AH[Provide Your Perspective<br/>📝 Text + 🎤 Voice + 📎 Files]
+    AH --> AI[Configure Privacy Settings]
+    AI --> AD
+
+    %% Pre-Session Preparation
+    AD --> AJ[AI Synthesizes All Inputs<br/>🤖 Text + Voice + File Analysis]
+    AJ --> AK[AI Dynamic Adaptation<br/>Based on Personalities<br/>& Conflict Type + Context Files]
+    AK --> AL[Establish Session Goals & Rules]
+    AL --> AM[All Parties Agree]
+
+    %% Same-Device Setup
+    V --> AN[User Identification<br/>🎨 Color/Avatar Selection<br/>Max 2-4 Users]
+    AN --> AO[Sequential Personality Assessment<br/>On Same Device]
+    AO --> AP[Device Sharing Interface<br/>👆 Tap-to-Talk Setup]
+    AP --> AJ
+
+    %% Individual Session
+    W --> AQ[Individual Session Start<br/>Independent Journey]
+    AQ --> AR[AI Role Adaptation<br/>🎯 Coaching Mode]
+    AR --> AS{Convert to Joint?<br/>If Other Users Involved}
+    AS -->|Yes & User Agrees| U
+    AS -->|No| AT[Modified 5-Phase Process<br/>Explore→Clarify→Strategize→Prepare]
+    AT --> AU[Personal Action Plan]
+    AU --> AV[Private Summary & Sign-off]
+
+    %% Main Mediation Session
+    AM --> AW[Five-Phase AI Mediation<br/>🏆 Achievement Badges Visible]
+    AW --> AX[Phase 1: Prepare<br/>🎯 Goal Setting]
+    AX --> AY[Phase 2: Express<br/>💬 Structured Sharing]
+    AY --> AZ{Same Device?}
+    AZ -->|Yes| BA[Tap-to-Talk Interface<br/>👆 Turn-Based Input<br/>🎨 Color-Coded Users]
+    AZ -->|No| BB[Individual Input<br/>💻 Separate Interfaces]
+    BA --> BC[Phase 3: Understand<br/>🤝 Perspective Exploration]
+    BB --> BC
+    BC --> BD[Phase 4: Resolve<br/>💡 Solution Building]
+    BD --> BE[Phase 5: Heal<br/>❤️ Relationship Repair]
+
+    %% Session Completion
+    BE --> BF[AI Generates Summary<br/>📋 Action Plan + File References]
+    BF --> BG[Participants Review<br/>✏️ Edit & Approve]
+    BG --> BH{Same Device?}
+    BH -->|Yes| BI[Sequential Sign-off<br/>✍️ Each User Approves]
+    BH -->|No| BJ[Individual Digital Sign-off<br/>🔐 Secure Confirmation]
+    BI --> BK[Session Complete<br/>🎉 Success Celebration]
+    BJ --> BK
+
+    %% Post-Session
+    BK --> BL[Session Evaluation<br/>⭐ Rate Experience]
+    BL --> BM{Schedule Follow-up?}
+    BM -->|Yes| BN[Schedule Check-in<br/>📅 Calendar Integration]
+    BM -->|No| BO[Update Growth Tab<br/>📈 Progress Tracking]
+    BN --> BP[Send Calendar Invites]
+    BP --> BO
+
+    %% Growth Tab Updates
+    BO --> CB[AI Updates Personal Insights<br/>🧠 Learning Analysis]
+    CB --> CC[Achievement Badges<br/>🏆 Milestone Rewards]
+    CC --> CD[Recommended Resources<br/>📚 Personalized Content]
+    CD --> CE[Future Conflict Prevention<br/>🔮 Predictive Insights]
+
+    %% Growth Tab Access
+    K --> CF[View Progress Dashboard<br/>📊 Analytics & Insights]
+    CF --> CG[Communication Insights<br/>💬 Pattern Analysis]
+    CG --> CH[Recommended Resources<br/>📖 Learning Materials]
+    CH --> CI[Long-term Progress Tracking<br/>📈 Skill Development]
+    CI --> CJ{Return to Main?}
+    CJ -->|Yes| G
+    CJ -->|No| CF
+
+    %% Return Paths
+    AV --> G
+    CE --> G
+    M --> AW
+    AG --> AA
+
+    %% Styling
+    classDef aiProcess fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef decision fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef process fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef user fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef multimedia fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    %% Apply styles
+    class D,E,Q,AJ,AK,AR,AW,AX,AY,BC,BD,BE,BF,CB,CC,CD,CE aiProcess
+    class C,I,L,N,T,Z,AB,AF,AS,AZ,BH,BM,CJ,LB decision
+    class O,R,S,U,V,W,X,Y,AH,AI,AL,AN,AO,AP,AT,AU,BA,BB,BG,BL,BN,BP,CF,CG,CH,CI,LC,LD,LA process
+    class BK,AV,M success
+    class A,B,G,H,P,K,J,AA,AC,AG,LE user
+    class Q,AJ,AK,O,AH multimedia
+```
+
+---
+
 ## UI Wireframe Map & Component Specifications
 
 ### Complete Wireframe Structure
@@ -471,37 +630,84 @@ Font Sizes (Mobile-first):
 
 ## Technical Architecture
 
-### Technology Stack
+### Serverless Technology Stack (Single App)
 
-#### Frontend
-- **Framework**: Next.js 14+ with TypeScript
+#### Frontend-Only Architecture
+- **Framework**: Next.js 14+ with TypeScript (Static Export + API Routes)
 - **UI Library**: React 18+ with Tailwind CSS
-- **State Management**: Zustand or Redux Toolkit
-- **PWA Features**: Workbox for service workers and caching
-- **Real-time**: Socket.io client for live sessions
-- **Voice**: Web Speech API + ElevenLabs integration
+- **State Management**: Zustand (lightweight, no server needed)
+- **PWA Features**: Workbox for service workers and offline caching
+- **Real-time**: WebRTC for peer-to-peer + Pusher/Ably for signaling
+- **Voice**: Web Speech API + ElevenLabs API (direct client calls)
 
-#### Backend
-- **Runtime**: Node.js with TypeScript
-- **Framework**: Next.js API routes or Express.js
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js or Auth0
-- **Real-time**: Socket.io server
-- **File Storage**: AWS S3 or Cloudinary for audio files
+#### Serverless Backend (API Routes Only)
+- **Runtime**: Next.js API Routes (Edge Runtime)
+- **Database**: Supabase (PostgreSQL + Auth + Storage + Real-time)
+- **Authentication**: Supabase Auth (built-in)
+- **Real-time**: Supabase Real-time subscriptions
+- **File Storage**: Supabase Storage (integrated)
 
-#### AI & Voice Services
-- **LLM**: Google GenAI SDK (@google/genai)
-- **Voice Synthesis**: ElevenLabs API
-- **Speech-to-Text**: Web Speech API (primary) + Google Speech-to-Text (fallback)
-- **NLP**: Google Cloud Natural Language API (sentiment analysis)
-- **File Processing**: Support for images, documents, audio, and video analysis
+#### External APIs (Direct Client Integration)
+- **LLM**: Google GenAI SDK (@google/genai) - Direct API calls
+- **Voice Synthesis**: ElevenLabs API - Direct client integration
+- **Speech-to-Text**: Web Speech API (browser native)
+- **File Processing**: Google GenAI Vision API for image/document analysis
+- **Email**: Resend API for notifications
+- **SMS**: Twilio API for invitations (optional)
 
-### Core Architecture Components
+### Serverless Architecture Components
 
-#### 1. AI Decision Engine
+#### 1. Client-Side AI Integration (No Server Required)
 
-##### Google GenAI Integration
+##### Direct Google GenAI Integration
 ```typescript
+// Client-side AI service - no server needed
+class ClientSideAI {
+  private genAI: GoogleGenAI
+  private apiKey: string
+
+  constructor() {
+    // API key from environment (client-side safe with domain restrictions)
+    this.apiKey = process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY!
+    this.genAI = new GoogleGenAI(this.apiKey)
+  }
+
+  // Direct API calls from client
+  async analyzeConflict(description: string, files?: File[]): Promise<ConflictAnalysis> {
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+
+    const prompt = `Analyze this conflict: ${description}`
+    const parts = [prompt]
+
+    // Add file analysis if files provided
+    if (files) {
+      for (const file of files) {
+        const base64 = await this.fileToBase64(file)
+        parts.push({
+          inlineData: {
+            data: base64,
+            mimeType: file.type
+          }
+        })
+      }
+    }
+
+    const result = await model.generateContent(parts)
+    return JSON.parse(result.response.text())
+  }
+
+  private async fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1]
+        resolve(base64)
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+}
+
 interface AIDecisionEngine {
   analyzeConflict(description: string, context: UserContext): Promise<ConflictAnalysis>
   generateMediationStrategy(participants: Participant[], conflictType: string): Promise<MediationPlan>
@@ -543,15 +749,77 @@ interface FileInsight {
 }
 ```
 
-#### 2. Voice Integration (ElevenLabs)
+#### 2. Client-Side Voice Integration (Direct API)
 
-##### Voice Service Architecture
+##### Serverless Voice Service
 ```typescript
+// Direct ElevenLabs integration from client
+class ClientSideVoice {
+  private apiKey: string
+  private baseUrl = 'https://api.elevenlabs.io/v1'
+
+  constructor() {
+    this.apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY!
+  }
+
+  async synthesizeSpeech(text: string, voiceId: string = 'pNInz6obpgDQGcFmaJgB'): Promise<ArrayBuffer> {
+    const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': this.apiKey
+      },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.5
+        }
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Voice synthesis failed')
+    }
+
+    return await response.arrayBuffer()
+  }
+
+  // Use browser's native Speech Recognition API
+  transcribeSpeech(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        reject(new Error('Speech recognition not supported'))
+        return
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      const recognition = new SpeechRecognition()
+
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = 'en-US'
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        resolve(transcript)
+      }
+
+      recognition.onerror = (event) => {
+        reject(new Error(`Speech recognition error: ${event.error}`))
+      }
+
+      recognition.start()
+    })
+  }
+}
+
 interface VoiceService {
-  synthesizeSpeech(text: string, voiceId: string): Promise<AudioBuffer>
-  transcribeSpeech(audioBlob: Blob): Promise<string>
+  synthesizeSpeech(text: string, voiceId: string): Promise<ArrayBuffer>
+  transcribeSpeech(): Promise<string>
   getAvailableVoices(): Promise<Voice[]>
-  cloneVoice(audioSamples: Blob[]): Promise<string>
 }
 
 interface VoiceConfig {
@@ -563,20 +831,35 @@ interface VoiceConfig {
 }
 ```
 
-#### 3. Database Schema (Prisma)
+#### 3. Supabase Database Schema (Serverless)
 
-```prisma
-model User {
-  id                String              @id @default(cuid())
-  email             String              @unique
-  username          String              @unique
-  name              String
-  personalityProfile PersonalityProfile?
-  hostedSessions    Session[]           @relation("HostedSessions")
-  participatedSessions SessionParticipant[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-}
+```sql
+-- Supabase SQL Schema (PostgreSQL)
+-- Authentication handled by Supabase Auth automatically
+
+-- Users table (extends Supabase auth.users)
+CREATE TABLE public.profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  username TEXT UNIQUE,
+  name TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Profiles are viewable by users who created them
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert their own profile." ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile." ON public.profiles
+  FOR UPDATE USING (auth.uid() = id);
 
 model Session {
   id                String              @id @default(cuid())
@@ -638,17 +921,80 @@ enum SessionPhase {
 }
 ```
 
-#### 4. Real-time Communication System
+#### 4. Serverless Real-time Communication
 
-##### WebSocket Architecture
+##### Supabase Real-time + WebRTC
 ```typescript
-interface SocketEvents {
+// Supabase real-time subscriptions (no server needed)
+import { createClient } from '@supabase/supabase-js'
+
+class ServerlessRealtime {
+  private supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  // Subscribe to session changes
+  subscribeToSession(sessionId: string, callback: (payload: any) => void) {
+    return this.supabase
+      .channel(`session:${sessionId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'session_messages',
+        filter: `session_id=eq.${sessionId}`
+      }, callback)
+      .subscribe()
+  }
+
+  // Send message (automatically triggers real-time updates)
+  async sendMessage(sessionId: string, message: SessionMessage) {
+    const { data, error } = await this.supabase
+      .from('session_messages')
+      .insert({
+        session_id: sessionId,
+        user_id: message.userId,
+        content: message.content,
+        type: message.type,
+        created_at: new Date().toISOString()
+      })
+
+    if (error) throw error
+    return data
+  }
+
+  // WebRTC for peer-to-peer voice (no server needed)
+  async initializeWebRTC(sessionId: string): Promise<RTCPeerConnection> {
+    const peerConnection = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    })
+
+    // Use Supabase for signaling
+    const signalingChannel = this.supabase.channel(`webrtc:${sessionId}`)
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        signalingChannel.send({
+          type: 'broadcast',
+          event: 'ice-candidate',
+          payload: { candidate: event.candidate }
+        })
+      }
+    }
+
+    return peerConnection
+  }
+}
+
+interface RealtimeEvents {
   'session:join': (sessionId: string, userId: string) => void
   'session:message': (message: SessionMessage) => void
   'session:phase-change': (newPhase: SessionPhase) => void
   'session:user-typing': (userId: string, isTyping: boolean) => void
   'session:emotional-state': (userId: string, state: EmotionalState) => void
-  'session:ai-processing': (isProcessing: boolean) => void
 }
 ```
 
@@ -671,36 +1017,59 @@ interface SocketEvents {
 
 ## Implementation Roadmap
 
-### Phase 1: Foundation (Weeks 1-8)
-- **Database Setup**: Prisma schema, migrations, seed data
-- **Authentication System**: NextAuth with email/password + social login
-- **Basic AI Integration**: Google GenAI for conflict analysis
-- **Frontend Core**: Next.js setup, design system, responsive layout
-- **API Foundation**: Core API routes and session management
+### Phase 1: Serverless Foundation (Weeks 1-4) ⚡
+- **Supabase Setup**: Database schema, authentication, storage (1 day)
+- **Next.js Setup**: Static export configuration, Edge API routes (1 day)
+- **Client-Side AI**: Direct Google GenAI integration (2 days)
+- **Basic UI**: Design system, responsive components (1 week)
+- **Authentication**: Supabase Auth integration (2 days)
 
-### Phase 2: Core Mediation (Weeks 9-16)
-- **Advanced AI Capabilities**: Personality assessment, emotion detection
-- **Five-Phase Mediation**: Complete mediation engine implementation
-- **Real-time Communication**: Socket.io for live sessions
-- **Session Management**: Multi-participant support, invitations, history
+**Week 1**: Supabase + Next.js setup, basic authentication
+**Week 2**: Client-side AI integration, conflict analysis
+**Week 3**: Core UI components, responsive design
+**Week 4**: Session creation, basic messaging
 
-### Phase 3: Voice Integration (Weeks 17-24)
-- **ElevenLabs Integration**: Text-to-speech and voice synthesis
-- **Audio Processing**: Real-time audio analysis and quality monitoring
-- **Voice UI**: Recording interface, playback controls, accessibility
-- **Speech Recognition**: Web Speech API integration with fallbacks
+### Phase 2: Core Features (Weeks 5-8) 🚀
+- **Real-time Messaging**: Supabase real-time subscriptions (3 days)
+- **Five-Phase Mediation**: AI-guided session flow (1 week)
+- **File Upload**: Multimedia support with AI analysis (3 days)
+- **Session Management**: Multi-participant, invitations (4 days)
 
-### Phase 4: Advanced Features (Weeks 25-32)
-- **Same-Device Sessions**: Tap-to-talk interface and user switching
-- **Growth & Analytics**: Personal insights, achievement system
-- **Advanced AI**: Cultural adaptation, personality matching
-- **Privacy & Security**: End-to-end encryption, consent management
+**Week 5**: Real-time messaging, live session updates
+**Week 6**: Five-phase mediation implementation
+**Week 7**: File upload, AI analysis of multimedia
+**Week 8**: Session invitations, participant management
 
-### Phase 5: Production & Scale (Weeks 33-40)
-- **Performance Optimization**: Caching, load balancing, database optimization
-- **Monitoring & Observability**: Error tracking, performance monitoring
-- **Production Deployment**: CI/CD pipeline, environment management
-- **Quality Assurance**: Comprehensive testing, load testing, security testing
+### Phase 3: Voice & Advanced Features (Weeks 9-12) 🎤
+- **Voice Integration**: ElevenLabs + Web Speech API (4 days)
+- **Same-Device Interface**: Tap-to-talk, user switching (1 week)
+- **WebRTC**: Peer-to-peer voice for live sessions (3 days)
+- **Advanced AI**: Emotion detection, personality analysis (4 days)
+
+**Week 9**: ElevenLabs integration, voice synthesis
+**Week 10**: Web Speech API, voice recording
+**Week 11**: Same-device interface, user switching
+**Week 12**: WebRTC voice, advanced AI features
+
+### Phase 4: Polish & Launch (Weeks 13-16) ✨
+- **Growth Dashboard**: Personal insights, achievement system (1 week)
+- **PWA Features**: Offline support, push notifications (3 days)
+- **Testing & QA**: Comprehensive testing, bug fixes (4 days)
+- **Production Deployment**: Vercel deployment, monitoring (2 days)
+
+**Week 13**: Growth dashboard, analytics
+**Week 14**: PWA features, offline support
+**Week 15**: Testing, bug fixes, optimization
+**Week 16**: Production deployment, launch preparation
+
+### Total Timeline: 16 Weeks (4 Months) 🎯
+
+**Serverless Benefits:**
+- ⚡ **Faster Development**: No server setup, direct API integration
+- 💰 **Lower Costs**: Pay-per-use, no server maintenance
+- 🔧 **Easier Maintenance**: Fewer moving parts, automatic scaling
+- 🚀 **Quick Deployment**: Single command deployment to Vercel
+- 📱 **Better Performance**: Edge functions, global CDN
 
 ---
 
@@ -737,6 +1106,218 @@ interface SocketEvents {
 - **Return Rate**: > 60% return within 30 days
 
 ---
+
+## Complete Serverless Implementation
+
+### Project Structure (Single App)
+```
+understand-me/
+├── components/           # React components
+│   ├── ui/              # Basic UI components
+│   ├── session/         # Session-specific components
+│   ├── voice/           # Voice interface components
+│   └── multimedia/      # File upload components
+├── lib/                 # Utility libraries
+│   ├── supabase.ts      # Supabase client
+│   ├── ai.ts           # Google GenAI client
+│   ├── voice.ts        # ElevenLabs client
+│   └── utils.ts        # Helper functions
+├── pages/              # Next.js pages
+│   ├── api/            # Minimal API routes (Edge functions)
+│   ├── auth/           # Authentication pages
+│   ├── session/        # Session pages
+│   └── dashboard/      # Dashboard pages
+├── hooks/              # Custom React hooks
+├── store/              # Zustand store
+├── types/              # TypeScript types
+└── public/             # Static assets
+```
+
+### Complete Session Management (Client-Side)
+```typescript
+// hooks/useSession.ts
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { ClientSideAI } from '@/lib/ai'
+import { ClientSideVoice } from '@/lib/voice'
+
+export function useSession(sessionId: string) {
+  const [session, setSession] = useState<Session | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const ai = new ClientSideAI()
+  const voice = new ClientSideVoice()
+
+  useEffect(() => {
+    // Load session data
+    loadSession()
+
+    // Subscribe to real-time updates
+    const subscription = supabase
+      .channel(`session:${sessionId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'session_messages',
+        filter: `session_id=eq.${sessionId}`
+      }, handleRealtimeMessage)
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [sessionId])
+
+  const loadSession = async () => {
+    try {
+      // Load session details
+      const { data: sessionData } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single()
+
+      // Load messages
+      const { data: messagesData } = await supabase
+        .from('session_messages')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true })
+
+      setSession(sessionData)
+      setMessages(messagesData || [])
+    } catch (error) {
+      console.error('Error loading session:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const sendMessage = async (content: string, files?: File[]) => {
+    try {
+      // Analyze files with AI if provided
+      let fileAnalysis = null
+      if (files && files.length > 0) {
+        fileAnalysis = await ai.analyzeFiles(files)
+      }
+
+      // Generate AI response
+      const aiResponse = await ai.generateMediationResponse(
+        content,
+        {
+          sessionId,
+          currentPhase: session?.current_phase || 'express',
+          participants: session?.participants || [],
+          previousMessages: messages.slice(-5)
+        },
+        files
+      )
+
+      // Save user message
+      await supabase.from('session_messages').insert({
+        session_id: sessionId,
+        user_id: supabase.auth.getUser().then(u => u.data.user?.id),
+        content,
+        type: 'user',
+        file_analysis: fileAnalysis,
+        created_at: new Date().toISOString()
+      })
+
+      // Save AI response
+      await supabase.from('session_messages').insert({
+        session_id: sessionId,
+        content: aiResponse.text,
+        type: 'ai',
+        emotional_tone: aiResponse.emotionalTone,
+        created_at: new Date().toISOString()
+      })
+
+      // Synthesize AI voice response
+      if (aiResponse.text) {
+        const audioBuffer = await voice.synthesizeSpeech(aiResponse.text)
+        playAudio(audioBuffer)
+      }
+
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
+  }
+
+  const handleRealtimeMessage = (payload: any) => {
+    if (payload.eventType === 'INSERT') {
+      setMessages(prev => [...prev, payload.new])
+    }
+  }
+
+  const playAudio = (audioBuffer: ArrayBuffer) => {
+    const audioContext = new AudioContext()
+    audioContext.decodeAudioData(audioBuffer).then(decodedData => {
+      const source = audioContext.createBufferSource()
+      source.buffer = decodedData
+      source.connect(audioContext.destination)
+      source.start()
+    })
+  }
+
+  return {
+    session,
+    messages,
+    isLoading,
+    sendMessage,
+    ai,
+    voice
+  }
+}
+```
+
+### Minimal API Routes (Edge Functions Only)
+```typescript
+// pages/api/session/create.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+export const config = {
+  runtime: 'edge'
+}
+
+export default async function handler(req: NextRequest) {
+  if (req.method !== 'POST') {
+    return new NextResponse('Method not allowed', { status: 405 })
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // Server-side key for admin operations
+  )
+
+  try {
+    const { title, description, hostId } = await req.json()
+
+    // Create session
+    const { data, error } = await supabase
+      .from('sessions')
+      .insert({
+        title,
+        description,
+        host_id: hostId,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({ session: data })
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to create session' },
+      { status: 500 }
+    )
+  }
+}
+```
 
 ## Detailed Implementation Examples
 
@@ -1154,36 +1735,50 @@ class AIModelTester {
 
 ## Deployment Configuration
 
-### Unified Platform Deployment (Recommended)
+### Serverless Deployment (Ultra-Lightweight)
 
-#### Option 1: Vercel (Recommended for MVP)
+#### Option 1: Vercel (Recommended - True Serverless)
 ```bash
 # Install Vercel CLI
 npm i -g vercel
 
-# Deploy with environment variables
-vercel --env DATABASE_URL=$DATABASE_URL \
-       --env GOOGLE_GENAI_API_KEY=$GOOGLE_GENAI_API_KEY \
-       --env ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY \
-       --env NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+# Deploy with minimal environment variables (most APIs called directly from client)
+vercel --env NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL \
+       --env NEXT_PUBLIC_SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+       --env NEXT_PUBLIC_GOOGLE_GENAI_API_KEY=$GOOGLE_GENAI_API_KEY \
+       --env NEXT_PUBLIC_ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
 ```
 
 **Vercel Configuration (vercel.json):**
 ```json
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "buildCommand": "npm run build && npm run export",
+  "outputDirectory": "out",
   "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30
+    "pages/api/**/*.ts": {
+      "runtime": "edge",
+      "maxDuration": 10
     }
   },
   "env": {
-    "DATABASE_URL": "@database-url",
-    "GOOGLE_GENAI_API_KEY": "@google-genai-key",
-    "ELEVENLABS_API_KEY": "@elevenlabs-key"
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "NEXT_PUBLIC_GOOGLE_GENAI_API_KEY": "@google-genai-key",
+    "NEXT_PUBLIC_ELEVENLABS_API_KEY": "@elevenlabs-key"
+  }
+}
+```
+
+**Package.json Scripts:**
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
+    "deploy": "npm run build && vercel --prod"
   }
 }
 ```
@@ -1271,33 +1866,69 @@ ENV HOSTNAME "0.0.0.0"
 CMD ["node", "server.js"]
 ```
 
-### Database Options
+### Complete Serverless Setup
 
-#### Option 1: Supabase (Recommended)
+#### Supabase Setup (All-in-One Backend)
 ```bash
-# Supabase provides PostgreSQL + Auth + Storage
-# Perfect for our multimedia file needs
-
-# Setup
+# Single dependency for entire backend
 npm install @supabase/supabase-js
+
+# Optional: Supabase CLI for local development
+npm install -g supabase
 ```
 
-**Supabase Configuration:**
+**Complete Supabase Configuration:**
 ```typescript
+// lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
-// File upload for multimedia
-export async function uploadFile(file: File, bucket: string) {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(`${Date.now()}-${file.name}`, file)
+// Authentication (built-in)
+export const auth = supabase.auth
 
-  return { data, error }
+// Database operations
+export const db = supabase.from
+
+// File storage
+export const storage = supabase.storage
+
+// Real-time subscriptions
+export const realtime = supabase.channel
+
+// Complete file upload with AI analysis
+export async function uploadAndAnalyzeFile(file: File, sessionId: string) {
+  // Upload to Supabase Storage
+  const fileName = `${sessionId}/${Date.now()}-${file.name}`
+  const { data: uploadData, error: uploadError } = await storage
+    .from('session-files')
+    .upload(fileName, file)
+
+  if (uploadError) throw uploadError
+
+  // Get public URL
+  const { data: { publicUrl } } = storage
+    .from('session-files')
+    .getPublicUrl(fileName)
+
+  // Analyze with Google GenAI (client-side)
+  const ai = new ClientSideAI()
+  const analysis = await ai.analyzeFile(file)
+
+  // Save metadata to database
+  const { data, error } = await db('session_files').insert({
+    session_id: sessionId,
+    filename: file.name,
+    file_url: publicUrl,
+    file_type: file.type,
+    ai_analysis: analysis,
+    created_at: new Date().toISOString()
+  })
+
+  return { data, error, publicUrl, analysis }
 }
 ```
 
