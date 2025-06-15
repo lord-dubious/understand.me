@@ -199,6 +199,167 @@ flowchart TD
 
 ---
 
+## Complete User Flow Diagram (Mermaid)
+
+### Interactive Flow Chart with Voice Agent & Multimedia Support
+
+```mermaid
+flowchart TD
+    %% Discovery and Entry
+    A[User Discovers Platform] --> B[Sign Up/Login]
+    B --> C{New User?}
+
+    %% New User Onboarding
+    C -->|Yes| D[AI-Powered Onboarding<br/>🎤 Voice Welcome]
+    D --> E[Enhanced Personality Assessment<br/>15-20 Questions<br/>🎤 Voice Guidance<br/>Communication Style & Values]
+    E --> F[Platform Tutorial<br/>🎤 Interactive Voice Guide]
+    F --> G[Main Dashboard]
+
+    %% Returning User
+    C -->|No| H[Returning User Dashboard<br/>🎤 Personalized Greeting]
+    H --> I{Choose Action}
+    I -->|New Session| G
+    I -->|View Previous Sessions| J[Session History]
+    I -->|Growth Tab| K[Personal Growth Dashboard]
+
+    %% Session History Access
+    J --> L{Action Choice}
+    L -->|View Only| LA[View Summaries & History]
+    L -->|Request Reopen| LB{Are You Host?}
+    LB -->|Yes| LC[Reopen Session Options]
+    LB -->|No| LD[Send Reopen Request to Host]
+    LC --> M[Resume/Restart Session]
+    LD --> LE[Request Sent]
+    LA --> G
+    LE --> G
+
+    %% Main Path Selection
+    G --> N{Choose Path}
+    N -->|Start Session| O[HOST: Describe Conflict<br/>📝 Text + 🎤 Voice + 📎 Files<br/>🤖 AI Voice Guidance]
+    N -->|Join Session| P[PARTICIPANT: Enter Session Code<br/>🎤 Voice Instructions]
+
+    %% Host Flow with Multimedia
+    O --> Q[AI Problem Analysis<br/>🤖 Analyzes Text, Images, Documents<br/>🎤 TTS Explanation of Analysis]
+    Q --> R[Review AI Summary<br/>📊 Conflict Insights + File Analysis<br/>🎤 Voice Confirmation Request]
+    R --> S[Configure Session Type<br/>🎤 Voice Options Explanation]
+    S --> T{Session Type}
+
+    %% Session Type Selection
+    T -->|Joint Remote| U[Add Participants<br/>Send Invitations<br/>🎤 Voice Guidance]
+    T -->|Joint Same-Device| V[Same-Device Setup<br/>👥 Shared Screen Interface<br/>🎤 Turn-Taking Instructions]
+    T -->|Individual| W[Individual Session Start<br/>🎤 Coaching Mode Voice]
+
+    %% Invitation Process
+    U --> X[Send Multi-Channel Invitations<br/>📧 Email/📱 SMS/🔗 Links]
+    X --> Y[Track Invitation Status<br/>🎤 Status Updates]
+    Y --> Z{All Accepted?}
+    Z -->|No| AA[Host Notified Immediately<br/>🎤 Voice Notification]
+    AA --> AB{Host Decision}
+    AB -->|Continue Solo| W
+    AB -->|Wait/Send Reminders| AC[Send Reminders<br/>🎤 Voice Prompts]
+    AC --> Y
+    Z -->|Yes| AD[All Participants Ready<br/>🎤 Ready Confirmation]
+
+    %% Participant Flow
+    P --> AE[Receive Detailed Invitation<br/>📄 Context + Files Shared<br/>🎤 Voice Explanation]
+    AE --> AF{Accept Invitation?}
+    AF -->|No| AG[Decline & Host Notified<br/>🎤 Polite Decline Message]
+    AF -->|Yes| AH[Provide Your Perspective<br/>📝 Text + 🎤 Voice + 📎 Files<br/>🤖 AI Voice Encouragement]
+    AH --> AI[Configure Privacy Settings<br/>🎤 Privacy Options Explained]
+    AI --> AD
+
+    %% Pre-Session Preparation
+    AD --> AJ[AI Synthesizes All Inputs<br/>🤖 Text + Voice + File Analysis<br/>🎤 TTS Summary]
+    AJ --> AK[AI Dynamic Adaptation<br/>Based on Personalities<br/>& Conflict Type + Context Files<br/>🎤 Approach Explanation]
+    AK --> AL[Establish Session Goals & Rules<br/>🎤 Voice Rule Reading]
+    AL --> AM[All Parties Agree<br/>🎤 Verbal Confirmation]
+
+    %% Same-Device Setup
+    V --> AN[User Identification<br/>🎨 Color/Avatar Selection<br/>Max 2-4 Users<br/>🎤 Setup Instructions]
+    AN --> AO[Sequential Personality Assessment<br/>On Same Device<br/>🎤 Individual Voice Guidance]
+    AO --> AP[Device Sharing Interface<br/>👆 Tap-to-Talk Setup<br/>🎤 Turn Instructions]
+    AP --> AJ
+
+    %% Individual Session
+    W --> AQ[Individual Session Start<br/>Independent Journey<br/>🎤 Coaching Voice Mode]
+    AQ --> AR[AI Role Adaptation<br/>🎯 Coaching Mode<br/>🎤 Supportive Voice Tone]
+    AR --> AS{Convert to Joint?<br/>If Other Users Involved}
+    AS -->|Yes & User Agrees| U
+    AS -->|No| AT[Modified 5-Phase Process<br/>Explore→Clarify→Strategize→Prepare<br/>🎤 Phase Voice Guidance]
+    AT --> AU[Personal Action Plan<br/>🎤 TTS Action Reading]
+    AU --> AV[Private Summary & Sign-off<br/>🎤 Completion Celebration]
+
+    %% Main Mediation Session with Voice & Files
+    AM --> AW[Five-Phase AI Mediation<br/>🏆 Achievement Badges Visible<br/>🎤 Continuous Voice Guidance]
+    AW --> AX[Phase 1: Prepare<br/>🎯 Goal Setting<br/>🎤 Phase Introduction]
+    AX --> AY[Phase 2: Express<br/>💬 Structured Sharing<br/>📎 File Context Available<br/>🎤 Turn Management]
+    AY --> AZ{Same Device?}
+    AZ -->|Yes| BA[Tap-to-Talk Interface<br/>👆 Turn-Based Input<br/>🎨 Color-Coded Users<br/>🎤 Voice Turn Prompts]
+    AZ -->|No| BB[Individual Input<br/>💻 Separate Interfaces<br/>🎤 Personal Voice Guidance]
+    BA --> BC[Phase 3: Understand<br/>🤝 Perspective Exploration<br/>📎 File Evidence Integration<br/>🎤 Empathy Voice Guidance]
+    BB --> BC
+    BC --> BD[Phase 4: Resolve<br/>💡 Solution Building<br/>📎 Reference Materials<br/>🎤 Solution Voice Encouragement]
+    BD --> BE[Phase 5: Heal<br/>❤️ Relationship Repair<br/>🎤 Healing Voice Support]
+
+    %% Session Completion with Voice
+    BE --> BF[AI Generates Summary<br/>📋 Action Plan + File References<br/>🎤 TTS Summary Reading]
+    BF --> BG[Participants Review<br/>✏️ Edit & Approve<br/>🎤 Review Voice Guidance]
+    BG --> BH{Same Device?}
+    BH -->|Yes| BI[Sequential Sign-off<br/>✍️ Each User Approves<br/>🎤 Individual Voice Confirmation]
+    BH -->|No| BJ[Individual Digital Sign-off<br/>🔐 Secure Confirmation<br/>🎤 Personal Voice Validation]
+    BI --> BK[Session Complete<br/>🎉 Success Celebration<br/>🎤 Achievement Voice Announcement]
+    BJ --> BK
+
+    %% Post-Session with Voice
+    BK --> BL[Session Evaluation<br/>⭐ Rate Experience<br/>🎤 Voice Feedback Request]
+    BL --> BM{Schedule Follow-up?}
+    BM -->|Yes| BN[Schedule Check-in<br/>📅 Calendar Integration<br/>🎤 Follow-up Voice Scheduling]
+    BM -->|No| BO[Update Growth Tab<br/>📈 Progress Tracking<br/>🎤 Progress Voice Update]
+    BN --> BP[Send Calendar Invites<br/>🎤 Voice Confirmation]
+    BP --> BO
+
+    %% Growth Tab Updates with Voice
+    BO --> CB[AI Updates Personal Insights<br/>🧠 Learning Analysis<br/>🎤 TTS Insights Reading]
+    CB --> CC[Achievement Badges<br/>🏆 Milestone Rewards<br/>🎤 Badge Voice Announcement]
+    CC --> CD[Recommended Resources<br/>📚 Personalized Content<br/>🎤 Resource Voice Introduction]
+    CD --> CE[Future Conflict Prevention<br/>🔮 Predictive Insights<br/>🎤 Prevention Voice Tips]
+
+    %% Growth Tab Access
+    K --> CF[View Progress Dashboard<br/>📊 Analytics & Insights<br/>🎤 Progress Voice Summary]
+    CF --> CG[Communication Insights<br/>💬 Pattern Analysis<br/>🎤 Insight Voice Explanation]
+    CG --> CH[Recommended Resources<br/>📖 Learning Materials<br/>🎤 Resource Voice Guide]
+    CH --> CI[Long-term Progress Tracking<br/>📈 Skill Development<br/>🎤 Development Voice Encouragement]
+    CI --> CJ{Return to Main?}
+    CJ -->|Yes| G
+    CJ -->|No| CF
+
+    %% Return Paths
+    AV --> G
+    CE --> G
+    M --> AW
+    AG --> AA
+
+    %% Styling
+    classDef aiProcess fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef decision fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef process fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#4caf50,stroke-width:3px
+    classDef user fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef multimedia fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef voice fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px
+
+    %% Apply styles
+    class D,E,Q,AJ,AK,AR,AW,AX,AY,BC,BD,BE,BF,CB,CC,CD,CE aiProcess
+    class C,I,L,N,T,Z,AB,AF,AS,AZ,BH,BM,CJ,LB decision
+    class O,R,S,U,V,W,X,Y,AH,AI,AL,AN,AO,AP,AT,AU,BA,BB,BG,BL,BN,BP,CF,CG,CH,CI,LC,LD,LA process
+    class BK,AV,M success
+    class A,B,G,H,P,K,J,AA,AC,AG,LE user
+    class Q,AJ,AK,O,AH,BF multimedia
+    class D,E,F,H,O,P,Q,R,S,U,V,W,AE,AH,AI,AJ,AK,AL,AM,AN,AO,AP,AQ,AR,AT,AU,AW,AX,AY,BA,BB,BC,BD,BE,BF,BG,BI,BJ,BK,BL,BN,BP,BO,CB,CC,CD,CE,CF,CG,CH,CI voice
+```
+
+---
+
 ## UI Wireframe Map & Component Specifications
 
 ### Complete Wireframe Structure
