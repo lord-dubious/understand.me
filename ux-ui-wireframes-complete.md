@@ -1,23 +1,687 @@
 # Complete UX/UI Wireframes & Voice Agent Integration
 
 ## Overview
-This document provides detailed wireframes that exactly match the Mermaid flow diagram, with comprehensive voice agent guidance and multimedia context integration throughout the user journey.
+This document provides detailed, clear wireframes that exactly match the Mermaid flow diagram, with comprehensive voice agent guidance and multimedia context integration throughout the user journey.
+
+## 🎯 Navigation Guide
+
+### Quick Reference
+- [🎤 Conversational Personality Assessment](#conversational-personality-assessment)
+- [📱 Core User Interface Wireframes](#core-user-interface-wireframes)
+- [🔄 Flow Diagrams & Visual Maps](#flow-diagrams--visual-maps)
+- [🎵 Voice Agent Integration](#voice-agent-integration-principles)
+- [📎 Multimedia Context Features](#multimedia-context-integration)
 
 ## Voice Agent Integration Principles
 
 ### AI Voice Agent Characteristics
-- **Personality**: Calm, empathetic, professional mediator
-- **Voice**: ElevenLabs synthesis with emotional adaptation
-- **Guidance Style**: Supportive, non-judgmental, solution-focused
-- **Response Pattern**: Listen → Acknowledge → Guide → Encourage
+- **Personality**: Warm, empathetic, professional mediator named "Alex"
+- **Voice**: ElevenLabs synthesis with real-time emotional adaptation
+- **Conversation Style**: Natural, flowing dialogue (not Q&A format)
+- **Assessment Method**: Conversational analysis during natural discussion
+- **Response Pattern**: Listen → Understand → Reflect → Guide
 
 ### Text-to-Speech Implementation
-- **Trigger**: Every AI response is automatically spoken
-- **Voice Settings**: Adaptive based on emotional context
-- **User Control**: Volume, speed, voice selection, mute option
-- **Fallback**: Text display always available
+- **Trigger**: Every AI response is automatically spoken with natural pauses
+- **Voice Settings**: Dynamic adaptation based on user's emotional state
+- **Conversation Flow**: Seamless back-and-forth like talking to a friend
+- **User Control**: Volume, speed, voice selection, pause/resume
+- **Fallback**: Text display always available with conversation history
 
-## Complete User Flow Wireframes
+## 🎤 Conversational Personality Assessment
+
+### Natural Conversation Flow (Replaces Traditional Q&A)
+
+Instead of formal questionnaires, users engage in a natural 10-15 minute conversation with Alex (the AI mediator) that feels like talking to an understanding friend.
+
+#### Conversation Structure
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              🎤 Conversational Assessment                   │
+│                "Getting to Know You"                       │
+├─────────────────────────────────────────────────────────────┤
+│  👋 Alex: "Hi there! I'm Alex, your AI mediator. I'm here │
+│      to help you navigate conflicts with understanding     │
+│      and care. Before we dive in, I'd love to get to      │
+│      know you a bit. What brings you here today?"         │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 🎤 User Response Area                               │   │
+│  │ ┌─────────────────────────────────────────────────┐ │   │
+│  │ │ [User speaks or types their response]           │ │   │
+│  │ │ "I've been having some issues with my          │ │   │
+│  │ │ coworker and I'm not sure how to handle it..."  │ │   │
+│  │ └─────────────────────────────────────────────────┘ │   │
+│  │                                                     │   │
+│  │ ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
+│  │ │ 🎤 Speak    │  │ ⌨️ Type     │  │ 🔄 Restart  │  │   │
+│  │ └─────────────┘  └─────────────┘  └─────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  🤖 Alex: "That sounds challenging. Workplace dynamics     │
+│      can be really tricky to navigate. Tell me, when       │
+│      conflicts come up in your life, what's your first     │
+│      instinct? Do you tend to address things head-on,      │
+│      or do you prefer to step back and think first?"       │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🧠 AI Analysis (Hidden)                │   │
+│  │  • Communication style: Reflective, seeks help     │   │
+│  │  • Emotional state: Slightly anxious, uncertain    │   │
+│  │  • Conflict approach: Avoidant tendencies          │   │
+│  │  • Values: Harmony, professional relationships     │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Progress: ████░░░░░░ 40% Complete                         │
+│  🔊 Voice: Natural, warm, slightly slower pace             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Conversation Topics & Natural Assessment Points
+
+**1. Opening & Context (2-3 minutes)**
+```
+Alex: "What brings you here today?"
+→ Assesses: Initial emotional state, communication openness, problem awareness
+
+Alex: "That sounds like it's been weighing on you. How long has this been going on?"
+→ Assesses: Temporal perspective, patience levels, stress tolerance
+```
+
+**2. Conflict Style Exploration (3-4 minutes)**
+```
+Alex: "When disagreements happen, what feels most natural to you?"
+→ Assesses: Conflict approach (direct, avoidant, collaborative)
+
+Alex: "Can you think of a time when you handled a disagreement really well? What made it work?"
+→ Assesses: Self-awareness, learning ability, positive conflict experiences
+```
+
+**3. Communication Preferences (2-3 minutes)**
+```
+Alex: "Some people like to talk things through immediately, others need time to process. What works best for you?"
+→ Assesses: Processing style, communication timing preferences
+
+Alex: "When someone disagrees with you, what helps you feel heard and understood?"
+→ Assesses: Validation needs, empathy requirements
+```
+
+**4. Values & Motivations (2-3 minutes)**
+```
+Alex: "What matters most to you in your relationships - whether personal or professional?"
+→ Assesses: Core values, relationship priorities
+
+Alex: "When you imagine the ideal resolution to a conflict, what does that look like?"
+→ Assesses: Resolution goals, compromise willingness
+```
+
+**5. Emotional Processing (2-3 minutes)**
+```
+Alex: "How do you typically handle stress or strong emotions?"
+→ Assesses: Emotional regulation, coping mechanisms
+
+Alex: "Do you find it easier to express feelings in the moment, or do you prefer to process them privately first?"
+→ Assesses: Emotional expression style, introversion/extroversion
+```
+
+#### Real-Time Analysis Interface (For Development/Testing)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              🔬 Live Personality Analysis                   │
+│                  (Hidden from User)                        │
+├─────────────────────────────────────────────────────────────┤
+│  📊 Communication Style: Diplomatic (78% confidence)       │
+│  🎯 Conflict Approach: Collaborative-Avoidant (82%)        │
+│  💭 Processing Style: Reflective (85%)                     │
+│  ❤️ Emotional Expression: Moderate-Internal (76%)          │
+│  🤝 Relationship Values: Harmony-focused (91%)             │
+│                                                             │
+│  🎤 Voice Analysis:                                        │
+│  • Tone: Slightly hesitant, seeking reassurance            │
+│  • Pace: Measured, thoughtful pauses                       │
+│  • Emotion: Mild anxiety, hopeful undertone                │
+│                                                             │
+│  📝 Language Patterns:                                     │
+│  • Uses qualifying language ("I think", "maybe")           │
+│  • Seeks validation ("Does that make sense?")              │
+│  • Focuses on others' feelings                             │
+│                                                             │
+│  🎯 Recommended Mediation Approach:                        │
+│  • Start with validation and reassurance                   │
+│  • Allow processing time between phases                    │
+│  • Focus on collaborative solutions                        │
+│  • Emphasize relationship preservation                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Conversation Completion & Transition
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              ✅ Assessment Complete                         │
+├─────────────────────────────────────────────────────────────┤
+│  🎤 Alex: "Thank you for sharing so openly with me. I feel │
+│      like I have a much better understanding of how you    │
+│      approach relationships and handle challenges.         │
+│                                                             │
+│      Based on our conversation, I can see that you value   │
+│      harmony and thoughtful communication. You tend to     │
+│      think things through carefully before acting, which   │
+│      is a real strength in conflict resolution.            │
+│                                                             │
+│      I'm going to tailor my guidance style to work best    │
+│      with your natural approach. Ready to dive into        │
+│      helping you with that workplace situation?"           │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🎯 Your Profile Summary                │   │
+│  │                                                     │   │
+│  │  Communication Style: Thoughtful Diplomat          │   │
+│  │  Conflict Approach: Collaborative Problem-Solver   │   │
+│  │  Strength: Considers all perspectives              │   │
+│  │  Growth Area: Speaking up for your needs           │   │
+│  │                                                     │   │
+│  │  🎤 My Voice Adaptation:                           │   │
+│  │  • Slower, more reassuring pace                    │   │
+│  │  • Extra validation and encouragement              │   │
+│  │  • Clear step-by-step guidance                     │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐                         │
+│  │ 🚀 Let's Go │  │ 📝 Review   │                         │
+│  │             │  │   Profile   │                         │
+│  └─────────────┘  └─────────────┘                         │
+│                                                             │
+│  🔊 Voice: Warm, encouraging, slightly excited             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Technical Implementation for Conversational Assessment
+
+#### AI Conversation Manager
+```typescript
+class ConversationalAssessment {
+  private conversation: ConversationTurn[] = []
+  private analysis: PersonalityAnalysis = {}
+  private currentTopic: AssessmentTopic = 'opening'
+
+  async processUserResponse(input: string, audioData?: Blob): Promise<AIResponse> {
+    // Analyze user input for personality indicators
+    const analysis = await this.analyzeResponse(input, audioData)
+
+    // Update personality profile
+    this.updatePersonalityProfile(analysis)
+
+    // Generate next conversation turn
+    const nextResponse = await this.generateNextTurn()
+
+    // Adapt voice based on user's style
+    const voiceSettings = this.adaptVoiceToUser()
+
+    return {
+      text: nextResponse.text,
+      voiceSettings,
+      personalityUpdate: this.analysis,
+      isComplete: this.isAssessmentComplete()
+    }
+  }
+
+  private async analyzeResponse(input: string, audio?: Blob): Promise<ResponseAnalysis> {
+    // Multi-modal analysis
+    const textAnalysis = await this.analyzeTextContent(input)
+    const voiceAnalysis = audio ? await this.analyzeVoicePatterns(audio) : null
+
+    return {
+      communicationStyle: textAnalysis.style,
+      emotionalState: voiceAnalysis?.emotion || textAnalysis.emotion,
+      conflictApproach: this.inferConflictStyle(input),
+      values: this.extractValues(input),
+      confidence: this.calculateConfidence(textAnalysis, voiceAnalysis)
+    }
+  }
+}
+```
+
+## 🔄 Flow Diagrams & Visual Maps
+
+### Main User Journey Overview
+
+```mermaid
+graph TD
+    A[🏠 Landing Page] --> B[🔐 Authentication]
+    B --> C{New User?}
+    C -->|Yes| D[🎤 Conversational Assessment]
+    C -->|No| E[📊 Dashboard]
+    D --> F[📚 Interactive Tutorial]
+    F --> E
+    E --> G{User Action}
+    G -->|Start Session| H[📝 Describe Conflict]
+    G -->|Join Session| I[🔗 Enter Code]
+    G -->|View History| J[📋 Session History]
+    H --> K[🤖 AI Analysis]
+    K --> L[⚙️ Configure Session]
+    L --> M[🎯 Live Mediation]
+    I --> M
+    M --> N[✅ Session Complete]
+    N --> O[📈 Growth Update]
+    O --> E
+```
+
+### Session Flow Detail
+
+```mermaid
+graph LR
+    A[🎯 Prepare] --> B[💬 Express]
+    B --> C[🤝 Understand]
+    C --> D[💡 Resolve]
+    D --> E[❤️ Heal]
+
+    subgraph "Voice Guidance"
+        F[🎤 Phase Introduction]
+        G[🎤 Turn Management]
+        H[🎤 Progress Updates]
+    end
+
+    subgraph "Multimedia Context"
+        I[📎 File Upload]
+        J[🤖 AI Analysis]
+        K[💡 Context Integration]
+    end
+```
+
+### Same-Device Interface Flow
+
+```mermaid
+graph TD
+    A[👥 User Setup] --> B[🎨 Color Assignment]
+    B --> C[👆 Tap-to-Talk Training]
+    C --> D[🎤 Voice Test]
+    D --> E[🚀 Session Start]
+    E --> F{Active Speaker}
+    F -->|User 1| G[🔵 Blue Interface]
+    F -->|User 2| H[🟢 Green Interface]
+    G --> I[🎤 Voice Input]
+    H --> I
+    I --> J[🤖 AI Response]
+    J --> K[🔄 Switch Users]
+    K --> F
+```
+
+## 📱 Core User Interface Wireframes
+
+### 1. Enhanced Landing Page
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    🏠 UNDERSTAND.ME                        │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │                 🎯 Hero Section                     │   │
+│  │                                                     │   │
+│  │  "Transform Conflicts into Understanding"          │   │
+│  │  "with AI-Guided Voice Conversations"              │   │
+│  │                                                     │   │
+│  │  🎤 "Hi! I'm Alex, your AI mediator. I help       │   │
+│  │      people work through conflicts with empathy    │   │
+│  │      and understanding. Ready to get started?"     │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────┐          │   │
+│  │  │ 🚀 Start Free   │  │ 🎤 Hear Alex    │          │   │
+│  │  │    Session      │  │    Speak        │          │   │
+│  │  └─────────────────┘  └─────────────────┘          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │                🌟 Key Features                      │   │
+│  │                                                     │   │
+│  │  🎤 Natural Voice Conversations                     │   │
+│  │  🤖 AI-Powered Conflict Analysis                    │   │
+│  │  📎 Context-Aware File Integration                  │   │
+│  │  👥 Same-Device & Remote Sessions                   │   │
+│  │  📈 Personal Growth Tracking                        │   │
+│  │  🔒 Private & Secure                               │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              💬 User Testimonials                   │   │
+│  │                                                     │   │
+│  │  "Alex helped us work through our biggest          │   │
+│  │   disagreement in just one session. The voice      │   │
+│  │   guidance made it feel like having a real         │   │
+│  │   mediator in the room." - Sarah & Mike            │   │
+│  │                                                     │   │
+│  │  ⭐⭐⭐⭐⭐ 4.9/5 from 10,000+ sessions             │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────┐                                       │
+│  │ 🔐 Get Started  │                                       │
+│  └─────────────────┘                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 2. Streamlined Authentication
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  🔐 Welcome to Understand.me               │
+├─────────────────────────────────────────────────────────────┤
+│  🎤 Alex: "Welcome! I'm excited to meet you. Let's get     │
+│      you set up so we can start our conversation."         │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │                Quick Sign Up                        │   │
+│  │                                                     │   │
+│  │  📧 Email: ________________________________         │   │
+│  │  👤 Name: _________________________________         │   │
+│  │  🔒 Password: _____________________________         │   │
+│  │                                                     │   │
+│  │  ☑️ I agree to Terms & Privacy Policy              │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐                              │   │
+│  │  │ 🚀 Start My     │                              │   │
+│  │  │   Conversation  │                              │   │
+│  │  └─────────────────┘                              │   │
+│  │                                                     │   │
+│  │  ────────── OR ──────────                          │   │
+│  │                                                     │   │
+│  │  ┌─────────────┐  ┌─────────────┐                 │   │
+│  │  │ 🔵 Google   │  │ 🍎 Apple    │                 │   │
+│  │  └─────────────┘  └─────────────┘                 │   │
+│  │                                                     │   │
+│  │  Already have an account? 🔑 Sign In               │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  🔊 Voice: Warm, welcoming, slightly excited               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 3. Conversational Assessment Interface (Improved)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              🎤 Getting to Know You - Alex                  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │                🤖 Alex (AI Mediator)                │   │
+│  │                                                     │   │
+│  │  [Animated avatar with gentle expressions]         │   │
+│  │                                                     │   │
+│  │  "Hi Sarah! I'm so glad you're here. I'd love to   │   │
+│  │  get to know you a bit before we dive into helping │   │
+│  │  with conflicts. Think of this as a friendly chat  │   │
+│  │  with someone who really wants to understand you.  │   │
+│  │                                                     │   │
+│  │  What brings you to Understand.me today?"          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              💬 Your Response                       │   │
+│  │                                                     │   │
+│  │  ┌─────────────────────────────────────────────────┐ │   │
+│  │  │ 🎤 Tap to speak or type your response...       │ │   │
+│  │  │                                                 │ │   │
+│  │  │ [Live transcription appears here as you speak] │ │   │
+│  │  │                                                 │ │   │
+│  │  └─────────────────────────────────────────────────┘ │   │
+│  │                                                     │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
+│  │  │ 🎤 Hold to  │  │ ⌨️ Type     │  │ 🔄 Start   │  │   │
+│  │  │    Speak    │  │   Instead   │  │    Over     │  │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              📊 Conversation Progress               │   │
+│  │                                                     │   │
+│  │  Topics Covered: ████████░░ 80%                    │   │
+│  │                                                     │   │
+│  │  ✅ Your background & current situation            │   │
+│  │  ✅ How you handle disagreements                   │   │
+│  │  ✅ Communication preferences                      │   │
+│  │  🔄 Values & relationship priorities               │   │
+│  │  ⏳ Emotional processing style                     │   │
+│  │                                                     │   │
+│  │  Estimated time remaining: ~3 minutes              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🎯 Conversation Tips                   │   │
+│  │                                                     │   │
+│  │  💡 Speak naturally - there are no wrong answers   │   │
+│  │  🎤 Alex adapts to your communication style        │   │
+│  │  ⏸️ Take breaks anytime you need                   │   │
+│  │  🔒 Everything is private and secure               │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  🔊 Voice: Natural conversation pace, warm and curious     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 4. Intelligent Dashboard
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  👤 Sarah Johnson    🔔 2    ⚙️ Settings    🚪 Logout      │
+├─────────────────────────────────────────────────────────────┤
+│  🎤 Alex: "Welcome back, Sarah! I can see you've been      │
+│      making great progress. How are you feeling today?"    │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🚀 Quick Actions                       │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────┐          │   │
+│  │  │ 🎯 New Session  │  │ 🔗 Join Session │          │   │
+│  │  │                 │  │                 │          │   │
+│  │  │ Start fresh     │  │ Enter code      │          │   │
+│  │  │ conflict        │  │ to join         │          │   │
+│  │  │ resolution      │  │ existing        │          │   │
+│  │  └─────────────────┘  └─────────────────┘          │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────┐          │   │
+│  │  │ 📚 My Sessions  │  │ 📈 Growth Hub   │          │   │
+│  │  │                 │  │                 │          │   │
+│  │  │ View history    │  │ Track progress  │          │   │
+│  │  │ and insights    │  │ and insights    │          │   │
+│  │  └─────────────────┘  └─────────────────┘          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              📊 Your Progress Today                 │   │
+│  │                                                     │   │
+│  │  🎯 Communication Style: Thoughtful Diplomat       │   │
+│  │  📈 Sessions Completed: 3 this month               │   │
+│  │  🏆 Latest Achievement: "Active Listener" badge    │   │
+│  │  💡 Growth Focus: Speaking up for your needs       │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐                              │   │
+│  │  │ 📊 View Full    │                              │   │
+│  │  │    Analytics    │                              │   │
+│  │  └─────────────────┘                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🔄 Active & Recent                     │   │
+│  │                                                     │   │
+│  │  📅 Team Meeting Conflict - In Progress            │   │
+│  │  👥 You & Mike • Phase: Understand                 │   │
+│  │  ⏱️ Started 2 hours ago                            │   │
+│  │  ┌─────────────┐  ┌─────────────┐                 │   │
+│  │  │ 🔄 Resume   │  │ 👁️ Review   │                 │   │
+│  │  └─────────────┘  └─────────────┘                 │   │
+│  │                                                     │   │
+│  │  📅 Family Discussion - Completed ✅               │   │
+│  │  👥 You & Mom • Resolved yesterday                 │   │
+│  │  💡 "Great progress on listening skills!"          │   │
+│  │  ┌─────────────┐                                  │   │
+│  │  │ 📋 View     │                                  │   │
+│  │  │   Summary   │                                  │   │
+│  │  └─────────────┘                                  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              💡 Alex's Suggestions                  │   │
+│  │                                                     │   │
+│  │  🎤 "Based on your recent sessions, I notice       │   │
+│  │      you're getting better at understanding        │   │
+│  │      others' perspectives. Ready to work on        │   │
+│  │      expressing your own needs more clearly?"      │   │
+│  │                                                     │   │
+│  │  ┌─────────────────┐  ┌─────────────────┐          │   │
+│  │  │ 🎯 Practice     │  │ 📚 Learn More   │          │   │
+│  │  │   Session       │  │   About This    │          │   │
+│  │  └─────────────────┘  └─────────────────┘          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  🔊 Voice: Encouraging, personalized, celebrates progress  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 5. Enhanced Conflict Description Interface
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              📝 Tell Alex About Your Situation              │
+├─────────────────────────────────────────────────────────────┤
+│  🎤 Alex: "I'm here to listen and understand. Take your    │
+│      time and share what's happening. You can speak        │
+│      naturally, upload any relevant files, or type -       │
+│      whatever feels most comfortable for you."             │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              💬 Share Your Story                    │   │
+│  │                                                     │   │
+│  │  ┌─────────────────────────────────────────────────┐ │   │
+│  │  │ 🎤 Speak or type about your situation...       │ │   │
+│  │  │                                                 │ │   │
+│  │  │ [Live transcription and text input area]       │ │   │
+│  │  │                                                 │ │   │
+│  │  │ "I've been having ongoing issues with my       │ │   │
+│  │  │ coworker Mike about project deadlines. It      │ │   │
+│  │  │ started three weeks ago when..."                │ │   │
+│  │  └─────────────────────────────────────────────────┘ │   │
+│  │                                                     │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │   │
+│  │  │ 🎤 Voice    │  │ ⌨️ Type     │  │ 🔄 Clear   │  │   │
+│  │  │   Input     │  │   Instead   │  │   & Start  │  │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              📎 Add Context (Optional)              │   │
+│  │                                                     │   │
+│  │  Drag & drop or click to add supporting materials  │   │
+│  │                                                     │   │
+│  │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐          │   │
+│  │  │ 📷  │ │ 📄  │ │ 📧  │ │ 🎥  │ │ 🎵  │          │   │
+│  │  │Photo│ │ Doc │ │Email│ │Video│ │Audio│          │   │
+│  │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘          │   │
+│  │                                                     │   │
+│  │  📷 meeting_photo.jpg ✅ Uploaded                  │   │
+│  │  🤖 "I can see tension in the body language.       │   │
+│  │      This helps me understand the dynamics."       │   │
+│  │                                                     │   │
+│  │  📧 email_thread.pdf ✅ Uploaded                   │   │
+│  │  🤖 "The email escalation pattern shows the        │   │
+│  │      conflict building over 3 weeks."              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🎯 Alex's Real-Time Insights           │   │
+│  │                                                     │   │
+│  │  🎤 "I can hear this has been really frustrating   │   │
+│  │      for you. The photos and emails help me see    │   │
+│  │      how this built up over time. It sounds like   │   │
+│  │      both you and Mike care about the project's    │   │
+│  │      success - that's a great foundation to        │   │
+│  │      build on."                                     │   │
+│  │                                                     │   │
+│  │  💡 Detected: Workplace conflict, communication    │   │
+│  │      breakdown, shared goals                       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────┐                                           │
+│  │ ➡️ Continue │                                           │
+│  │   with Alex │                                           │
+│  └─────────────┘                                           │
+│                                                             │
+│  🔊 Voice: Empathetic, patient, encouraging                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 6. AI Analysis & Understanding Confirmation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              🤖 Alex's Understanding & Analysis             │
+├─────────────────────────────────────────────────────────────┤
+│  🎤 Alex: "Thank you for sharing so openly. Let me tell    │
+│      you what I understand about your situation, and       │
+│      please let me know if I've got anything wrong."       │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              📊 What I See                          │   │
+│  │                                                     │   │
+│  │  🎯 Conflict Type: Workplace Communication          │   │
+│  │  📈 Intensity Level: Medium (6/10)                 │   │
+│  │  ⏱️ Duration: 3 weeks and escalating               │   │
+│  │  👥 People Involved: You and Mike                  │   │
+│  │                                                     │   │
+│  │  🔍 Core Issues I've Identified:                   │   │
+│  │  • Different approaches to deadline management     │   │
+│  │  • Lack of clear communication about expectations  │   │
+│  │  • Stress from external project pressures          │   │
+│  │  • Both parties feeling unheard                    │   │
+│  │                                                     │   │
+│  │  💪 Strengths I Notice:                            │   │
+│  │  • Both care deeply about project success          │   │
+│  │  • History of good collaboration                   │   │
+│  │  • You're seeking resolution (shows maturity)      │   │
+│  │  • Willingness to examine your own role            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              📎 Evidence from Your Files            │   │
+│  │                                                     │   │
+│  │  📷 Meeting Photo Analysis:                        │   │
+│  │  "Body language shows both parties feeling         │   │
+│  │  defensive. Mike appears overwhelmed, you appear   │   │
+│  │  frustrated but trying to stay professional."      │   │
+│  │                                                     │   │
+│  │  📧 Email Thread Analysis:                         │   │
+│  │  "Shows escalating tension over 3 weeks. Key       │   │
+│  │  turning point was the deadline change on March    │   │
+│  │  15th. Both parties using increasingly formal      │   │
+│  │  language - a sign of growing distance."           │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              🎯 My Recommended Approach             │   │
+│  │                                                     │   │
+│  │  🤝 Style: Collaborative Problem-Solving           │   │
+│  │  🎯 Focus: Understanding perspectives first        │   │
+│  │  ⏱️ Estimated Sessions: 2-3 sessions               │   │
+│  │  🎤 My Voice Approach: Patient, validating         │   │
+│  │                                                     │   │
+│  │  📋 Session Plan:                                  │   │
+│  │  1. Individual perspective sharing                 │   │
+│  │  2. Understanding each other's pressures           │   │
+│  │  3. Finding shared solutions                       │   │
+│  │  4. Creating better communication patterns         │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  🎤 Alex: "Does this feel accurate to you? Is there       │
+│      anything important I'm missing or misunderstanding?"  │
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │ ✅ Looks    │  │ ✏️ Let Me   │  │ 🔄 Analyze  │        │
+│  │   Perfect   │  │   Clarify   │  │   Again     │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘        │
+│                                                             │
+│  🔊 Voice: Thoughtful, seeking confirmation, collaborative │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ### 1. Landing Page (Mermaid: A)
 ```

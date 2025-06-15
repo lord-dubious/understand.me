@@ -368,7 +368,7 @@ function getFileType(mimeType: string): string {
 }
 ```
 
-### 2. Google GenAI Client (Direct API)
+### 2. Google GenAI Client with Conversational Assessment
 
 ```typescript
 // lib/ai.ts
@@ -378,12 +378,213 @@ export class ClientSideAI {
   private genAI: GoogleGenAI
   private textModel: any
   private visionModel: any
+  private thinkingModel: any // For deep personality analysis
 
   constructor() {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY!
     this.genAI = new GoogleGenAI(apiKey)
     this.textModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
     this.visionModel = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro-vision' })
+    this.thinkingModel = this.genAI.getGenerativeModel({
+      model: 'gemini-1.5-pro',
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.8,
+        maxOutputTokens: 2048
+      }
+    })
+  }
+
+  // Conversational Personality Assessment
+  async generateConversationResponse(
+    userInput: string,
+    conversationHistory: ConversationTurn[],
+    currentTopic: AssessmentTopic,
+    voiceAnalysis?: VoiceAnalysis
+  ): Promise<ConversationResponse> {
+    try {
+      const prompt = this.buildConversationPrompt(
+        userInput,
+        conversationHistory,
+        currentTopic,
+        voiceAnalysis
+      )
+
+      const result = await this.thinkingModel.generateContent(prompt)
+      const response = result.response.text()
+
+      // Parse the structured response
+      const parsedResponse = this.parseConversationResponse(response)
+
+      // Update personality analysis
+      const personalityUpdate = await this.analyzePersonalityFromResponse(
+        userInput,
+        conversationHistory,
+        voiceAnalysis
+      )
+
+      return {
+        ...parsedResponse,
+        personalityAnalysis: personalityUpdate,
+        nextTopic: this.determineNextTopic(currentTopic, conversationHistory),
+        isAssessmentComplete: this.checkAssessmentCompletion(conversationHistory)
+      }
+    } catch (error) {
+      console.error('Conversation generation error:', error)
+      throw new Error('Failed to generate conversation response')
+    }
+  }
+
+  private buildConversationPrompt(
+    userInput: string,
+    history: ConversationTurn[],
+    currentTopic: AssessmentTopic,
+    voiceAnalysis?: VoiceAnalysis
+  ): string {
+    const conversationContext = history.map(turn =>
+      `${turn.speaker}: ${turn.content}`
+    ).join('\n')
+
+    return `
+You are Alex, a warm, empathetic AI mediator conducting a natural personality assessment conversation. Your goal is to understand the user's communication style, conflict approach, values, and emotional processing through natural dialogue.
+
+Current Topic Focus: ${currentTopic}
+Conversation History:
+${conversationContext}
+
+User's Latest Response: "${userInput}"
+
+${voiceAnalysis ? `
+Voice Analysis:
+- Tone: ${voiceAnalysis.tone}
+- Pace: ${voiceAnalysis.pace}
+- Emotion: ${voiceAnalysis.emotion}
+- Confidence: ${voiceAnalysis.confidence}
+` : ''}
+
+Guidelines for your response:
+1. Respond naturally as a caring friend would
+2. Acknowledge what they shared with empathy
+3. Ask follow-up questions that feel organic to the conversation
+4. Gradually explore the current topic: ${this.getTopicDescription(currentTopic)}
+5. Keep responses conversational, not clinical
+6. Show genuine interest and understanding
+7. Length: 2-3 sentences maximum
+
+Respond in this JSON format:
+{
+  "response": "Your natural, empathetic response",
+  "emotionalTone": "warm|encouraging|curious|supportive|gentle",
+  "voiceSettings": {
+    "pace": "normal|slow|fast",
+    "warmth": 0.1-1.0,
+    "energy": 0.1-1.0
+  },
+  "topicProgress": 0.0-1.0,
+  "insights": ["personality insight 1", "insight 2"]
+}
+    `
+  }
+
+  private async analyzePersonalityFromResponse(
+    userInput: string,
+    history: ConversationTurn[],
+    voiceAnalysis?: VoiceAnalysis
+  ): Promise<PersonalityAnalysis> {
+    const analysisPrompt = `
+Analyze this user's personality based on their conversation patterns:
+
+Recent Response: "${userInput}"
+${voiceAnalysis ? `Voice Patterns: ${JSON.stringify(voiceAnalysis)}` : ''}
+
+Conversation History: ${history.slice(-5).map(t => t.content).join(' | ')}
+
+Provide personality analysis in this JSON format:
+{
+  "communicationStyle": {
+    "primary": "direct|diplomatic|analytical|expressive",
+    "secondary": "collaborative|assertive|supportive|independent",
+    "confidence": 0.0-1.0
+  },
+  "conflictApproach": {
+    "style": "confrontational|collaborative|avoidant|competitive|accommodating",
+    "preference": "immediate|reflective|structured|intuitive",
+    "confidence": 0.0-1.0
+  },
+  "emotionalProcessing": {
+    "expression": "open|reserved|selective|intense",
+    "regulation": "stable|variable|reactive|controlled",
+    "confidence": 0.0-1.0
+  },
+  "values": {
+    "primary": ["harmony", "achievement", "autonomy", "security", "growth"],
+    "relationshipFocus": "task|people|balance",
+    "confidence": 0.0-1.0
+  },
+  "overallConfidence": 0.0-1.0
+}
+    `
+
+    const result = await this.thinkingModel.generateContent(analysisPrompt)
+    return JSON.parse(result.response.text())
+  }
+
+  private getTopicDescription(topic: AssessmentTopic): string {
+    const topics = {
+      opening: "Understanding their current situation and what brought them here",
+      conflictStyle: "How they naturally handle disagreements and conflicts",
+      communication: "Their communication preferences and patterns",
+      values: "What matters most to them in relationships and interactions",
+      emotional: "How they process and express emotions",
+      closing: "Wrapping up and confirming understanding"
+    }
+    return topics[topic] || "General conversation"
+  }
+
+  private determineNextTopic(
+    current: AssessmentTopic,
+    history: ConversationTurn[]
+  ): AssessmentTopic {
+    const topicFlow: AssessmentTopic[] = [
+      'opening', 'conflictStyle', 'communication', 'values', 'emotional', 'closing'
+    ]
+
+    const currentIndex = topicFlow.indexOf(current)
+    const conversationLength = history.length
+
+    // Move to next topic based on conversation depth and current topic coverage
+    if (conversationLength >= 4 && currentIndex < topicFlow.length - 1) {
+      return topicFlow[currentIndex + 1]
+    }
+
+    return current
+  }
+
+  private checkAssessmentCompletion(history: ConversationTurn[]): boolean {
+    // Assessment is complete when we have sufficient conversation depth
+    // and have covered all major topics
+    return history.length >= 12 &&
+           this.hasTopicCoverage(history, ['conflictStyle', 'communication', 'values'])
+  }
+
+  private hasTopicCoverage(history: ConversationTurn[], requiredTopics: string[]): boolean {
+    // Simple heuristic - in a real implementation, you'd track topic coverage more precisely
+    return history.length >= requiredTopics.length * 2
+  }
+
+  private parseConversationResponse(response: string): Partial<ConversationResponse> {
+    try {
+      return JSON.parse(response)
+    } catch {
+      // Fallback if JSON parsing fails
+      return {
+        response: response,
+        emotionalTone: 'warm',
+        voiceSettings: { pace: 'normal', warmth: 0.8, energy: 0.6 },
+        topicProgress: 0.5,
+        insights: []
+      }
+    }
   }
 
   async analyzeConflict(
@@ -748,7 +949,7 @@ interface SessionContext {
 }
 ```
 
-### 3. ElevenLabs Voice Client (Direct API)
+### 3. Enhanced ElevenLabs Voice Client with Analysis
 
 ```typescript
 // lib/voice.ts
@@ -756,11 +957,580 @@ export class ClientSideVoice {
   private apiKey: string
   private baseUrl = 'https://api.elevenlabs.io/v1'
   private audioContext: AudioContext | null = null
+  private mediaRecorder: MediaRecorder | null = null
+  private recordingStream: MediaStream | null = null
 
   constructor() {
     this.apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY!
     this.initializeAudioContext()
   }
+
+  // Enhanced voice synthesis with conversational adaptation
+  async synthesizeConversationalResponse(
+    text: string,
+    voiceSettings: ConversationalVoiceSettings,
+    emotionalTone: string = 'warm'
+  ): Promise<ArrayBuffer> {
+    const adaptedSettings = this.adaptVoiceForConversation(voiceSettings, emotionalTone)
+
+    return await this.synthesizeSpeech(
+      this.preprocessForNaturalSpeech(text),
+      'pNInz6obpgDQGcFmaJgB', // Alex's voice ID
+      adaptedSettings
+    )
+  }
+
+  // Real-time voice analysis during conversation
+  async analyzeVoicePatterns(audioBlob: Blob): Promise<VoiceAnalysis> {
+    try {
+      // Convert audio to analysis format
+      const audioBuffer = await this.blobToAudioBuffer(audioBlob)
+
+      // Analyze voice characteristics
+      const analysis = await this.performVoiceAnalysis(audioBuffer)
+
+      return {
+        tone: this.detectTone(analysis),
+        pace: this.detectPace(analysis),
+        emotion: this.detectEmotion(analysis),
+        confidence: this.detectConfidence(analysis),
+        energy: this.detectEnergy(analysis),
+        clarity: this.detectClarity(analysis),
+        timestamp: new Date()
+      }
+    } catch (error) {
+      console.error('Voice analysis error:', error)
+      return this.getDefaultVoiceAnalysis()
+    }
+  }
+
+  // Seamless conversation recording
+  async startConversationRecording(): Promise<void> {
+    try {
+      this.recordingStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 44100
+        }
+      })
+
+      this.mediaRecorder = new MediaRecorder(this.recordingStream, {
+        mimeType: 'audio/webm;codecs=opus'
+      })
+
+      const audioChunks: Blob[] = []
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data)
+        }
+      }
+
+      this.mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+
+        // Analyze voice patterns
+        const voiceAnalysis = await this.analyzeVoicePatterns(audioBlob)
+
+        // Transcribe speech
+        const transcription = await this.transcribeAudio(audioBlob)
+
+        // Emit results
+        this.emitRecordingResults({
+          audioBlob,
+          transcription,
+          voiceAnalysis
+        })
+      }
+
+      this.mediaRecorder.start(1000) // Collect data every second
+    } catch (error) {
+      console.error('Recording start error:', error)
+      throw new Error('Failed to start recording')
+    }
+  }
+
+  async stopConversationRecording(): Promise<RecordingResult> {
+    return new Promise((resolve, reject) => {
+      if (!this.mediaRecorder) {
+        reject(new Error('No active recording'))
+        return
+      }
+
+      const handleResults = (results: RecordingResult) => {
+        resolve(results)
+        this.cleanup()
+      }
+
+      // Set up one-time listener for results
+      this.onRecordingResults = handleResults
+
+      this.mediaRecorder.stop()
+
+      if (this.recordingStream) {
+        this.recordingStream.getTracks().forEach(track => track.stop())
+      }
+    })
+  }
+
+  private adaptVoiceForConversation(
+    settings: ConversationalVoiceSettings,
+    emotionalTone: string
+  ): VoiceSettings {
+    const baseSettings = {
+      stability: 0.7,
+      similarity_boost: 0.8,
+      style: 0.4,
+      use_speaker_boost: true
+    }
+
+    // Adapt based on conversation context
+    switch (emotionalTone) {
+      case 'encouraging':
+        return {
+          ...baseSettings,
+          stability: 0.6,
+          style: 0.6,
+          similarity_boost: 0.9
+        }
+      case 'gentle':
+        return {
+          ...baseSettings,
+          stability: 0.8,
+          style: 0.2,
+          similarity_boost: 0.7
+        }
+      case 'curious':
+        return {
+          ...baseSettings,
+          stability: 0.5,
+          style: 0.7,
+          similarity_boost: 0.8
+        }
+      case 'supportive':
+        return {
+          ...baseSettings,
+          stability: 0.9,
+          style: 0.3,
+          similarity_boost: 0.9
+        }
+      default:
+        return baseSettings
+    }
+  }
+
+  private preprocessForNaturalSpeech(text: string): string {
+    // Add natural pauses and emphasis for conversational flow
+    return text
+      .replace(/\./g, '... ') // Longer pauses at sentence ends
+      .replace(/,/g, ', ') // Brief pauses at commas
+      .replace(/\?/g, '? ') // Question intonation
+      .replace(/!/g, '! ') // Exclamation emphasis
+      .replace(/:/g, ': ') // Pause before explanations
+  }
+
+  private async performVoiceAnalysis(audioBuffer: AudioBuffer): Promise<AudioAnalysisData> {
+    // Simplified voice analysis - in production, use more sophisticated analysis
+    const channelData = audioBuffer.getChannelData(0)
+
+    // Calculate basic metrics
+    const rms = this.calculateRMS(channelData)
+    const zeroCrossings = this.calculateZeroCrossings(channelData)
+    const spectralCentroid = this.calculateSpectralCentroid(channelData)
+
+    return {
+      rms,
+      zeroCrossings,
+      spectralCentroid,
+      duration: audioBuffer.duration,
+      sampleRate: audioBuffer.sampleRate
+    }
+  }
+
+  private detectTone(analysis: AudioAnalysisData): string {
+    // Simplified tone detection based on spectral characteristics
+    if (analysis.spectralCentroid > 2000) return 'bright'
+    if (analysis.spectralCentroid < 1000) return 'warm'
+    return 'neutral'
+  }
+
+  private detectPace(analysis: AudioAnalysisData): string {
+    // Pace detection based on zero crossings and duration
+    const wordsPerMinute = (analysis.zeroCrossings / analysis.duration) * 60 / 10 // Rough estimate
+
+    if (wordsPerMinute > 150) return 'fast'
+    if (wordsPerMinute < 100) return 'slow'
+    return 'normal'
+  }
+
+  private detectEmotion(analysis: AudioAnalysisData): string {
+    // Simplified emotion detection
+    const energy = analysis.rms
+    const pitch = analysis.spectralCentroid
+
+    if (energy > 0.3 && pitch > 1500) return 'excited'
+    if (energy < 0.1) return 'calm'
+    if (pitch < 800) return 'serious'
+    return 'neutral'
+  }
+
+  private detectConfidence(analysis: AudioAnalysisData): number {
+    // Confidence based on voice stability and energy
+    const stability = 1 - (analysis.zeroCrossings / (analysis.duration * 1000))
+    const energy = Math.min(analysis.rms * 2, 1)
+
+    return (stability + energy) / 2
+  }
+
+  private detectEnergy(analysis: AudioAnalysisData): number {
+    return Math.min(analysis.rms * 3, 1)
+  }
+
+  private detectClarity(analysis: AudioAnalysisData): number {
+    // Clarity based on spectral characteristics
+    return Math.min(analysis.spectralCentroid / 3000, 1)
+  }
+
+  private calculateRMS(channelData: Float32Array): number {
+    let sum = 0
+    for (let i = 0; i < channelData.length; i++) {
+      sum += channelData[i] * channelData[i]
+    }
+    return Math.sqrt(sum / channelData.length)
+  }
+
+  private calculateZeroCrossings(channelData: Float32Array): number {
+    let crossings = 0
+    for (let i = 1; i < channelData.length; i++) {
+      if ((channelData[i] >= 0) !== (channelData[i - 1] >= 0)) {
+        crossings++
+      }
+    }
+    return crossings
+  }
+
+  private calculateSpectralCentroid(channelData: Float32Array): number {
+    // Simplified spectral centroid calculation
+    // In production, use FFT for proper frequency analysis
+    let weightedSum = 0
+    let magnitudeSum = 0
+
+    for (let i = 0; i < channelData.length; i++) {
+      const magnitude = Math.abs(channelData[i])
+      weightedSum += i * magnitude
+      magnitudeSum += magnitude
+    }
+
+    return magnitudeSum > 0 ? (weightedSum / magnitudeSum) * 22050 / channelData.length : 0
+  }
+
+  private async blobToAudioBuffer(blob: Blob): Promise<AudioBuffer> {
+    const arrayBuffer = await blob.arrayBuffer()
+    return await this.audioContext!.decodeAudioData(arrayBuffer)
+  }
+
+  private getDefaultVoiceAnalysis(): VoiceAnalysis {
+    return {
+      tone: 'neutral',
+      pace: 'normal',
+      emotion: 'calm',
+      confidence: 0.5,
+      energy: 0.5,
+      clarity: 0.7,
+      timestamp: new Date()
+    }
+  }
+
+  private emitRecordingResults(results: RecordingResult): void {
+    if (this.onRecordingResults) {
+      this.onRecordingResults(results)
+    }
+  }
+
+  private cleanup(): void {
+    this.mediaRecorder = null
+    this.recordingStream = null
+    this.onRecordingResults = null
+  }
+
+  private onRecordingResults: ((results: RecordingResult) => void) | null = null
+
+  // Existing methods from previous implementation...
+  async synthesizeSpeech(
+    text: string,
+    voiceId: string = 'pNInz6obpgDQGcFmaJgB',
+    settings?: VoiceSettings
+  ): Promise<ArrayBuffer> {
+    // Implementation from previous version...
+    return new ArrayBuffer(0) // Placeholder
+  }
+
+  async transcribeAudio(audioBlob: Blob): Promise<string> {
+    // Use Web Speech API or send to transcription service
+    return "Transcribed text" // Placeholder
+  }
+}
+
+// Types for conversational voice features
+interface ConversationalVoiceSettings {
+  pace: 'slow' | 'normal' | 'fast'
+  warmth: number // 0-1
+  energy: number // 0-1
+  empathy: number // 0-1
+}
+
+interface VoiceAnalysis {
+  tone: string
+  pace: string
+  emotion: string
+  confidence: number
+  energy: number
+  clarity: number
+  timestamp: Date
+}
+
+interface AudioAnalysisData {
+  rms: number
+  zeroCrossings: number
+  spectralCentroid: number
+  duration: number
+  sampleRate: number
+}
+
+interface RecordingResult {
+  audioBlob: Blob
+  transcription: string
+  voiceAnalysis: VoiceAnalysis
+}
+```
+
+### 4. Conversational Assessment Manager
+
+```typescript
+// hooks/useConversationalAssessment.ts
+import { useState, useCallback } from 'react'
+import { ClientSideAI } from '@/lib/ai'
+import { ClientSideVoice } from '@/lib/voice'
+
+export function useConversationalAssessment() {
+  const [conversation, setConversation] = useState<ConversationTurn[]>([])
+  const [currentTopic, setCurrentTopic] = useState<AssessmentTopic>('opening')
+  const [personalityProfile, setPersonalityProfile] = useState<PersonalityAnalysis | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [isComplete, setIsComplete] = useState(false)
+
+  const ai = new ClientSideAI()
+  const voice = new ClientSideVoice()
+
+  const startAssessment = useCallback(async () => {
+    try {
+      // Generate opening message
+      const openingResponse = await ai.generateConversationResponse(
+        '',
+        [],
+        'opening'
+      )
+
+      const alexTurn: ConversationTurn = {
+        speaker: 'alex',
+        content: openingResponse.response,
+        timestamp: new Date(),
+        emotionalTone: openingResponse.emotionalTone,
+        voiceSettings: openingResponse.voiceSettings
+      }
+
+      setConversation([alexTurn])
+
+      // Speak the opening message
+      const audioBuffer = await voice.synthesizeConversationalResponse(
+        openingResponse.response,
+        openingResponse.voiceSettings,
+        openingResponse.emotionalTone
+      )
+
+      await voice.playAudio(audioBuffer)
+    } catch (error) {
+      console.error('Assessment start error:', error)
+    }
+  }, [ai, voice])
+
+  const processUserResponse = useCallback(async (
+    userInput: string,
+    audioBlob?: Blob
+  ) => {
+    try {
+      setIsProcessing(true)
+
+      // Analyze voice if audio provided
+      let voiceAnalysis: VoiceAnalysis | undefined
+      if (audioBlob) {
+        voiceAnalysis = await voice.analyzeVoicePatterns(audioBlob)
+      }
+
+      // Add user turn to conversation
+      const userTurn: ConversationTurn = {
+        speaker: 'user',
+        content: userInput,
+        timestamp: new Date(),
+        voiceAnalysis
+      }
+
+      const updatedConversation = [...conversation, userTurn]
+      setConversation(updatedConversation)
+
+      // Generate AI response
+      const aiResponse = await ai.generateConversationResponse(
+        userInput,
+        updatedConversation,
+        currentTopic,
+        voiceAnalysis
+      )
+
+      // Add AI turn to conversation
+      const alexTurn: ConversationTurn = {
+        speaker: 'alex',
+        content: aiResponse.response,
+        timestamp: new Date(),
+        emotionalTone: aiResponse.emotionalTone,
+        voiceSettings: aiResponse.voiceSettings,
+        insights: aiResponse.insights
+      }
+
+      const finalConversation = [...updatedConversation, alexTurn]
+      setConversation(finalConversation)
+
+      // Update personality analysis
+      if (aiResponse.personalityAnalysis) {
+        setPersonalityProfile(aiResponse.personalityAnalysis)
+      }
+
+      // Update topic if needed
+      if (aiResponse.nextTopic && aiResponse.nextTopic !== currentTopic) {
+        setCurrentTopic(aiResponse.nextTopic)
+      }
+
+      // Check if assessment is complete
+      if (aiResponse.isAssessmentComplete) {
+        setIsComplete(true)
+      }
+
+      // Speak the AI response
+      const audioBuffer = await voice.synthesizeConversationalResponse(
+        aiResponse.response,
+        aiResponse.voiceSettings,
+        aiResponse.emotionalTone
+      )
+
+      await voice.playAudio(audioBuffer)
+
+    } catch (error) {
+      console.error('Response processing error:', error)
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [conversation, currentTopic, ai, voice])
+
+  const startRecording = useCallback(async () => {
+    try {
+      setIsRecording(true)
+      await voice.startConversationRecording()
+    } catch (error) {
+      console.error('Recording start error:', error)
+      setIsRecording(false)
+    }
+  }, [voice])
+
+  const stopRecording = useCallback(async () => {
+    try {
+      const result = await voice.stopConversationRecording()
+      setIsRecording(false)
+
+      // Process the recorded response
+      await processUserResponse(result.transcription, result.audioBlob)
+    } catch (error) {
+      console.error('Recording stop error:', error)
+      setIsRecording(false)
+    }
+  }, [voice, processUserResponse])
+
+  const getAssessmentProgress = useCallback(() => {
+    const totalTopics = 6 // opening, conflictStyle, communication, values, emotional, closing
+    const topicOrder: AssessmentTopic[] = ['opening', 'conflictStyle', 'communication', 'values', 'emotional', 'closing']
+    const currentIndex = topicOrder.indexOf(currentTopic)
+
+    return {
+      percentage: Math.min((currentIndex + 1) / totalTopics * 100, 100),
+      currentTopic,
+      completedTopics: topicOrder.slice(0, currentIndex + 1),
+      remainingTopics: topicOrder.slice(currentIndex + 1)
+    }
+  }, [currentTopic])
+
+  return {
+    conversation,
+    currentTopic,
+    personalityProfile,
+    isRecording,
+    isProcessing,
+    isComplete,
+    startAssessment,
+    processUserResponse,
+    startRecording,
+    stopRecording,
+    getAssessmentProgress
+  }
+}
+
+// Types
+type AssessmentTopic = 'opening' | 'conflictStyle' | 'communication' | 'values' | 'emotional' | 'closing'
+
+interface ConversationTurn {
+  speaker: 'user' | 'alex'
+  content: string
+  timestamp: Date
+  emotionalTone?: string
+  voiceSettings?: ConversationalVoiceSettings
+  voiceAnalysis?: VoiceAnalysis
+  insights?: string[]
+}
+
+interface ConversationResponse {
+  response: string
+  emotionalTone: string
+  voiceSettings: ConversationalVoiceSettings
+  topicProgress: number
+  insights: string[]
+  personalityAnalysis?: PersonalityAnalysis
+  nextTopic?: AssessmentTopic
+  isAssessmentComplete: boolean
+}
+
+interface PersonalityAnalysis {
+  communicationStyle: {
+    primary: string
+    secondary: string
+    confidence: number
+  }
+  conflictApproach: {
+    style: string
+    preference: string
+    confidence: number
+  }
+  emotionalProcessing: {
+    expression: string
+    regulation: string
+    confidence: number
+  }
+  values: {
+    primary: string[]
+    relationshipFocus: string
+    confidence: number
+  }
+  overallConfidence: number
+}
 
   private initializeAudioContext() {
     if (typeof window !== 'undefined') {
