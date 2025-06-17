@@ -1,10 +1,22 @@
 # Part 1: Global Design & Interaction Principles
 
-This section outlines the global design and interaction principles that underpin the "Understand-me" application. These principles ensure a cohesive, intuitive, and accessible user experience across all platforms and features.
+This section outlines the global design and interaction principles that underpin the "Understand-me" mobile application. These principles ensure a cohesive, intuitive, and accessible user experience across iOS and Android platforms, leveraging the Expo (React Native) framework.
 
 ## 1.1. Introduction to "Understand-me"
 
-"Understand-me" is a real-time transcription, translation, and engagement platform designed to foster clearer communication and inclusivity in meetings, workshops, and educational settings. It captures spoken dialogue, provides instant transcriptions, and offers tools for participants to ask questions, provide feedback, and engage with the content seamlessly. It aims to break down communication barriers, ensure everyone feels heard, and create a more productive and equitable environment for collaboration. This guide provides a framework for designing and developing features that align with our core vision and user needs.
+"Understand-me" is a real-time transcription, translation, and engagement **mobile application** designed to foster clearer communication and inclusivity in meetings, workshops, and educational settings. Built with **Expo (React Native)**, it captures spoken dialogue, provides instant transcriptions, and offers tools for participants to ask questions, provide feedback, and engage with the content seamlessly.
+
+Our technology stack includes:
+*   **Frontend:** Expo (React Native), TypeScript
+*   **Backend & Database:** Supabase
+*   **AI & Machine Learning:** Google GenAI (for core language understanding and insights), ElevenLabs (for voice synthesis for "Alex")
+*   **Specialized Services:**
+    *   **PicaOS:** Potentially used for advanced on-device multimedia processing or custom OS-level interactions if required.
+    *   **Dappier:** May be leveraged for secure data handling, decentralized identity aspects, or specific API integrations.
+    *   **Nodely:** Could be used for complex backend workflows, data orchestration, or connecting various microservices.
+*   **Monitoring:** Sentry
+
+"Understand-me" aims to break down communication barriers, ensure everyone feels heard, and create a more productive and equitable environment for collaboration. This guide provides a framework for designing and developing features that align with our core vision and user needs within this mobile-first context.
 
 ## 1.2. Target Users & Personas
 
@@ -51,28 +63,21 @@ Our design philosophy is built on four key pillars:
     *   **Responsive:** Acknowledge user input promptly and provide clear feedback.
     *   **Adaptive:** Adjust its communication style slightly based on user cues (e.g., speed of speech, vocabulary), if technically feasible and appropriate.
     *   **Error Handling:** When errors occur, Alex should explain the issue clearly and offer actionable solutions. For example, if transcription accuracy is low due to background noise, Alex might suggest ways to improve audio quality.
-    *   **Within "Understand-me":** Alex primarily assists with setup, answers questions about features, and can be invoked for specific tasks like initiating a recording or enabling translation for a specific language.
+    *   **Within "Understand-me":** Alex primarily assists with setup, answers questions about features, and can be invoked for specific tasks like initiating a recording or enabling translation for a specific language, adapting its interaction for the mobile context.
 
 ## 1.5. Global UI Elements
 
-Consistent use of UI elements is crucial for a predictable and learnable interface.
+Consistent use of UI elements is crucial for a predictable and learnable mobile interface. We will leverage common patterns from Expo and React Native.
 
 *   **Navigation:**
-    *   **Primary Navigation (Desktop & Tablet):** A persistent left-hand sidebar menu for global navigation (e.g., Dashboard, Sessions, Recordings, Settings). Icons should be used with clear text labels.
-    *   **Primary Navigation (Mobile):** A bottom tab bar for key sections, and a "More" option leading to less frequently accessed items.
-    *   **Secondary Navigation:** Tabs or an in-page horizontal nav bar for subsections within a main area (e.g., within a specific session: Transcription, Participants, Q&A).
-    *   **Breadcrumbs:** Implemented where necessary, especially in nested settings or content hierarchies, to show an explicit path.
-
-*   **Headers:**
-    *   **Application Header (Persistent):** Contains the "Understand-me" logo (clickable, navigates to Dashboard), current session name (if active), user profile/avatar (leading to account settings & logout), and a global search icon.
-    *   **Page/View Headers:** Clearly display the title of the current page or view. May include contextual action buttons (e.g., "Start New Session").
-
-*   **Footers:**
-    *   **Application Footer:** Minimalist, containing copyright information, links to "Privacy Policy," "Terms of Service," and "Help/Support."
-    *   **In-Content Footers:** Used sparingly, perhaps for pagination controls or summary information related to a specific content block.
+    *   **Primary Navigation:** Achieved using React Navigation library. Typically a **Bottom Tab Navigator** for main sections (e.g., Dashboard, Sessions, Growth, Settings). Icons with clear labels are essential. For less frequently accessed items, a "More" tab can reveal a list or a **Drawer Navigator** might be used if appropriate for the information architecture.
+    *   **Secondary Navigation:** Within a main section, **Stack Navigator** will be used to manage views hierarchically (e.g., navigating from a session list to a specific session's details). Headers for these stacked screens are managed by the Stack Navigator.
+    *   **Top Tab Navigator:** Can be used within a screen for organizing content into related views (e.g., within a specific session: Transcription, Participants, Q&A).
+    *   **Headers:** Provided by React Navigation's Stack Navigator. Titles should be concise. Contextual action buttons (e.g., "Edit," "Share") can be added to the header. The "Understand-me" logo is generally not in the per-screen header but might be on an initial loading screen or an "About" page.
+    *   **No traditional application-wide Footers:** Mobile apps typically do not have persistent footers like websites. Copyright and informational links (Privacy Policy, Terms) will be located in an "About" section accessible via Settings or the "More" tab. Content-specific footers (e.g., pagination, summary bars) are rare and should be used only if they provide significant value without cluttering the limited screen space. Interactions with PicaOS, Dappier, or Nodely for specific data display in footers are unlikely but will be considered if a unique native bridged feature requires it.
 
 *   **Modals (Dialogs):**
-    *   **Usage:** For critical alerts, confirmations (e.g., "Delete Session?"), short, focused tasks (e.g., "Invite Participant"), or information that requires immediate user attention. Avoid using modals for complex forms or multi-step processes.
+    *   **Usage:** For critical alerts, confirmations (e.g., "Delete Session?"), short, focused tasks (e.g., "Invite Participant"), or information that requires immediate user attention. Standard React Native Modal components or libraries extending their functionality will be used. Avoid using modals for complex forms or multi-step processes; navigate to a new screen instead.
     *   **Appearance:** Centered on the screen, with a clear overlay dimming the background content. Must have a clear title, concise message, and explicit action buttons (e.g., "Confirm," "Cancel").
     *   **Interaction:** Dismissible via an "X" icon in the corner and by pressing the Escape key, in addition to explicit action buttons.
 
@@ -113,36 +118,45 @@ Consistent use of UI elements is crucial for a predictable and learnable interfa
 "Understand-me" is committed to being accessible to all users, including those with disabilities. We will adhere to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. Key considerations include:
 
 *   **Perceivable:**
-    *   Provide text alternatives for non-text content.
-    *   Ensure sufficient color contrast.
-    *   Allow text resizing up to 200%.
-    *   Support keyboard navigation.
+    *   Provide text alternatives (e.g., `accessibilityLabel`) for non-text content like icons and images.
+    *   Ensure sufficient color contrast between text/icons and backgrounds (WCAG AA).
+    *   Support **Dynamic Type** adjustments (allowing users to change font sizes via OS settings) and ensure layouts reflow correctly.
+    *   Content should be usable with screen readers like **VoiceOver (iOS)** and **TalkBack (Android)**.
 *   **Operable:**
-    *   Ensure all functionality is available from a keyboard.
-    *   Provide clear focus indicators.
-    *   Avoid content that causes seizures (no flashing content).
+    *   Ensure all functionality is accessible via touch and screen reader navigation.
+    *   Interactive elements must have clear focus indicators and be large enough for easy interaction (**touch targets** at least 44x44 points).
+    *   Avoid content that causes seizures (no flashing content faster than 3Hz).
 *   **Understandable:**
     *   Use clear and simple language.
-    *   Provide consistent navigation and identification.
-    *   Offer input assistance and error prevention.
+    *   Provide consistent navigation patterns (as defined by React Navigation usage).
+    *   Offer input assistance (clear labels, error messages) and error prevention.
 *   **Robust:**
-    *   Maximize compatibility with current and future user agents, including assistive technologies.
-    *   Use ARIA attributes where necessary to enhance accessibility.
+    *   Utilize Expo and React Native's accessibility APIs correctly.
+    *   Test with VoiceOver and TalkBack regularly.
+    *   Ensure compatibility with different device sizes and orientations where appropriate.
 
-Regular accessibility audits and user testing with individuals with disabilities will be conducted throughout the development lifecycle to ensure these guidelines are met and an inclusive experience is delivered.
+Regular accessibility audits and user testing, including with users of assistive technologies on mobile devices, will be conducted throughout the development lifecycle.
 
-## 1.7. PWA Specifics
+## 1.7. Expo Mobile App Specifics
 
-As a Progressive Web Application (PWA), "Understand-me" will include features that enhance its app-like experience:
+As an **Expo (React Native) mobile application**, "Understand-me" has specific considerations to ensure a high-quality, native-like experience on both iOS and Android:
 
-*   **Offline Indicators:**
-    *   Clearly communicate when the user is offline and what functionality is (or isn't) available.
-    *   Provide visual cues (e.g., a banner, icon) for offline status.
-    *   Manage data synchronization gracefully when connectivity is restored.
-*   **Installability Prompts:**
-    *   Implement clear and non-intrusive prompts for users to add the PWA to their home screen.
-    *   Follow best practices for timing and frequency of these prompts.
-    *   Ensure the web app manifest is correctly configured for installability.
-The overall goal of these PWA-specific features is to make "Understand-me" feel as seamless and reliable as a native application, encouraging regular use and easy access.
+*   **Cross-Platform Consistency & Native Feel:**
+    *   Strive for a consistent user experience across iOS and Android, while respecting platform-specific UI conventions where it enhances usability (e.g., date pickers, alert dialogs).
+    *   Leverage Expo's capabilities to access native UI components and APIs where beneficial.
+*   **Native Feature Access & Performance:**
+    *   Utilize Expo libraries (or custom native modules if absolutely necessary and performance-critical) for accessing device features like microphone, camera (for avatar upload, potential future video features), file system (for caching or temporary storage of multimedia), and contacts (for inviting participants).
+    *   **PicaOS, Dappier, Nodely Integration:** If these services bridge to native functionalities (e.g., PicaOS for specialized on-device media processing, Dappier for secure hardware-backed key storage, Nodely for background data sync tasks), their integration via Expo's native module system will be critical. Performance implications of such integrations must be carefully assessed.
+*   **Offline Strategies:**
+    *   **Data Caching:** Implement strategies for caching essential data locally (e.g., user profile, upcoming sessions, drafts of perspectives/conflict descriptions) using AsyncStorage or SQLite via Expo's FileSystem API.
+    *   **Offline Indicators:** Clearly communicate when the user is offline (e.g., a global banner or subtle UI change).
+    *   **Queueing Actions:** For actions taken offline (e.g., saving a draft, attempting to send a message), queue them and process when connectivity is restored. Provide feedback to the user about queued actions.
+    *   **Graceful Degradation:** Some features might be unavailable or limited offline; this should be communicated clearly.
+*   **State Management:** Employ a robust state management solution (e.g., Zustand, Redux Toolkit, or React Context with hooks) suitable for a mobile application, managing both UI state and cached data.
+*   **Build & Deployment:** Utilize Expo Application Services (EAS) for building and submitting apps to the Apple App Store and Google Play Store. Manage updates and different release channels effectively.
+*   **Over-the-Air (OTA) Updates:** Leverage Expo's OTA update mechanism for pushing JavaScript bundle updates quickly to users without requiring a full app store submission, ideal for bug fixes and minor feature rollouts.
+*   **Permissions Handling:** Gracefully request and handle necessary permissions (microphone, files, contacts) using Expo's permission APIs, explaining why permissions are needed.
+
+The overall goal of these Expo-specific considerations is to deliver a polished, performant, and reliable mobile application that feels native to each platform while maximizing code reuse.
 
 This document serves as a living guide and will be updated as "Understand-me" evolves.

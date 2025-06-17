@@ -1,239 +1,157 @@
 # Part 2: Initial User Experience & Onboarding
 
-This part of the guide details the initial user journey, from first encountering "Understand-me" to becoming a proficient user. It focuses on a seamless and welcoming onboarding experience.
+This part of the guide details the initial user journey for the "Understand-me" **Expo (React Native) mobile application**, from first launch to becoming a proficient user. It focuses on a seamless and welcoming onboarding experience. Styling is done using **React Native StyleSheet API** (or NativeWind for Tailwind-like utilities).
 
-## 2.1. Screen: Landing Page (Mermaid: A)
+## 2.1. Screen: Landing Page / Initial Welcome Screen (Mermaid: A)
 
-*   **Mermaid Diagram ID:** A (Represents the initial, unauthenticated landing page)
+*   **Mermaid Diagram ID:** A (Represents the initial screen users see on first app launch if not logged in. May also serve as an "About" or "Welcome Back" screen for logged-out users).
 
 *   **Purpose:**
-    *   Introduce "Understand-me" and its core value proposition clearly and concisely.
-    *   Encourage visitors to learn more and sign up.
+    *   Introduce "Understand-me" and its core value proposition clearly for new users.
+    *   Encourage sign-up or login.
     *   Establish brand identity and trust.
-    *   Provide entry points for sign-up or login.
+    *   For returning logged-out users, provide easy login access.
 
-*   **Key UI Elements (Hypothetical, based on common practices):**
-    *   **Hero Section:**
-        *   Compelling Headline: e.g., "Unlock Clearer Communication, Instantly."
-        *   Brief Sub-headline: Explaining what "Understand-me" does in one or two sentences.
-        *   Primary Call-to-Action (CTA) Button: e.g., "Sign Up for Free," "Get Started."
-        *   Secondary CTA (Optional): e.g., "Watch Demo," "Learn More."
-        *   Engaging Visual: A high-quality image or short, silent video loop showcasing the app in action (e.g., diverse group collaborating with on-screen transcriptions).
-    *   **Features Overview Section:**
-        *   Icon + Text Blocks: Highlighting 3-4 key features (e.g., Real-time Transcription, Multi-language Translation, Interactive Q&A).
-        *   Concise descriptions for each feature.
-    *   **Use Cases/Benefits Section:**
-        *   Short scenarios or testimonials illustrating how different personas (Host, Participant) benefit.
-        *   e.g., "For Workshop Facilitators: Boost engagement and ensure everyone is heard."
-        *   e.g., "For Global Teams: Overcome language barriers and improve collaboration."
-    *   **Social Proof (Optional):**
-        *   Logos of companies using "Understand-me" (if applicable).
-        *   Short testimonial quotes.
-    *   **Pricing Teaser (If applicable):**
-        *   Brief overview of plans (e.g., Free, Pro, Enterprise) with a link to a detailed pricing page.
-    *   **Footer:**
-        *   Links: About Us, Contact, Privacy Policy, Terms of Service, Blog.
-        *   Social media icons.
-        *   Copyright information.
-    *   **Header (for unauthenticated users):**
-        *   Logo.
-        *   Navigation Links: Features, Use Cases, Pricing (if applicable), Login, Sign Up.
+*   **Key UI Elements (using React Native components):**
+    *   **Main Container (`<View>`):** Full screen, possibly with a background image or gradient. Styled using `StyleSheet`.
+    *   **App Logo (`<Image>`):** Prominently displayed. Sourced from local assets.
+    *   **Hero Section (`<View>`):**
+        *   Compelling Headline (`<Text>` styled with `StyleSheet`): e.g., "Unlock Clearer Communication."
+        *   Brief Sub-headline (`<Text>` styled with `StyleSheet`): Explaining what "Understand-me" does.
+        *   Primary CTA Button (`<TouchableOpacity>` with `<Text>` inside, styled with `StyleSheet`): e.g., "Get Started" (for new users, leading to Sign-Up).
+        *   Secondary CTA (`<TouchableOpacity>` with `<Text>` inside, styled with `StyleSheet`): e.g., "Login" (for existing users).
+        *   Engaging Visual (Optional): A subtle animation (e.g., Lottie with `lottie-react-native`) or a relevant static `<Image>` showcasing app benefits.
+    *   **Features Overview (Optional, could be a swipeable carousel using `<ScrollView horizontal>` or `FlatList`):**
+        *   Icon (`<Image>`) + Text (`<Text>`) blocks highlighting key features. Each item in the list would be a styled `<View>`.
+    *   **"Learn More" / "Watch Demo" (Optional):** `<TouchableOpacity>` that could navigate (using React Navigation) to a separate informational screen or play a video using **`expo-av`** within a `<Modal>` (Component 10.7).
+    *   **No traditional Footer:** Links to Privacy Policy/Terms are usually in a Settings or About screen accessible after login or during sign-up, typically navigated to via a Stack Navigator.
 
-*   **Voice Agent Interactions (Alex):**
-    *   **Initial Greeting (Subtle & Optional):**
-        *   **Cue:** User dwells on the page for a certain duration (e.g., 10-15 seconds) without significant interaction.
-        *   **Alex (Visual cue like a small, animated icon, non-intrusive audio prompt if user has previously interacted with Alex or enabled audio):** "Welcome to Understand-me! Curious about how we can help you transform your meetings? I can give you a quick tour or answer any questions."
-        *   **User Interaction:** User can click the icon to engage, type a question, or ignore.
-    *   **On CTA Hover/Focus:**
-        *   **Cue:** User hovers over or focuses on the "Watch Demo" or "Learn More" button.
-        *   **Alex (Tooltip or subtle pop-up near the button):** "See Understand-me in action! This demo shows you how our real-time transcription and engagement tools work." (For "Watch Demo") or "Discover how we cater to hosts, participants, and individuals." (For "Learn More").
+*   **Voice Agent Interactions (Alex - Component 10.2):**
+    *   **Initial Greeting (Subtle & Optional, for new users):**
+        *   **Cue:** User stays on the screen for a few seconds.
+        *   **Alex (Visual cue via Alex's Avatar - `<Image>`/Lottie, possibly a gentle sound if enabled using `expo-av`):** "Welcome to Understand-me! Ready to transform your conversations?" (Text displayed in a `<Text>` component near avatar).
+        *   User can tap avatar (`<TouchableOpacity>`) to hear more (Component 10.2 voice output) or get help (navigating to a help screen or a chat interface with Alex).
+    *   **No hover states in mobile:** Interactions are via touch (`onPress` for `<TouchableOpacity>`). Tooltips are less common; information is usually presented directly or via press-and-hold (`onLongPress`) if necessary, potentially revealing a small informational `<View>`.
 
-*   **Navigation:**
-    *   **Primary Navigation:** Links in the header (Features, Use Cases, Pricing, Login, Sign Up).
-    *   **CTA Buttons:** Lead to sign-up page or relevant informational sections.
-    *   **Footer Links:** Lead to respective informational pages.
-    *   **"Learn More" / Scroll Prompts:** May guide users to scroll down for more details.
+*   **Navigation (using React Navigation):**
+    *   From this initial screen, "Get Started" (`<TouchableOpacity>`) would typically navigate to the Sign-Up screen (2.2) within a **Stack Navigator**.
+    *   "Login" (`<TouchableOpacity>`) would navigate to the Login screen (2.2) within the same stack.
+    *   PicaOS, Dappier, or Nodely interactions are unlikely on this screen unless used for ultra-secure app integrity checks on launch (potentially involving Nodely to orchestrate calls to a Dappier service for verification).
 
 *   **Multimedia Aspects:**
-    *   **Hero Visual:** As described, a high-quality, engaging image or short video loop. Must be optimized for fast loading.
-    *   **Feature Icons:** Visually appealing and easily recognizable icons for each feature.
-    *   **Demo Video (if "Watch Demo" CTA is used):** A short (1-2 minute) video showcasing the platform's key benefits and interface. Professionally produced with clear narration (could be Alex's voice, maintaining consistency).
+    *   App Logo (`<Image>`), optional hero visual/animation (Lottie or `<Image>`).
+    *   Feature icons (`<Image>`).
+    *   Demo video (if used) would leverage **`expo-av`** for playback.
 
 ## 2.2. Screen: Sign-Up / Login (Mermaid: B)
 
-*   **Mermaid Diagram ID:** B (Represents the authentication screen, handling both new user registration and existing user login)
+*   **Mermaid Diagram ID:** B (Authentication screen, potentially using tabs or separate views for Sign-Up and Login within a Stack Navigator context).
 
-*   **Purpose:**
-    *   **Sign-Up:** Allow new users to create an "Understand-me" account securely and efficiently.
-    *   **Login:** Allow existing users to access their accounts.
-    *   Collect necessary information while minimizing friction.
-    *   Provide options for social logins and password recovery.
+*   **Purpose:** (Remains the same)
+    *   Secure handling of credentials might involve Dappier for enhanced security if integrating with native secure enclaves or specific cryptographic operations, orchestrated via Nodely.
 
-*   **Key UI Elements:**
+*   **Key UI Elements (using React Native components, Forms Pattern 10.8):**
+    *   **Main Container (`<KeyboardAvoidingView>` behavior="padding" with `<ScrollView>` for form content):** Ensures form is usable when keyboard is visible.
     *   **Shared Elements:**
-        *   Clear visual distinction or toggle between "Sign Up" and "Login" states/forms.
-        *   "Understand-me" Logo.
-        *   Link to Privacy Policy and Terms of Service.
-        *   Minimalist layout, focusing user attention on the form.
-    *   **Sign-Up Form (State 1):**
-        *   Email Address Field
-        *   Password Field (with strength indicator)
-        *   Confirm Password Field
-        *   Full Name Field
-        *   [Optional] Field for "How did you hear about us?" or "Primary use case" (dropdown: Host, Participant, Individual). This can help tailor initial experience.
-        *   Checkbox for agreeing to Terms of Service and Privacy Policy (mandatory).
-        *   "Create Account" / "Sign Up" Button (Primary CTA).
-        *   Option for "Sign up with Google/Microsoft/etc." (Social Login Buttons).
-        *   Link: "Already have an account? Login."
-    *   **Login Form (State 2):**
-        *   Email Address Field
-        *   Password Field
-        *   "Login" Button (Primary CTA).
-        *   Option for "Login with Google/Microsoft/etc." (Social Login Buttons).
-        *   Link: "Forgot your password?"
-        *   Link: "Don't have an account? Sign Up."
-    *   **Password Recovery Section (Accessed via "Forgot your password?" link):**
-        *   Email Address Field.
-        *   "Send Reset Link" Button.
-        *   Instructions on what to expect.
+        *   Segmented Control (e.g., using `react-native-segmented-control-tab`) or distinct `<TouchableOpacity>` buttons to switch between "Sign Up" and "Login" views, styled with `StyleSheet`.
+        *   App Logo (`<Image>`).
+        *   Links (`<Text>` with `onPress` and appropriate styling) to Privacy Policy and Terms of Service (opening in a `<Modal>` - Component 10.7 - with a `WebView` from `react-native-webview` or custom `<Text>` display).
+    *   **Sign-Up Form (`<View>` containing form elements from Component 10.8):**
+        *   Email Address Field (`<TextInput>` with `keyboardType="email-address"`, `textContentType="emailAddress"`, `autoCapitalize="none"`).
+        *   Password Field (`<TextInput>` with `secureTextEntry={true}`, `textContentType="newPassword"`).
+        *   Confirm Password Field (`<TextInput>` with `secureTextEntry={true}`, `textContentType="newPassword"`).
+        *   Full Name Field (`<TextInput>` with `textContentType="name"`).
+        *   [Optional] Picker for "Primary use case" (e.g., using `@react-native-picker/picker` or a custom modal).
+        *   Checkbox (custom component with `<TouchableOpacity>` and icon - `<Image>`) for Terms agreement.
+        *   "Create Account" Button (`<TouchableOpacity>` with `<Text>`).
+        *   Social Login Buttons (`<TouchableOpacity>` with `<Image>` for logos like Google/Apple using Expo's `expo-auth-session` or `expo-apple-authentication`). Dappier could be involved here if decentralized identity (DID) options are supported for login, potentially using native modules bridged by Expo.
+        *   Switch to Login: `<Text>` with `onPress`.
+    *   **Login Form (`<View>`):**
+        *   Email Address Field (`<TextInput>` with `textContentType="emailAddress"`).
+        *   Password Field (`<TextInput>` with `secureTextEntry={true}`, `textContentType="password"`).
+        *   "Login" Button (`<TouchableOpacity>` with `<Text>`).
+        *   Social Login Buttons.
+        *   "Forgot your password?" Link (`<Text>` with `onPress`).
+        *   Switch to Sign-Up: `<Text>` with `onPress`.
+    *   **Password Recovery Section (likely a separate screen in the Stack Navigator):**
+        *   Email Address Field (`<TextInput>`). "Send Reset Link" Button (`<TouchableOpacity>`).
 
-*   **Voice Agent Interactions (Alex):**
-    *   **General:** Alex is generally not proactive on this screen to avoid interrupting form filling. However, Alex's help icon could be present for users who need assistance.
-    *   **Password Strength Feedback (Sign-Up):**
-        *   **Cue:** User is typing in the password field.
-        *   **Alex (Visual cue, e.g., color change in strength indicator, and text suggestion):** "Weak," "Medium," "Strong." For "Weak": "Try adding more characters, numbers, or symbols for a stronger password."
-    *   **Error Handling (General):**
-        *   **Cue:** Form submission fails (e.g., email already exists, incorrect password).
-        *   **Alex (Clear, friendly error message displayed on screen, potentially voiced if user has opted into voice interaction):** "It looks like an account with this email already exists. Try logging in instead?" or "Hmm, that password doesn't seem right. Try again or use the 'Forgot Password' link if you're stuck."
-    *   **Accessibility Support (On request):**
-        *   **Cue:** User clicks an "Alex Help" icon or uses a voice command.
-        *   **Alex:** "I can help you fill out this form. Would you like me to read the field labels or explain any options?"
+*   **Voice Agent Interactions (Alex - Component 10.2):**
+    *   General: Alex's help icon (`<TouchableOpacity>` with Alex's avatar - Component 10.2) present.
+    *   Password Strength Feedback: Visual only (e.g., a colored bar `<View>` using `StyleSheet`). Alex doesn't speak here to avoid intrusiveness.
+    *   Error Handling: Errors displayed as `<Text>` (styled red) near the relevant field or as a Toast/Snackbar (Component 10.6). Alex might voice a summary if multiple errors: "Hmm, please check the highlighted fields." (Voice via Component 10.2).
+    *   Accessibility Support (on tapping Alex's help icon): Alex uses voice output (Component 10.2) and text display in an overlay or dedicated help `<View>`.
 
-*   **Navigation:**
-    *   Users arrive from the Landing Page CTAs ("Sign Up," "Login").
-    *   Switch between Sign-Up and Login forms using on-page links/toggles.
-    *   Successful sign-up or login typically navigates the user to:
-        *   The Conversational Personality Assessment (Screen E) for new users.
-        *   Their dashboard or the Interactive Platform Tutorial (Screen F) if it's their first login after sign-up, or if they haven't completed it.
-        *   Their main dashboard if they are returning users.
-    *   "Forgot Password" link leads to a password reset request flow (often email-based).
-    *   Links to Privacy Policy and Terms of Service open in a new tab or modal.
+*   **Navigation (React Navigation Stack):**
+    *   Arrives from Landing screen CTAs.
+    *   Successful sign-up/login navigates (using stack navigator's `navigate` function) to:
+        *   Conversational Personality Assessment (2.3) for new users.
+        *   Main Dashboard (Part 3) or Interactive Tutorial (2.4) for returning users.
+    *   "Forgot Password" navigates to a password reset screen.
+    *   Nodely might orchestrate the backend calls to Supabase for authentication, including any Dappier-related security checks if implemented.
 
 *   **Multimedia Aspects:**
-    *   Generally minimal to maintain focus and fast loading.
-    *   Social login buttons will use official logos (Google, Microsoft, etc.).
-    *   Password strength indicators are visual feedback.
+    *   App Logo (`<Image>`), Social Login Logos (`<Image>`). Password strength indicator (`<View>` styled with `StyleSheet`).
 
 ## 2.3. Screen: Conversational Personality Assessment (Mermaid: E)
 
-*   **Mermaid Diagram ID:** E (Represents a unique onboarding step where the system learns about the user's communication preferences through a conversation)
+*   **Mermaid Diagram ID:** E (Onboarding step using a conversational UI, presented within the main app Stack Navigator).
 
-*   **Purpose:**
-    *   To understand the user's communication style, preferences, and needs to tailor "Understand-me" for a more personalized and effective experience.
-    *   To introduce users to Alex, the voice agent, in an interactive and engaging way.
-    *   To gather data that can help Alex interact more effectively with the user in future sessions (e.g., preferred pace, level of formality, specific vocabulary or topics they might frequently discuss if they are a host or individual user).
-    *   Make the onboarding process feel less like a form and more like a friendly chat.
+*   **Purpose:** (Remains the same)
+    *   Data gathered might be processed by Nodely to create a user profile in Supabase that Google GenAI can later use for personalization.
 
-*   **Key UI Elements:**
-    *   **Chat-like Interface:**
-        *   A prominent avatar for Alex.
-        *   Speech bubbles for Alex's questions/statements and user's responses.
-        *   Input area for text responses.
-        *   Microphone icon for voice input (if supported and user grants permission).
-    *   **Progress Indicator:** A subtle visual cue showing how far along the assessment the user is (e.g., "Step 1 of 3").
-    *   **Visual Feedback:** Alex's avatar could have subtle animations (e.g., nodding, thinking) to make the interaction feel more dynamic.
-    *   **Option to Skip/Postpone:** A clear way for users to skip this assessment and come back later (e.g., "Skip for now," with a note that it can be accessed via Settings).
-    *   **Information/Privacy Note:** A brief explanation of how this information will be used and reassurance about privacy.
+*   **Key UI Elements (using React Native components):**
+    *   **Chat-like Interface (`<ScrollView>` or `<FlatList>` for messages, with a sticky `<View>` at the bottom for input):**
+        *   Alex's Avatar (`<Image>` or Lottie - Component 10.2).
+        *   Speech bubbles (`<View>` with `<Text>` inside, styled with `StyleSheet` to differentiate Alex and user).
+        *   Input area (`<View>`): `<TextInput>` for text, Microphone Icon Button (`<TouchableOpacity>` with `<Image>` icon - Component 10.1) for voice input via `expo-av`.
+    *   **Progress Indicator (`<View>` with animated width or a library like `react-native-progress-bar-animated`).**
+    *   **Visual Feedback:** Alex's avatar animations (Lottie).
+    *   **Option to Skip/Postpone (`<TouchableOpacity>` with `<Text>`, styled as a button).**
+    *   **Information/Privacy Note (`<Text>` or a `<TouchableOpacity>` linking to a Modal - Component 10.7 - with privacy details).**
 
-*   **Voice Agent Interactions (Alex) - Core of the Screen:**
-    *   **Introduction:**
-        *   **Alex:** "Hi [User's Name], I'm Alex! To help make 'Understand-me' work best for you, I'd love to ask a few quick questions about how you like to communicate. It’ll only take a couple of minutes. Is now a good time?"
-        *   **User Options (Buttons or typed):** "Sure, let's do it!", "Maybe later."
-    *   **Questioning Style:**
-        *   Alex asks open-ended or multiple-choice questions one at a time.
-        *   The tone is friendly, empathetic, and patient (as defined in Part 1.4).
-        *   Questions are designed to feel natural and not overly intrusive.
-    *   **Example Questions & Scripts (Illustrative):**
-        *   **Alex:** "Great! First off, when you're in a meeting or workshop, what's most important for you to get out of it? For example, are you focused on clear decisions, making sure everyone's voice is heard, or perhaps learning new things?"
-            *   *(User provides free-text or selects from options like "Clear Decisions", "Inclusivity", "Learning", "Other")*
-        *   **Alex (If user selected "Inclusivity"):** "That's a great focus! 'Understand-me' can definitely help with that. Do you often find yourself in situations where language differences or fast-paced discussions are a challenge?"
-            *   *(User responds)*
-        *   **Alex:** "Thanks for sharing. Now, thinking about how you prefer to receive information – do you like quick summaries, or do you prefer all the details?"
-            *   *(User chooses "Summaries" or "Details")*
-        *   **Alex (If user indicated they might be a "Host" during sign-up or based on previous answers):** "If you're hosting a session, are there any specific terms, jargon, or project names you use frequently? Knowing this can help me improve transcription accuracy for you."
-            *   *(User can list terms or skip)*
-        *   **Alex:** "And for fun, if you were a communication superhero, what would your superpower be? Maybe 'Super-Speed Listening,' 'Crystal Clear Speaking,' or 'Ultimate Empathy Powers'?" (This question aims to be lighthearted and gauge personality).
-            *   *(User responds)*
-    *   **Feedback & Encouragement:**
-        *   **Alex:** "Got it!", "That's helpful, thanks!", "Interesting!" - Short affirmations after user responses.
-    *   **Handling Clarifications:**
-        *   **User:** "What do you mean by 'communication style'?"
-        *   **Alex:** "Good question! I mean things like whether you prefer formal or informal language, if you like a lot of detail or just the key points, or even how quickly you like conversations to move."
-    *   **Conclusion:**
-        *   **Alex:** "That's everything for now! Thanks so much for sharing that with me, [User's Name]. This will really help me and 'Understand-me' support you better. You can always update these preferences in your settings later on."
-        *   **Alex:** "Next, I can give you a quick interactive tour of the platform, or you can jump right in. What would you prefer?"
-        *   **User Options (Buttons):** "Take the Tour," "Explore on My Own."
+*   **Voice Agent Interactions (Alex - Component 10.2) - Core of the Screen:**
+    *   Introduction, Questioning Style, Example Questions, Feedback, Clarifications, Conclusion scripts remain largely the same. Alex's voice output via Component 10.2.
+    *   User responses can be via voice (transcribed using Component 10.1, `expo-av`) or typed into the `<TextInput>`.
+    *   User options often presented as tappable quick reply buttons (`<TouchableOpacity>` with `<Text>`) in addition to free-form input.
 
-*   **Navigation:**
-    *   Arrives after successful Sign-Up (or first login if skipped previously).
-    *   "Skip for now" could lead to the Interactive Platform Tutorial (Screen F) or the main dashboard.
-    *   Upon completion, typically leads to the Interactive Platform Tutorial (Screen F) or the main dashboard, based on Alex's final question and user choice.
-    *   A link to access/update this assessment later should be available in User Settings.
+*   **Navigation (React Navigation Stack):**
+    *   Arrives after successful Sign-Up. Stack navigator replaces the current screen with this one.
+    *   "Skip for now" or completion navigates to Interactive Platform Tutorial (2.4) or Main Dashboard (Part 3).
+    *   A link to access/update this assessment later should be available in a User Settings screen (navigated to via Stack or Tab navigator).
 
 *   **Multimedia Aspects:**
-    *   **Alex's Avatar:** A friendly and approachable visual representation of Alex. Could be animated subtly.
-    *   **Optional: Subtle background graphics or imagery** that reinforce the "Understand-me" brand and create a pleasant atmosphere, without being distracting.
-    *   **Use of Icons:** May be used for microphone input or to supplement choices.
+    *   Alex's Avatar (`<Image>`/Lottie - Component 10.2).
+    *   Icons (`<Image>` or icon font) for microphone, choice buttons.
+    *   Subtle background `<Image>` or gradient `<View>` possible.
 
 ## 2.4. Screen: Interactive Platform Tutorial (Mermaid: F)
 
-*   **Mermaid Diagram ID:** F (Represents an interactive, guided tour of the platform's main features and UI)
+*   **Mermaid Diagram ID:** F (Interactive, guided tour, presented within the main app Stack Navigator, possibly using a library for guided tours/coach marks).
 
-*   **Purpose:**
-    *   To familiarize new users with the core functionalities of "Understand-me" in a hands-on manner.
-    *   To build user confidence by allowing them to try out key features in a safe, guided environment.
-    *   To highlight the benefits of these features in context.
-    *   To ensure users know how to access essential tools (e.g., starting a session, viewing transcripts, using engagement tools).
+*   **Purpose:** (Remains the same)
 
-*   **Key UI Elements & Interaction Flow:**
-    *   **Guided Tour Overlay/Tooltips:** The tutorial will likely use a combination of modals, tooltips, and highlighted UI elements to draw attention to specific features.
-    *   **Step-by-Step Instructions:** Clear, concise instructions for each step of the tutorial.
-    *   **Interactive Tasks:** Users will be prompted to perform actions (e.g., "Click here to start a mock session," "Try asking a question using the Q&A panel").
-    *   **Checkpoints/Progress Indicators:** Show users how much of the tutorial they have completed.
-    *   **"Skip Tutorial" / "Exit Tutorial" Option:** Allow users to opt-out at any time.
-    *   **Contextual Information:** Brief explanations of *why* a feature is useful, not just *how* to use it.
-    *   **Simulated Environment (Optional but Recommended):** The tutorial might take place in a "sandbox" or simulated session environment with pre-filled dummy data (e.g., a short mock transcript, a few simulated participants) to make the experience more realistic without affecting real user data.
+*   **Key UI Elements & Interaction Flow (using React Native components):**
+    *   **Guided Tour Overlays/Tooltips:** Implemented using absolutely positioned `<View>`s with `<Text>` and `<TouchableOpacity>` for "Next"/"Got it" buttons, or a library like `react-native-copilot` or similar. These overlays point to actual UI elements of the application.
+    *   **Step-by-Step Instructions (`<Text>` within the overlay/tooltip).**
+    *   **Interactive Tasks:** User interacts directly with the underlying app UI elements (e.g., tapping a `<TouchableOpacity>` that is part of the actual app UI).
+    *   **Checkpoints/Progress Indicators (`<View>` or progress bar component).**
+    *   **"Skip Tutorial" / "Exit Tutorial" (`<TouchableOpacity>` with `<Text>`).**
+    *   **Simulated Environment:** May involve navigating (via React Navigation) through key screens of the application (e.g., a simplified Dashboard view, a mock session screen). Data shown would be pre-defined mock data.
 
-*   **Voice Agent Interactions (Alex):** Alex acts as the primary guide for the interactive tutorial.
-    *   **Initiation (If user chose "Take the Tour" from Personality Assessment or if it's the first login):**
-        *   **Alex:** "Welcome to the 'Understand-me' interactive tour! I'll walk you through some of our key features to get you started. Ready to begin?"
-        *   **User Options:** "Yes, let's go!", "Maybe later."
-    *   **Guiding Through Features (Example Sequence):**
-        *   **Alex (Highlighting the "New Session" button):** "This is where you'll start or schedule new sessions. Go ahead and click it to see the options."
-            *   *(User clicks. A simplified "New Session" modal might appear.)*
-        *   **Alex:** "Great! For now, let's imagine you've started a session. (Transition to a simulated session view). Here's what your main session screen looks like. You can see the live transcription area here (highlights it). During a real session, words will appear as they're spoken."
-        *   **Alex (Highlighting a Q&A panel):** "If you want to ask a question without interrupting, you can use the Q&A panel. Try typing a sample question now."
-            *   *(User types a question. Alex might show a mock response or acknowledgment.)*
-        *   **Alex:** "Excellent! Participants can also use this to send questions to the host. Now, let's look at how you can enable translation if you have multilingual participants..." (Guides user to a simplified language selection menu).
-        *   **Alex (Highlighting where recordings are saved):** "After your sessions, you can find recordings and transcripts here. (Highlights navigation to 'Recordings')."
-    *   **Encouragement & Feedback:**
-        *   **Alex:** "Perfect!", "Well done!", "Exactly!" - When user completes a task.
-        *   **Alex (If user struggles or makes a mistake):** "No worries! Try clicking on [correct element description] instead." or "Almost! Let me show you again." (Potentially using a visual cue like a pulsing highlight).
-    *   **Offering More Information:**
-        *   **Alex:** "This is just a quick overview. You can find more detailed guides in our Help Center anytime." (Highlights Help icon/link).
-    *   **Concluding the Tutorial:**
-        *   **Alex:** "And that's the basics! You've done a great job. You're now ready to start your first real session or explore more on your own. Remember, I'm here if you have questions. Just look for my icon."
-        *   **User Options:** "Go to Dashboard," "Explore Features."
+*   **Voice Agent Interactions (Alex - Component 10.2):** Alex is the primary guide.
+    *   Initiation, Guiding (scripts adapted for mobile UI: "Tap the 'New Session' button on the bottom tab bar," "This is your main dashboard. Swipe left to see..."), Encouragement, Error Handling, Conclusion scripts remain largely the same.
+    *   Alex's guidance appears in `<Text>` components within the tutorial overlays and via voice output (Component 10.2).
 
-*   **Navigation:**
-    *   Typically starts after the Conversational Personality Assessment (Screen E) or on first login if the assessment is skipped/postponed.
-    *   Progresses step-by-step, guided by Alex and on-screen prompts.
-    *   Users can often "Go Back" to a previous step or "Next" to continue.
-    *   "Exit Tutorial" should ideally take the user to their main dashboard.
-    *   Upon completion, navigates to the main dashboard or a relevant starting point within the application.
+*   **Navigation (React Navigation Stack):**
+    *   Starts after Personality Assessment (2.3) or first login if assessment is skipped.
+    *   Progresses step-by-step, potentially involving programmatic navigation (`navigation.navigate(...)`) to different screens as part of the tutorial.
+    *   "Exit Tutorial" navigates to Main Dashboard (Part 3).
+    *   Completion navigates to Main Dashboard.
 
 *   **Multimedia Aspects:**
-    *   **Screen Overlays & Highlights:** Dynamic visual cues (e.g., spotlights, arrows, temporary borders) to focus attention on specific UI elements being explained.
-    *   **Short Animated Explanations (Optional):** For complex interactions, a very short (5-10 second) animation could demonstrate the action before the user tries it.
-    *   **Alex's Avatar:** Present, possibly in a corner of the screen or integrated into the tutorial prompts, providing a friendly face to the guidance.
-    *   **Simulated Content:** If a sandbox environment is used, this will involve displaying mock data (text, user icons, etc.) that looks realistic.
+    *   **Screen Overlays & Highlights:** Styled `<View>`s, potentially with borders or spotlight effects.
+    *   **Short Animated Explanations (Optional):** Lottie animations (`lottie-react-native`) could be used within tutorial steps to demonstrate gestures or flows.
+    *   **Alex's Avatar (`<Image>`/Lottie - Component 10.2) integrated into tutorial prompts/overlays.**
+    *   **Simulated Content:** Mock data displayed using standard `<Text>`, `<View>`, and `<Image>` components.
+    *   PicaOS might be relevant if the tutorial involves demonstrating advanced on-device media processing features specific to PicaOS that users need to learn. For instance, if PicaOS provides a unique way to capture or annotate audio that is core to the app, the tutorial would need to guide the user through these PicaOS-specific interactions.
