@@ -69,8 +69,10 @@ The "Understand.me" application utilizes a carefully selected stack of modern te
     *   **Nodely (Conceptual):** Could be integrated for:
         *   Storing and retrieving certain types of data on IPFS (InterPlanetary File System) if decentralized, content-addressable storage is beneficial (e.g., for finalized session summaries, user-uploaded evidence where immutability is key).
         *   Orchestrating complex, multi-step backend workflows that involve interactions between Supabase, AI services, and potentially Dappier or PicaOS.
+*   **Caching Layer:**
+    *   **Upstash Redis:** Used as a serverless, high-performance caching layer to reduce latency and database load. It can cache frequently accessed data from Supabase, results of expensive AI computations from Google GenAI (via PicaOS), or session state information. Typically accessed via Supabase Edge Functions or PicaOS.
 *   **Application Monitoring:**
-    *   **Sentry:** Used for real-time error tracking, performance monitoring, and issue diagnostics for both the Expo application and any backend services (like Supabase Edge Functions or Nodely workflows).
+    *   **Sentry:** Used for real-time error tracking, performance monitoring, and issue diagnostics for the Expo application and backend services (Supabase Edge Functions, PicaOS, Nodely workflows).
 
 ## 1.5. High-Level System Architecture Diagram
 
@@ -82,17 +84,25 @@ graph TD
 
     subgraph "Cloud Services & Backend"
         ExpoApp -->|API Calls/Realtime via PicaOS| PicaOS[PicaOS: AI Orchestration & Logic];
+
         PicaOS -->|Data Storage/Retrieval, Auth, Functions| Supabase[Supabase: PostgreSQL, Auth, Storage, Realtime, Edge Functions];
         PicaOS -->|LLM Tasks, Analysis| GoogleGenAI[Google GenAI SDK];
         PicaOS -->|Voice Synthesis| ElevenLabsAPI[ElevenLabs API];
         PicaOS -->|Real-time Data, RAG| Dappier[Dappier: Real-time Data/RAG];
         PicaOS -->|Decentralized Storage, Workflows| Nodely[Nodely: IPFS/Workflows];
+        PicaOS -->|Caching Layer| UpstashRedis[Upstash Redis];
 
         Supabase -->|Data for PicaOS| PicaOS;
+        SupabaseEdgeFunction[Supabase Edge Function] -.->|Cache Interaction| UpstashRedis;
+        SupabaseEdgeFunction -.->|DB Operations| Supabase;
+        PicaOS -->|Invoke| SupabaseEdgeFunction;
+
         GoogleGenAI -->|Results to PicaOS| PicaOS;
         ElevenLabsAPI -->|Audio to PicaOS/App| PicaOS;
         Dappier -->|Data to PicaOS| PicaOS;
         Nodely -->|Data/Links to PicaOS| PicaOS;
+        UpstashRedis -->|Cached Data to PicaOS/Edge Functions| PicaOS;
+
 
         %% Optional direct interactions if PicaOS is purely orchestration
         %% ExpoApp -->|Direct API Calls, e.g. for simple data| Supabase;
@@ -101,7 +111,7 @@ graph TD
     subgraph "Monitoring"
         ExpoApp -->|Error/Perf Data| Sentry[Sentry: Monitoring];
         PicaOS -->|Error/Perf Data| Sentry;
-        Supabase -->|Logs/Events (indirectly)| Sentry; %% Via function logging
+        SupabaseEdgeFunction -->|Error/Perf Data| Sentry;
         Nodely -->|Error/Perf Data| Sentry;
     end
 
@@ -114,9 +124,12 @@ graph TD
     PicaOS -->|Send to App for UI Update| ExpoApp;
     ExpoApp -->|Displays Transcript| User;
 
-    %% Control Flow Example: Alex Responds
-    PicaOS -->|Determine Alex Response Content (using GenAI)| GoogleGenAI;
+    %% Control Flow Example: Alex Responds (potentially using cached elements)
+    PicaOS -->|Check Cache for Similar Interaction| UpstashRedis;
+    UpstashRedis -- Optional Cached Response --> PicaOS;
+    PicaOS -->|Determine Alex Response Content (using GenAI if not cached)| GoogleGenAI;
     GoogleGenAI -->|Response Text to PicaOS| PicaOS;
+    PicaOS -->|Cache Response| UpstashRedis;
     PicaOS -->|Text-to-Speech Request| ElevenLabsAPI;
     ElevenLabsAPI -->|Audio Data to PicaOS| PicaOS;
     PicaOS -->|Send Audio & Text to App| ExpoApp;
@@ -128,15 +141,17 @@ graph TD
 
 1.  **User Interaction:** The user interacts with the **Expo (React Native) App**.
 2.  **Primary Orchestration via PicaOS:** Most interactions requiring AI logic, complex data processing, or coordination between multiple services are routed through **PicaOS**.
-    *   PicaOS communicates with **Supabase** for database operations (PostgreSQL), user authentication, file storage, and real-time messaging. Supabase Edge Functions can also be triggered or called by PicaOS.
+    *   PicaOS communicates with **Supabase** for database operations, user authentication, file storage, and real-time messaging.
+    *   PicaOS can invoke **Supabase Edge Functions** for specific serverless tasks.
     *   PicaOS sends tasks to the **Google GenAI SDK** for core language understanding, analysis, and insight generation.
     *   PicaOS requests voice synthesis from the **ElevenLabs API** for Alex's responses.
-    *   PicaOS may interact with **Dappier** for specialized real-time data feeds or to support Retrieval Augmented Generation (RAG) for the LLM.
-    *   PicaOS may interface with **Nodely** for workflows or decentralized storage needs (e.g., IPFS).
-3.  **Direct Supabase Interaction (Optional):** For simpler data fetching or user authentication tasks not requiring complex AI orchestration, the Expo app *might* interact directly with Supabase APIs, but the primary model favors PicaOS mediation for consistency and complex logic handling.
-4.  **Monitoring:** Both the Expo app and backend services (PicaOS, Supabase functions via logging, Nodely) report errors and performance data to **Sentry**.
-5.  **Example Data/Control Flows:**
-    *   **User Speech:** Voice input from the app is processed (potentially via PicaOS coordinating a Speech-to-Text service like Google GenAI's STT), the transcript is stored in Supabase, and then sent back to the app for display.
-    *   **Alex's Response:** PicaOS determines Alex's response content (using Google GenAI), gets it synthesized by ElevenLabs, and sends the audio and text to the app.
+    *   PicaOS may interact with **Dappier** for specialized real-time data feeds or RAG.
+    *   PicaOS may interface with **Nodely** for workflows or decentralized storage.
+    *   PicaOS (and Supabase Edge Functions) can utilize **Upstash Redis** for caching frequently accessed data, AI responses, or session states to improve performance and reduce load on primary services.
+3.  **Direct Supabase Interaction (Optional):** For simpler data fetching or user authentication tasks not requiring complex AI orchestration or caching lookups, the Expo app *might* interact directly with Supabase APIs.
+4.  **Monitoring:** The Expo app and backend services (PicaOS, Supabase Edge Functions, Nodely) report errors and performance data to **Sentry**.
+5.  **Example Data/Control Flows (with Caching):**
+    *   **User Speech:** Voice input is processed (STT via Google GenAI), transcript stored in Supabase, and sent to app.
+    *   **Alex's Response:** PicaOS might first check **Upstash Redis** for a cached response to a similar interaction. If not found or stale, it proceeds to Google GenAI, caches the new response in Redis, then gets it synthesized by ElevenLabs for delivery.
 
-This architecture aims for a separation of concerns, with the mobile app focused on UI/UX and PicaOS handling the complex AI and service orchestration, all supported by the robust backend and specialized services.
+This architecture aims for a separation of concerns, with the mobile app focused on UI/UX, PicaOS handling complex AI/service orchestration, Supabase providing BaaS, and Upstash Redis optimizing performance.

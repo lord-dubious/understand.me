@@ -199,4 +199,37 @@ A Continuous Integration/Continuous Deployment (CI/CD) pipeline automates the bu
     11. **Sentry Source Map Upload:** Integrate `sentry-expo/upload-sourcemaps` (or Sentry CLI) into the EAS Build process or as a separate step after building to upload source maps for each release.
     12. **Notifications:** Notify the team (e.g., via Slack) of successful deployments or failures.
 
-*   **Secrets Management in CI/CD:** Use encrypted secrets in GitHub Actions (or your CI/CD provider) for `EXPO_TOKEN`, `SUPABASE_ACCESS_TOKEN`, Sentry auth tokens, PicaOS/Dappier/Nodely deployment keys, etc.
+*   **Secrets Management in CI/CD:** Use encrypted secrets in GitHub Actions (or your CI/CD provider) for `EXPO_TOKEN`, `SUPABASE_ACCESS_TOKEN`, Sentry auth tokens, PicaOS/Dappier/Nodely deployment keys, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, etc.
+
+## 9.7. Upstash Redis Production Considerations
+
+Upstash Redis is used as a serverless caching layer, primarily accessed by backend services like PicaOS or Supabase Edge Functions.
+
+*   **Database Setup & Configuration:**
+    *   Ensure you have separate Upstash Redis databases for different environments (e.g., `dev`, `staging`, `production`) or use a single database with namespaced keys if appropriate for your plan and isolation needs.
+    *   Configure eviction policies based on your caching strategy (e.g., `allkeys-lru` for general purpose caching, `volatile-ttl` if all keys have TTLs). Default is `noeviction` which can cause issues if memory fills up; `allkeys-lru` is often a safer default if not all keys have explicit TTLs.
+    *   Enable TLS for secure connections.
+*   **Monitoring & Alerting:**
+    *   Monitor Upstash Redis metrics via the Upstash console or its API:
+        *   Memory Usage (to avoid hitting limits).
+        *   Cache Hit Ratio (to gauge effectiveness).
+        *   Number of Commands / Throughput.
+        *   Evictions / Expirations.
+    *   Set up alerts (if available through Upstash or a third-party monitoring tool integrated with its metrics) for high memory usage or low cache hit ratios.
+*   **Scaling & Performance:**
+    *   Upstash is serverless and scales automatically. However, be aware of any connection limits or throughput limits based on your chosen plan.
+    *   For very high-load applications, consider if Global Caching is needed for lower latency across regions.
+*   **Cost Management:**
+    *   Monitor your Upstash usage and costs. Understand the pricing model (e.g., per command, per GB of storage).
+    *   Optimize cache usage:
+        *   Set appropriate TTLs to avoid storing stale or unnecessary data.
+        *   Cache only what provides significant performance benefits.
+        *   Use efficient data structures in Redis if applicable (e.g., hashes for objects instead of multiple individual keys).
+*   **Security:**
+    *   Use strong, unique REST tokens for accessing your Redis databases from PicaOS or Supabase Edge Functions. Store these securely as environment variables in those backend services.
+    *   Restrict access to the Upstash console and API keys.
+*   **Backup & Recovery:**
+    *   Upstash provides persistence options. Understand how your data is backed up and what the recovery process entails for your chosen plan. While cache data is often transient, some use cases might require more durable caching.
+*   **Developer Access:**
+    *   Developers typically won't interact directly with production Upstash Redis databases. Access for debugging or manual cache inspection should be limited and controlled.
+    *   Backend services (PicaOS, Supabase Edge Functions) should encapsulate all Redis interactions.

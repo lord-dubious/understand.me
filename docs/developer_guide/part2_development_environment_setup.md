@@ -123,13 +123,16 @@ The application requires API keys and credentials for various services. These sh
         EXPO_PUBLIC_PICAOS_API_ENDPOINT=your_picaos_endpoint
         EXPO_PUBLIC_DAPPIER_API_KEY=your_dappier_key
         EXPO_PUBLIC_NODELY_GATEWAY_URL=your_nodely_ipfs_gateway_or_api
+        # UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url (Primarily for backend services)
+        # UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token (Primarily for backend services)
         ```
-    *   For server-side components (e.g., Supabase Edge Functions, PicaOS services, Nodely workflows), environment variables are typically set in the respective service's configuration panel or deployment environment. Refer to Supabase documentation for Edge Functions, and PicaOS/Nodely specific setup for their services. Supabase Edge Functions can also have a `.env` file locally when using `supabase functions serve`.
+    *   For server-side components (e.g., Supabase Edge Functions, PicaOS services, Nodely workflows), environment variables are typically set in the respective service's configuration panel or deployment environment. Refer to Supabase documentation for Edge Functions, and PicaOS/Nodely specific setup for their services. Supabase Edge Functions can also have a `.env` file locally when using `supabase functions serve` (e.g., to include `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). PicaOS would similarly manage its Upstash credentials.
 2.  **Obtain Keys:**
     *   **Supabase:** From your Supabase project dashboard (Settings > API).
     *   **Google GenAI SDK:** From Google AI Studio or Google Cloud Console.
     *   **ElevenLabs API:** From your ElevenLabs account dashboard.
     *   **Sentry DSN:** From your Sentry project settings.
+    *   **Upstash Redis:** From your Upstash console ([console.upstash.com](https://console.upstash.com/)) after creating a database (REST URL and Read/Write tokens).
     *   **PicaOS, Dappier, Nodely:** Refer to specific setup instructions for these services to obtain necessary API keys, endpoints, or credentials. These might involve authentication tokens or service account keys.
 3.  **Secure Management:**
     *   Ensure `.env` files are listed in `.gitignore` to prevent committing them to version control.

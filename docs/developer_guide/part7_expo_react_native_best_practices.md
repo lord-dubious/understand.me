@@ -159,6 +159,11 @@ For "Understand.me," **Zustand** is recommended for its simplicity, flexibility,
         ```
 *   **Async Actions:** Perform async operations (like API calls) within store actions, updating state with `set()`.
 *   **Persisting State (Optional):** For persisting parts of the store (e.g., user preferences, session tokens if not handled by Supabase client) to AsyncStorage, use Zustand's `persist` middleware.
+    *   **Handling Server-Side Cached Data (e.g., from Upstash Redis via PicaOS/Edge Functions):**
+        *   The client typically doesn't need to know *if* data was served from a server-side cache like Upstash Redis; this is an optimization handled by the backend (PicaOS, Supabase Edge Functions).
+        *   However, the app should still employ good client-side caching strategies for data it fetches (e.g., using React Query, RTK Query, or custom context/store logic with AsyncStorage for fetched server data).
+        *   If data is known to be aggressively cached server-side and might become stale on the client, implement appropriate cache-busting mechanisms in API requests (e.g., versioning, ETags if supported by PicaOS API) or rely on real-time updates (Supabase Realtime) to refresh client-side state when underlying data changes.
+        *   For critical data, ensure there's a way to force a refresh from the server, bypassing any client-side cache, if needed.
 
 ## 7.4. Styling with StyleSheet API / NativeWind
 

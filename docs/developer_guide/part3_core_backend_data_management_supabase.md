@@ -404,3 +404,86 @@ Supabase Edge Functions (Deno-based TypeScript) are serverless functions useful 
     supabase functions deploy pin-summary-to-ipfs --project-ref <your-project-ref>
     ```
     And set necessary environment variables (like `NODELY_API_KEY`) in Supabase project settings.
+
+## 3.7. Caching Supabase Queries with Upstash Redis
+
+To improve performance and reduce direct load on the PostgreSQL database, frequently accessed or computationally intensive query results from Supabase can be cached using Upstash Redis. This is typically implemented within Supabase Edge Functions or by PicaOS when it fetches data from Supabase.
+
+*   **Cache-Aside Pattern:** This is the most common pattern.
+    1.  **Request Data:** An Edge Function or PicaOS receives a request for data.
+    2.  **Check Cache:** It first checks if the requested data is in Upstash Redis (e.g., using a key derived from the query parameters).
+    3.  **Cache Hit:** If data is found in Redis and is not stale, return it directly.
+    4.  **Cache Miss:** If data is not in Redis or is stale:
+        *   Fetch the data from Supabase PostgreSQL.
+        *   Store the fetched data in Upstash Redis with an appropriate Time-To-Live (TTL).
+        *   Return the data to the requester.
+*   **Cache Invalidation:**
+    *   **TTL-based:** Simplest method, data expires automatically after a set duration. Suitable for data that can tolerate some staleness.
+    *   **Event-driven:** When underlying data in Supabase changes (e.g., via `UPDATE`, `DELETE`), a database trigger or application logic can explicitly invalidate or update the corresponding Redis cache entry. This is more complex but ensures stronger consistency. Supabase Triggers calling an Edge Function which then updates Redis is a viable approach.
+*   **What to Cache:**
+    *   Frequently read, rarely updated data (e.g., lists of session templates, user profiles if not changing often, configuration data).
+    *   Results of complex or slow queries.
+    *   Aggregated data or summaries that are expensive to compute.
+*   **Accessing Upstash Redis:**
+    *   From Supabase Edge Functions or PicaOS (if Node.js based), use an appropriate Redis client library (e.g., `ioredis`, `redis` for Node.js; Deno has its own Redis clients like `https://deno.land/x/redis/mod.ts`).
+    *   Credentials (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) are stored as environment variables in the Edge Function/PicaOS environment.
+*   **Example: Supabase Edge Function with Redis Caching (Conceptual):**
+    ```typescript
+    // supabase/functions/get-cached-session-types/index.ts
+    import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+    import { createClient as createSupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { Redis } from "https://deno.land/x/upstash_redis@v1.19.1/mod.ts"; // Example Deno Redis client
+
+    const supabaseClient = createSupabaseClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")! // Or service_role for broader access if needed from trusted server
+    );
+
+    const redis = new Redis({
+      url: Deno.env.get("UPSTASH_REDIS_REST_URL")!,
+      token: Deno.env.get("UPSTASH_REDIS_REST_TOKEN")!,
+    });
+
+    const CACHE_KEY = "session_types_all";
+    const CACHE_TTL_SECONDS = 60 * 5; // 5 minutes
+
+    serve(async (_req) => {
+      try {
+        // 1. Check Cache
+        const cachedData = await redis.get(CACHE_KEY);
+        if (cachedData) {
+          console.log("Cache hit for session types");
+          return new Response(JSON.stringify(cachedData), {
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        // 2. Cache Miss: Fetch from Supabase
+        console.log("Cache miss for session types, fetching from DB...");
+        const { data: sessionTypes, error } = await supabaseClient
+          .from('session_type_templates') // Assuming such a table exists
+          .select('*');
+
+        if (error) throw error;
+
+        // 3. Store in Cache (with EX for TTL in seconds)
+        if (sessionTypes) {
+          await redis.set(CACHE_KEY, JSON.stringify(sessionTypes), { ex: CACHE_TTL_SECONDS });
+        }
+
+        return new Response(JSON.stringify(sessionTypes || []), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          headers: { "Content-Type": "application/json" },
+          status: 500,
+        });
+      }
+    });
+    ```
+*   **Considerations:**
+    *   Choose appropriate TTLs based on data volatility and acceptable staleness.
+    *   Develop a clear cache invalidation strategy for data that changes frequently.
+    *   Monitor cache hit/miss rates to optimize caching effectiveness.
+    *   Be mindful of data serialization/deserialization overhead.
