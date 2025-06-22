@@ -500,16 +500,17 @@ if (env.isDev) {
 
 ## 4. ElevenLabs Integration with Expo React Native
 
-Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement the following core components:
+Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement the following core components for the AI agent "Alex" voice synthesis:
 
 ### 4.1. Voice Service Setup
 
-Create a voice service in `src/services/voice/elevenLabsService.ts`:
+Create a comprehensive voice service in `src/services/voice/elevenLabsService.ts` that implements the ElevenLabs integration for the AI agent "Alex":
 
 ```typescript
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
-import { ELEVENLABS_API_KEY, ELEVENLABS_DEFAULT_VOICE_ID } from '@env';
+import { env } from '@utils/env';
+import { EventEmitter } from 'events';
 
 // Voice settings types
 export interface VoiceSettings {
@@ -525,26 +526,69 @@ interface VoiceResponse {
   error?: string;
 }
 
+// Voice event types
+export enum VoiceEvent {
+  START = 'voice_start',
+  STOP = 'voice_stop',
+  ERROR = 'voice_error',
+  FINISH = 'voice_finish',
+}
+
+// Voice emotion types for Alex
+export enum VoiceEmotion {
+  NEUTRAL = 'neutral',
+  HAPPY = 'happy',
+  SAD = 'sad',
+  EXCITED = 'excited',
+  CONCERNED = 'concerned',
+  THOUGHTFUL = 'thoughtful',
+  EMPATHETIC = 'empathetic',
+  PROFESSIONAL = 'professional',
+}
+
 // Default voice settings
 const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  stability: 0.5,
-  similarity_boost: 0.75,
-  style: 0.5,
-  use_speaker_boost: true
+  stability: Number(env.elevenLabsStability) || 0.5,
+  similarity_boost: Number(env.elevenLabsSimilarityBoost) || 0.75,
+  style: Number(env.elevenLabsStyle) || 0.5,
+  use_speaker_boost: env.elevenLabsUseSpeakerBoost !== 'false',
 };
+
+// Voice emotion settings map
+const EMOTION_SETTINGS: Record<VoiceEmotion, Partial<VoiceSettings>> = {
+  [VoiceEmotion.NEUTRAL]: { stability: 0.5, similarity_boost: 0.75, style: 0.5 },
+  [VoiceEmotion.HAPPY]: { stability: 0.4, similarity_boost: 0.8, style: 0.7 },
+  [VoiceEmotion.SAD]: { stability: 0.6, similarity_boost: 0.7, style: 0.3 },
+  [VoiceEmotion.EXCITED]: { stability: 0.3, similarity_boost: 0.9, style: 0.8 },
+  [VoiceEmotion.CONCERNED]: { stability: 0.6, similarity_boost: 0.6, style: 0.4 },
+  [VoiceEmotion.THOUGHTFUL]: { stability: 0.7, similarity_boost: 0.6, style: 0.5 },
+  [VoiceEmotion.EMPATHETIC]: { stability: 0.5, similarity_boost: 0.8, style: 0.6 },
+  [VoiceEmotion.PROFESSIONAL]: { stability: 0.8, similarity_boost: 0.5, style: 0.3 },
+};
+
+// Create a singleton event emitter for voice events
+export const voiceEventEmitter = new EventEmitter();
 
 /**
  * Generates speech from text using ElevenLabs API
  */
 export const generateSpeech = async (
   text: string,
-  voiceId: string = ELEVENLABS_DEFAULT_VOICE_ID,
-  voiceSettings: VoiceSettings = DEFAULT_VOICE_SETTINGS
+  voiceId: string = env.elevenLabsDefaultVoiceId,
+  voiceSettings: VoiceSettings = DEFAULT_VOICE_SETTINGS,
+  emotion: VoiceEmotion = VoiceEmotion.NEUTRAL
 ): Promise<VoiceResponse> => {
   try {
+    // Emit start event
+    voiceEventEmitter.emit(VoiceEvent.START, { text });
+    
     // Create a unique filename for this audio
     const fileName = `${Date.now()}.mp3`;
     const fileUri = `${FileSystem.cacheDirectory}elevenlabs_${fileName}`;
+    
+    // Apply emotion settings if provided
+    const emotionSettings = EMOTION_SETTINGS[emotion] || {};
+    const mergedSettings = { ...DEFAULT_VOICE_SETTINGS, ...emotionSettings, ...voiceSettings };
     
     // Prepare request to ElevenLabs API
     const response = await fetch(
@@ -553,19 +597,21 @@ export const generateSpeech = async (
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'xi-api-key': ELEVENLABS_API_KEY,
+          'xi-api-key': env.elevenLabsApiKey,
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_monolingual_v1',
-          voice_settings: voiceSettings,
+          model_id: env.elevenLabsModelId || 'eleven_monolingual_v1',
+          voice_settings: mergedSettings,
         }),
       }
     );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`ElevenLabs API error: ${errorData.detail?.message || response.statusText}`);
+      const errorMessage = `ElevenLabs API error: ${errorData.detail?.message || response.statusText}`;
+      voiceEventEmitter.emit(VoiceEvent.ERROR, { error: errorMessage });
+      throw new Error(errorMessage);
     }
 
     // Get the audio data as a blob
@@ -589,19 +635,29 @@ export const generateSpeech = async (
             
             resolve({ audioUrl: fileUri });
           } else {
-            reject(new Error('Failed to convert audio to base64'));
+            const error = new Error('Failed to convert audio to base64');
+            voiceEventEmitter.emit(VoiceEvent.ERROR, { error: error.message });
+            reject(error);
           }
         } catch (error) {
+          voiceEventEmitter.emit(VoiceEvent.ERROR, { 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+          });
           reject(error);
         }
       };
       
       reader.onerror = () => {
-        reject(new Error('Failed to read audio blob'));
+        const error = new Error('Failed to read audio blob');
+        voiceEventEmitter.emit(VoiceEvent.ERROR, { error: error.message });
+        reject(error);
       };
     });
   } catch (error) {
     console.error('Error generating speech:', error);
+    voiceEventEmitter.emit(VoiceEvent.ERROR, { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     return { error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
@@ -609,19 +665,25 @@ export const generateSpeech = async (
 /**
  * Plays audio from a file URI
  */
-export const playAudio = async (fileUri: string): Promise<void> => {
+export const playAudio = async (fileUri: string): Promise<Audio.Sound> => {
   try {
     const { sound } = await Audio.Sound.createAsync({ uri: fileUri });
-    await sound.playAsync();
     
-    // Clean up when playback finishes
-    sound.setOnPlaybackStatusUpdate(status => {
+    // Set up status monitoring
+    sound.setOnPlaybackStatusUpdate((status) => {
       if (status.didJustFinish) {
+        voiceEventEmitter.emit(VoiceEvent.FINISH);
         sound.unloadAsync();
       }
     });
+    
+    await sound.playAsync();
+    return sound;
   } catch (error) {
     console.error('Error playing audio:', error);
+    voiceEventEmitter.emit(VoiceEvent.ERROR, { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     throw error;
   }
 };
@@ -632,22 +694,39 @@ export const playAudio = async (fileUri: string): Promise<void> => {
 export const speakText = async (
   text: string,
   voiceId?: string,
-  voiceSettings?: VoiceSettings
+  voiceSettings?: VoiceSettings,
+  emotion: VoiceEmotion = VoiceEmotion.NEUTRAL
 ): Promise<Audio.Sound | null> => {
   try {
-    const { audioUrl, error } = await generateSpeech(text, voiceId, voiceSettings);
+    const { audioUrl, error } = await generateSpeech(text, voiceId, voiceSettings, emotion);
     
     if (error || !audioUrl) {
       throw new Error(error || 'Failed to generate speech');
     }
     
-    const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
-    await sound.playAsync();
-    
+    const sound = await playAudio(audioUrl);
     return sound;
   } catch (error) {
     console.error('Error speaking text:', error);
+    voiceEventEmitter.emit(VoiceEvent.ERROR, { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     return null;
+  }
+};
+
+/**
+ * Stops currently playing audio
+ */
+export const stopSpeaking = async (sound: Audio.Sound | null): Promise<void> => {
+  if (sound) {
+    try {
+      await sound.stopAsync();
+      await sound.unloadAsync();
+      voiceEventEmitter.emit(VoiceEvent.STOP);
+    } catch (error) {
+      console.error('Error stopping audio:', error);
+    }
   }
 };
 
@@ -658,7 +737,7 @@ export const getAvailableVoices = async () => {
   try {
     const response = await fetch('https://api.elevenlabs.io/v1/voices', {
       headers: {
-        'xi-api-key': ELEVENLABS_API_KEY,
+        'xi-api-key': env.elevenLabsApiKey,
       },
     });
     
@@ -673,44 +752,217 @@ export const getAvailableVoices = async () => {
     throw error;
   }
 };
+
+/**
+ * Gets voice settings for a specific emotion
+ */
+export const getVoiceSettingsForEmotion = (emotion: VoiceEmotion): VoiceSettings => {
+  const emotionSettings = EMOTION_SETTINGS[emotion] || {};
+  return { ...DEFAULT_VOICE_SETTINGS, ...emotionSettings };
+};
+
+/**
+ * Streams text to speech for real-time conversation
+ * Note: This requires the streaming API from ElevenLabs
+ */
+export const streamSpeech = async (
+  text: string,
+  voiceId: string = env.elevenLabsDefaultVoiceId,
+  voiceSettings: VoiceSettings = DEFAULT_VOICE_SETTINGS,
+  emotion: VoiceEmotion = VoiceEmotion.NEUTRAL
+): Promise<void> => {
+  if (!env.enableVoiceStreaming) {
+    // Fall back to non-streaming version if streaming is disabled
+    await speakText(text, voiceId, voiceSettings, emotion);
+    return;
+  }
+  
+  try {
+    // Implementation of streaming would go here
+    // This is a placeholder for the streaming implementation
+    // which would use WebSockets or other streaming methods
+    console.log('Streaming not yet implemented, falling back to regular speech');
+    await speakText(text, voiceId, voiceSettings, emotion);
+  } catch (error) {
+    console.error('Error streaming speech:', error);
+    voiceEventEmitter.emit(VoiceEvent.ERROR, { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+};
 ```
 
-### 4.2. Voice Component
+### 4.2. Alex Voice Component
 
-Create a reusable voice component in `src/components/voice/VoicePlayer.tsx`:
+Create a specialized voice component for the AI agent "Alex" in `src/components/alex/AlexVoice.tsx`:
 
 ```typescript
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Animated, Easing } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
-import { speakText } from '../../services/voice/elevenLabsService';
+import LottieView from 'lottie-react-native';
+import { speakText, stopSpeaking, VoiceEvent, VoiceEmotion, voiceEventEmitter } from '@services/voice/elevenLabsService';
+import { useTheme } from 'react-native-paper';
 
-interface VoicePlayerProps {
+interface AlexVoiceProps {
   text: string;
   voiceId?: string;
   autoPlay?: boolean;
+  emotion?: VoiceEmotion;
+  visualFeedback?: boolean;
+  showControls?: boolean;
   onPlaybackStart?: () => void;
   onPlaybackComplete?: () => void;
+  onError?: (error: string) => void;
+  style?: any;
 }
 
-export const VoicePlayer: React.FC<VoicePlayerProps> = ({
+export const AlexVoice: React.FC<AlexVoiceProps> = ({
   text,
   voiceId,
   autoPlay = false,
+  emotion = VoiceEmotion.NEUTRAL,
+  visualFeedback = true,
+  showControls = true,
   onPlaybackStart,
   onPlaybackComplete,
+  onError,
+  style,
 }) => {
+  const theme = useTheme();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const animationRef = useRef<LottieView>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Animation for visual feedback
+  const startPulseAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  const stopPulseAnimation = () => {
+    pulseAnim.stopAnimation();
+    Animated.timing(pulseAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Get animation source based on emotion
+  const getAnimationSource = () => {
+    switch (emotion) {
+      case VoiceEmotion.HAPPY:
+        return require('@assets/animations/alex_happy.json');
+      case VoiceEmotion.SAD:
+        return require('@assets/animations/alex_sad.json');
+      case VoiceEmotion.EXCITED:
+        return require('@assets/animations/alex_excited.json');
+      case VoiceEmotion.CONCERNED:
+        return require('@assets/animations/alex_concerned.json');
+      case VoiceEmotion.THOUGHTFUL:
+        return require('@assets/animations/alex_thoughtful.json');
+      case VoiceEmotion.EMPATHETIC:
+        return require('@assets/animations/alex_empathetic.json');
+      case VoiceEmotion.PROFESSIONAL:
+        return require('@assets/animations/alex_professional.json');
+      case VoiceEmotion.NEUTRAL:
+      default:
+        return require('@assets/animations/alex_neutral.json');
+    }
+  };
+
+  // Set up event listeners
+  useEffect(() => {
+    const startListener = voiceEventEmitter.addListener(
+      VoiceEvent.START,
+      () => {
+        setIsPlaying(true);
+        setIsLoading(false);
+        if (visualFeedback) {
+          startPulseAnimation();
+          if (animationRef.current) {
+            animationRef.current.play();
+          }
+        }
+        onPlaybackStart?.();
+      }
+    );
+
+    const stopListener = voiceEventEmitter.addListener(
+      VoiceEvent.STOP,
+      () => {
+        setIsPlaying(false);
+        if (visualFeedback) {
+          stopPulseAnimation();
+          if (animationRef.current) {
+            animationRef.current.pause();
+          }
+        }
+      }
+    );
+
+    const finishListener = voiceEventEmitter.addListener(
+      VoiceEvent.FINISH,
+      () => {
+        setIsPlaying(false);
+        if (visualFeedback) {
+          stopPulseAnimation();
+          if (animationRef.current) {
+            animationRef.current.pause();
+          }
+        }
+        onPlaybackComplete?.();
+      }
+    );
+
+    const errorListener = voiceEventEmitter.addListener(
+      VoiceEvent.ERROR,
+      (data) => {
+        setIsLoading(false);
+        setIsPlaying(false);
+        setError(data.error);
+        if (visualFeedback) {
+          stopPulseAnimation();
+          if (animationRef.current) {
+            animationRef.current.pause();
+          }
+        }
+        onError?.(data.error);
+      }
+    );
+
+    return () => {
+      startListener.remove();
+      stopListener.remove();
+      finishListener.remove();
+      errorListener.remove();
+    };
+  }, [visualFeedback, onPlaybackStart, onPlaybackComplete, onError]);
 
   // Clean up sound on unmount
   useEffect(() => {
     return () => {
       if (sound) {
-        sound.unloadAsync();
+        stopSpeaking(sound);
       }
     };
   }, [sound]);
@@ -726,59 +978,66 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({
     try {
       // If already playing, stop first
       if (sound) {
-        await sound.unloadAsync();
+        await stopSpeaking(sound);
         setSound(null);
       }
 
       setIsLoading(true);
       setError(null);
       
-      // Notify start of playback
-      onPlaybackStart?.();
-      
       // Generate and play speech
-      const newSound = await speakText(text, voiceId);
+      const newSound = await speakText(text, voiceId, undefined, emotion);
       
       if (newSound) {
         setSound(newSound);
-        setIsPlaying(true);
-        
-        // Set up status monitoring
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.didJustFinish) {
-            setIsPlaying(false);
-            onPlaybackComplete?.();
-          }
-        });
-      } else {
-        setError('Failed to generate speech');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
       setIsLoading(false);
+      setIsPlaying(false);
+      onError?.(err instanceof Error ? err.message : 'Unknown error');
     }
   };
 
   const handleStop = async () => {
     if (sound) {
-      await sound.stopAsync();
-      setIsPlaying(false);
+      await stopSpeaking(sound);
     }
   };
 
   return (
-    <View style={styles.container}>
-      {isLoading ? (
-        <ActivityIndicator size="small" color="#0066CC" />
-      ) : isPlaying ? (
-        <TouchableOpacity onPress={handleStop} style={styles.button}>
-          <Ionicons name="stop" size={24} color="#0066CC" />
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity onPress={handlePlay} style={styles.button}>
-          <Ionicons name="play" size={24} color="#0066CC" />
-        </TouchableOpacity>
+    <View style={[styles.container, style]}>
+      {visualFeedback && (
+        <Animated.View
+          style={[
+            styles.animationContainer,
+            { transform: [{ scale: pulseAnim }] }
+          ]}
+        >
+          <LottieView
+            ref={animationRef}
+            source={getAnimationSource()}
+            style={styles.animation}
+            loop={isPlaying}
+            autoPlay={false}
+          />
+        </Animated.View>
+      )}
+      
+      {showControls && (
+        <View style={styles.controls}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={theme.colors.primary} />
+          ) : isPlaying ? (
+            <TouchableOpacity onPress={handleStop} style={styles.button}>
+              <Ionicons name="stop-circle" size={48} color={theme.colors.primary} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={handlePlay} style={styles.button}>
+              <Ionicons name="play-circle" size={48} color={theme.colors.primary} />
+            </TouchableOpacity>
+          )}
+        </View>
       )}
       
       {error && <Text style={styles.errorText}>{error}</Text>}
@@ -788,17 +1047,113 @@ export const VoicePlayer: React.FC<VoicePlayerProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  animationContainer: {
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  animation: {
+    width: '100%',
+    height: '100%',
+  },
+  controls: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    justifyContent: 'center',
   },
   button: {
     padding: 8,
   },
   errorText: {
     color: 'red',
-    marginLeft: 8,
+    marginTop: 8,
     fontSize: 12,
+    textAlign: 'center',
+  },
+});
+```
+
+### 4.3. Alex Message Component
+
+Create a component for displaying Alex's messages in `src/components/alex/AlexMessage.tsx`:
+
+```typescript
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Card, useTheme } from 'react-native-paper';
+import { AlexVoice } from './AlexVoice';
+import { VoiceEmotion } from '@services/voice/elevenLabsService';
+
+interface AlexMessageProps {
+  message: string;
+  emotion?: VoiceEmotion;
+  autoPlay?: boolean;
+  timestamp?: Date;
+  onPlaybackComplete?: () => void;
+}
+
+export const AlexMessage: React.FC<AlexMessageProps> = ({
+  message,
+  emotion = VoiceEmotion.NEUTRAL,
+  autoPlay = false,
+  timestamp = new Date(),
+  onPlaybackComplete,
+}) => {
+  const theme = useTheme();
+  
+  return (
+    <View style={styles.container}>
+      <Card style={[styles.card, { backgroundColor: theme.colors.primaryContainer }]}>
+        <Card.Content>
+          <Text style={[styles.message, { color: theme.colors.onPrimaryContainer }]}>
+            {message}
+          </Text>
+          <Text style={styles.timestamp}>
+            {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+        </Card.Content>
+      </Card>
+      
+      <AlexVoice
+        text={message}
+        emotion={emotion}
+        autoPlay={autoPlay}
+        visualFeedback={true}
+        showControls={true}
+        onPlaybackComplete={onPlaybackComplete}
+        style={styles.voicePlayer}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 8,
+    marginHorizontal: 16,
+    alignItems: 'flex-start',
+  },
+  card: {
+    width: '80%',
+    borderRadius: 16,
+  },
+  message: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  timestamp: {
+    fontSize: 12,
+    opacity: 0.6,
+    alignSelf: 'flex-end',
+  },
+  voicePlayer: {
+    marginTop: 8,
   },
 });
 ```
