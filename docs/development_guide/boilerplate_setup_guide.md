@@ -1158,140 +1158,615 @@ const styles = StyleSheet.create({
 });
 ```
 
-### 4.3. Audio Permission Setup
+### 4.4. Audio Permission Setup
 
-Create an audio permission hook in `src/hooks/useAudioPermissions.ts`:
+Create an enhanced audio permission hook in `src/hooks/useAudioPermissions.ts` that handles all necessary permissions for voice interactions:
 
 ```typescript
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
+import * as Permissions from 'expo-permissions';
+import * as MediaLibrary from 'expo-media-library';
+import * as Notifications from 'expo-notifications';
+
+interface AudioPermissionsState {
+  hasRecordingPermissions: boolean;
+  hasMediaLibraryPermissions: boolean;
+  hasNotificationPermissions: boolean;
+  isAudioConfigured: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
 
 export const useAudioPermissions = () => {
-  const [hasPermissions, setHasPermissions] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<AudioPermissionsState>({
+    hasRecordingPermissions: false,
+    hasMediaLibraryPermissions: false,
+    hasNotificationPermissions: false,
+    isAudioConfigured: false,
+    isLoading: true,
+    error: null,
+  });
 
   useEffect(() => {
     const requestPermissions = async () => {
       try {
-        setIsLoading(true);
+        setState(prev => ({ ...prev, isLoading: true, error: null }));
+        
+        // Create audio cache directory if it doesn't exist
+        const audioCacheDir = `${FileSystem.cacheDirectory}audio/`;
+        const dirInfo = await FileSystem.getInfoAsync(audioCacheDir);
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(audioCacheDir);
+        }
         
         // Request audio recording permissions
         const { granted: recordingGranted } = await Audio.requestPermissionsAsync();
         
-        // Check if cache directory exists and is writable
-        const dirInfo = await FileSystem.getInfoAsync(FileSystem.cacheDirectory + 'audio/');
-        if (!dirInfo.exists) {
-          await FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'audio/');
+        // Request media library permissions (for saving recordings)
+        const { granted: mediaLibraryGranted } = await MediaLibrary.requestPermissionsAsync();
+        
+        // Request notification permissions (for audio playback controls)
+        let notificationGranted = false;
+        if (Platform.OS !== 'web') {
+          const { granted } = await Notifications.requestPermissionsAsync({
+            ios: {
+              allowAlert: true,
+              allowBadge: true,
+              allowSound: true,
+            },
+          });
+          notificationGranted = granted;
         }
         
-        // Configure audio mode for playback
+        // Configure audio mode for optimal voice interaction
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
+          staysActiveInBackground: true,
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
           shouldDuckAndroid: true,
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          playThroughEarpieceAndroid: false,
         });
         
-        setHasPermissions(recordingGranted);
+        setState({
+          hasRecordingPermissions: recordingGranted,
+          hasMediaLibraryPermissions: mediaLibraryGranted,
+          hasNotificationPermissions: notificationGranted,
+          isAudioConfigured: true,
+          isLoading: false,
+          error: null,
+        });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to get audio permissions');
-        setHasPermissions(false);
-      } finally {
-        setIsLoading(false);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to get audio permissions';
+        console.error('Audio permissions error:', errorMessage);
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: errorMessage,
+        }));
       }
     };
 
     requestPermissions();
+    
+    // Cleanup function
+    return () => {
+      // Reset audio mode when component unmounts
+      Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: false,
+        staysActiveInBackground: false,
+        interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS,
+        shouldDuckAndroid: false,
+        interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_MIX_WITH_OTHERS,
+        playThroughEarpieceAndroid: false,
+      }).catch(err => console.error('Error resetting audio mode:', err));
+    };
   }, []);
 
-  return { hasPermissions, isLoading, error };
+  // Helper function to request permissions again if needed
+  const refreshPermissions = async () => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const { granted: recordingGranted } = await Audio.requestPermissionsAsync();
+      const { granted: mediaLibraryGranted } = await MediaLibrary.requestPermissionsAsync();
+      
+      setState(prev => ({
+        ...prev,
+        hasRecordingPermissions: recordingGranted,
+        hasMediaLibraryPermissions: mediaLibraryGranted,
+        isLoading: false,
+      }));
+      
+      return recordingGranted && mediaLibraryGranted;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh permissions';
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
+      return false;
+    }
+  };
+
+  // Check if all required permissions are granted
+  const hasAllRequiredPermissions = 
+    state.hasRecordingPermissions && 
+    state.isAudioConfigured;
+
+  return {
+    ...state,
+    hasAllRequiredPermissions,
+    refreshPermissions,
+  };
 };
 ```
 
 ## 5. Supabase Integration
 
-Set up Supabase client and authentication in `src/api/supabase/supabaseClient.ts`:
+### 5.1. Supabase Client Setup
+
+Set up a comprehensive Supabase client with authentication, storage, and database access in `src/api/supabase/supabaseClient.ts`:
 
 ```typescript
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@env';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { env } from '@utils/env';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MMKV } from 'react-native-mmkv';
 
-// SecureStore adapter for Supabase storage
-const ExpoSecureStoreAdapter = {
-  getItem: (key: string): Promise<string | null> => {
-    return SecureStore.getItemAsync(key);
-  },
-  setItem: (key: string, value: string): Promise<void> => {
-    return SecureStore.setItemAsync(key, value);
-  },
-  removeItem: (key: string): Promise<void> => {
-    return SecureStore.deleteItemAsync(key);
-  },
+// Create MMKV instance for high-performance storage
+export const storage = new MMKV({
+  id: 'supabase-storage',
+  encryptionKey: 'supabase-storage-key',
+});
+
+// Storage adapter based on platform capabilities
+const createStorageAdapter = () => {
+  // Use SecureStore on native platforms when possible
+  if (Platform.OS !== 'web') {
+    // Check if keys are too large for SecureStore (which has a size limit)
+    // If so, fall back to MMKV
+    return {
+      getItem: async (key: string): Promise<string | null> => {
+        try {
+          const value = await SecureStore.getItemAsync(key);
+          return value;
+        } catch (error) {
+          // If the key is too large, try MMKV
+          const mmkvValue = storage.getString(key);
+          return mmkvValue || null;
+        }
+      },
+      setItem: async (key: string, value: string): Promise<void> => {
+        try {
+          await SecureStore.setItemAsync(key, value);
+        } catch (error) {
+          // If the value is too large, use MMKV
+          storage.set(key, value);
+        }
+      },
+      removeItem: async (key: string): Promise<void> => {
+        try {
+          await SecureStore.deleteItemAsync(key);
+        } catch (error) {
+          storage.delete(key);
+        }
+      },
+    };
+  }
+
+  // Use AsyncStorage for web
+  return AsyncStorage;
 };
 
 // Initialize Supabase client
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    storage: ExpoSecureStoreAdapter,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase: SupabaseClient = createClient(
+  env.supabaseUrl,
+  env.supabaseAnonKey,
+  {
+    auth: {
+      storage: createStorageAdapter(),
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+);
 
 // Authentication helpers
-export const signUp = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-  
-  return { data, error };
+export const authService = {
+  /**
+   * Sign up a new user with email and password
+   */
+  signUp: async (email: string, password: string, metadata = {}) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+      },
+    });
+    
+    return { data, error };
+  },
+
+  /**
+   * Sign in with email and password
+   */
+  signIn: async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    return { data, error };
+  },
+
+  /**
+   * Sign in with OAuth provider
+   */
+  signInWithOAuth: async (provider: 'google' | 'apple' | 'facebook') => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: 'understandme://auth/callback',
+      },
+    });
+    
+    return { data, error };
+  },
+
+  /**
+   * Sign out the current user
+   */
+  signOut: async () => {
+    const { error } = await supabase.auth.signOut();
+    return { error };
+  },
+
+  /**
+   * Reset password for a user
+   */
+  resetPassword: async (email: string) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'understandme://auth/reset-password',
+    });
+    return { data, error };
+  },
+
+  /**
+   * Update user password
+   */
+  updatePassword: async (password: string) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password,
+    });
+    return { data, error };
+  },
+
+  /**
+   * Update user metadata
+   */
+  updateUserMetadata: async (metadata: Record<string, any>) => {
+    const { data, error } = await supabase.auth.updateUser({
+      data: metadata,
+    });
+    return { data, error };
+  },
+
+  /**
+   * Get the current user
+   */
+  getCurrentUser: async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { user, error };
+  },
+
+  /**
+   * Get the current session
+   */
+  getSession: async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    return { session, error };
+  },
+
+  /**
+   * Refresh the session
+   */
+  refreshSession: async () => {
+    const { data, error } = await supabase.auth.refreshSession();
+    return { data, error };
+  },
 };
 
-export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  
-  return { data, error };
+// Database helpers
+export const dbService = {
+  /**
+   * Get user profile data
+   */
+  getUserProfile: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Update user profile
+   */
+  updateUserProfile: async (userId: string, updates: Record<string, any>) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Create a new session
+   */
+  createSession: async (sessionData: Record<string, any>) => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .insert(sessionData)
+      .select()
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Get session by ID
+   */
+  getSessionById: async (sessionId: string) => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*, participants(*)')
+      .eq('id', sessionId)
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Get user's sessions
+   */
+  getUserSessions: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .or(`host_id.eq.${userId},participants.user_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
+    
+    return { data, error };
+  },
+
+  /**
+   * Update session
+   */
+  updateSession: async (sessionId: string, updates: Record<string, any>) => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .update(updates)
+      .eq('id', sessionId)
+      .select()
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Add participant to session
+   */
+  addParticipantToSession: async (sessionId: string, userId: string, role: string) => {
+    const { data, error } = await supabase
+      .from('participants')
+      .insert({
+        session_id: sessionId,
+        user_id: userId,
+        role,
+      })
+      .select()
+      .single();
+    
+    return { data, error };
+  },
+
+  /**
+   * Get session messages
+   */
+  getSessionMessages: async (sessionId: string) => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*, user:profiles(*)')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    
+    return { data, error };
+  },
+
+  /**
+   * Add message to session
+   */
+  addMessageToSession: async (sessionId: string, userId: string, content: string, type: string) => {
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        session_id: sessionId,
+        user_id: userId,
+        content,
+        type,
+      })
+      .select()
+      .single();
+    
+    return { data, error };
+  },
 };
 
-export const signOut = async () => {
-  const { error } = await supabase.auth.signOut();
-  return { error };
+// Storage helpers
+export const storageService = {
+  /**
+   * Upload file to Supabase Storage
+   */
+  uploadFile: async (bucket: string, path: string, file: Blob, options = {}) => {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        ...options,
+      });
+    
+    return { data, error };
+  },
+
+  /**
+   * Download file from Supabase Storage
+   */
+  downloadFile: async (bucket: string, path: string) => {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .download(path);
+    
+    return { data, error };
+  },
+
+  /**
+   * Get public URL for a file
+   */
+  getPublicUrl: (bucket: string, path: string) => {
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path);
+    
+    return data.publicUrl;
+  },
+
+  /**
+   * Delete file from Supabase Storage
+   */
+  deleteFile: async (bucket: string, path: string) => {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .remove([path]);
+    
+    return { data, error };
+  },
+
+  /**
+   * List files in a bucket
+   */
+  listFiles: async (bucket: string, path: string) => {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .list(path);
+    
+    return { data, error };
+  },
 };
 
-export const resetPassword = async (email: string) => {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email);
-  return { data, error };
-};
+// Realtime helpers
+export const realtimeService = {
+  /**
+   * Subscribe to table changes
+   */
+  subscribeToTable: (
+    table: string,
+    callback: (payload: any) => void,
+    event: 'INSERT' | 'UPDATE' | 'DELETE' | '*' = '*',
+    filter = ''
+  ) => {
+    const channel = supabase
+      .channel(`table-changes-${table}`)
+      .on(
+        'postgres_changes',
+        {
+          event,
+          schema: 'public',
+          table,
+          filter,
+        },
+        callback
+      )
+      .subscribe();
+    
+    return channel;
+  },
 
-export const getCurrentUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  return { user, error };
-};
+  /**
+   * Subscribe to session messages
+   */
+  subscribeToSessionMessages: (sessionId: string, callback: (payload: any) => void) => {
+    return realtimeService.subscribeToTable(
+      'messages',
+      callback,
+      'INSERT',
+      `session_id=eq.${sessionId}`
+    );
+  },
 
-export const getSession = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  return { session, error };
+  /**
+   * Subscribe to session updates
+   */
+  subscribeToSessionUpdates: (sessionId: string, callback: (payload: any) => void) => {
+    return realtimeService.subscribeToTable(
+      'sessions',
+      callback,
+      'UPDATE',
+      `id=eq.${sessionId}`
+    );
+  },
+
+  /**
+   * Subscribe to participant updates
+   */
+  subscribeToParticipantUpdates: (sessionId: string, callback: (payload: any) => void) => {
+    return realtimeService.subscribeToTable(
+      'participants',
+      callback,
+      '*',
+      `session_id=eq.${sessionId}`
+    );
+  },
 };
 ```
 
 ## 6. Google GenAI Integration
 
-Set up Google GenAI client in `src/api/genai/genaiClient.ts`:
+### 6.1. Google GenAI Client Setup
+
+Set up a comprehensive Google GenAI client for the multimodal LLM analysis engine in `src/api/genai/genaiClient.ts`:
 
 ```typescript
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
-import { GOOGLE_GENAI_API_KEY } from '@env';
+import { 
+  GoogleGenerativeAI, 
+  HarmCategory, 
+  HarmBlockThreshold,
+  GenerativeModel,
+  ChatSession,
+  Content,
+  Part,
+  EnhancedGenerateContentResponse
+} from '@google/generative-ai';
+import { env } from '@utils/env';
+import * as FileSystem from 'expo-file-system';
 
 // Initialize the Google GenAI client
-const genAI = new GoogleGenerativeAI(GOOGLE_GENAI_API_KEY);
+const genAI = new GoogleGenerativeAI(env.googleGenAiApiKey);
 
 // Safety settings for content generation
 const safetySettings = [
@@ -1315,10 +1790,73 @@ const safetySettings = [
 
 // Default generation config
 const defaultGenerationConfig = {
-  temperature: 0.7,
-  topK: 40,
-  topP: 0.95,
-  maxOutputTokens: 1024,
+  temperature: Number(env.googleGenAiTemperature) || 0.7,
+  topK: Number(env.googleGenAiTopK) || 40,
+  topP: Number(env.googleGenAiTopP) || 0.95,
+  maxOutputTokens: Number(env.googleGenAiMaxOutputTokens) || 1024,
+};
+
+// Model types
+export enum ModelType {
+  TEXT = 'gemini-pro',
+  VISION = 'gemini-pro-vision',
+}
+
+// Response types
+export interface GenAIResponse<T> {
+  data: T | null;
+  error: string | null;
+}
+
+// Chat history type
+export interface ChatMessage {
+  role: 'user' | 'model';
+  parts: string | Part[];
+}
+
+// File type for multimodal input
+export interface FileData {
+  uri: string;
+  mimeType: string;
+}
+
+/**
+ * Get a model instance with the specified configuration
+ */
+const getModel = (modelName: ModelType = ModelType.TEXT, options = {}): GenerativeModel => {
+  return genAI.getGenerativeModel({
+    model: modelName,
+    safetySettings,
+    generationConfig: {
+      ...defaultGenerationConfig,
+      ...options,
+    },
+  });
+};
+
+/**
+ * Convert a file to a base64 data URI
+ */
+const fileToGenerativePart = async (file: FileData): Promise<Part> => {
+  try {
+    // Read the file as base64
+    const base64 = await FileSystem.readAsStringAsync(file.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    
+    // Create the data URI
+    const dataUri = `data:${file.mimeType};base64,${base64}`;
+    
+    return {
+      inlineData: {
+        data: base64,
+        mimeType: file.mimeType,
+      },
+    };
+  } catch (error) {
+    console.error('Error converting file to generative part:', error);
+    throw error;
+  }
 };
 
 /**
@@ -1327,29 +1865,60 @@ const defaultGenerationConfig = {
 export const generateText = async (
   prompt: string,
   options = {}
-) => {
+): Promise<GenAIResponse<string>> => {
   try {
     // Get the Gemini Pro model
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      safetySettings,
-      generationConfig: {
-        ...defaultGenerationConfig,
-        ...options,
-      },
-    });
+    const model = getModel(ModelType.TEXT, options);
 
     // Generate content
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
     
-    return { text, error: null };
+    return { data: text, error: null };
   } catch (error) {
     console.error('Error generating text:', error);
     return { 
-      text: null, 
+      data: null, 
       error: error instanceof Error ? error.message : 'Unknown error generating text' 
+    };
+  }
+};
+
+/**
+ * Generate multimodal response using Google GenAI
+ */
+export const generateMultimodalResponse = async (
+  textPrompt: string,
+  files: FileData[],
+  options = {}
+): Promise<GenAIResponse<string>> => {
+  try {
+    // Get the Gemini Pro Vision model
+    const model = getModel(ModelType.VISION, options);
+    
+    // Convert files to generative parts
+    const fileParts: Part[] = await Promise.all(
+      files.map(file => fileToGenerativePart(file))
+    );
+    
+    // Create content parts with text and files
+    const parts: Part[] = [
+      { text: textPrompt },
+      ...fileParts,
+    ];
+    
+    // Generate content
+    const result = await model.generateContent(parts);
+    const response = result.response;
+    const text = response.text();
+    
+    return { data: text, error: null };
+  } catch (error) {
+    console.error('Error generating multimodal response:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error generating multimodal response' 
     };
   }
 };
@@ -1357,31 +1926,292 @@ export const generateText = async (
 /**
  * Start a chat session with Google GenAI
  */
-export const createChatSession = (history = [], options = {}) => {
+export const createChatSession = (
+  history: ChatMessage[] = [],
+  options = {}
+): GenAIResponse<ChatSession> => {
   try {
     // Get the Gemini Pro model
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      safetySettings,
-      generationConfig: {
-        ...defaultGenerationConfig,
-        ...options,
-      },
-    });
+    const model = getModel(ModelType.TEXT, options);
+
+    // Convert history to the format expected by the API
+    const formattedHistory = history.map(message => ({
+      role: message.role,
+      parts: typeof message.parts === 'string' ? [{ text: message.parts }] : message.parts,
+    }));
 
     // Create a chat session
     const chat = model.startChat({
-      history,
+      history: formattedHistory,
     });
     
-    return { chat, error: null };
+    return { data: chat, error: null };
   } catch (error) {
     console.error('Error creating chat session:', error);
     return { 
-      chat: null, 
+      data: null, 
       error: error instanceof Error ? error.message : 'Unknown error creating chat' 
     };
   }
+};
+
+/**
+ * Send a message to an existing chat session
+ */
+export const sendMessageToChat = async (
+  chat: ChatSession,
+  message: string | Part[]
+): Promise<GenAIResponse<string>> => {
+  try {
+    const result = await chat.sendMessage(message);
+    const response = result.response;
+    const text = response.text();
+    
+    return { data: text, error: null };
+  } catch (error) {
+    console.error('Error sending message to chat:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error sending message' 
+    };
+  }
+};
+
+/**
+ * Stream a response from Google GenAI
+ */
+export const streamGenerateContent = async (
+  prompt: string,
+  onStream: (text: string) => void,
+  onComplete: (fullText: string) => void,
+  onError: (error: string) => void,
+  options = {}
+): Promise<void> => {
+  try {
+    // Get the Gemini Pro model
+    const model = getModel(ModelType.TEXT, options);
+    
+    // Generate content with streaming
+    const result = await model.generateContentStream(prompt);
+    
+    let fullText = '';
+    
+    // Process the stream
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      fullText += chunkText;
+      onStream(chunkText);
+    }
+    
+    // Call the complete callback with the full text
+    onComplete(fullText);
+  } catch (error) {
+    console.error('Error streaming content:', error);
+    onError(error instanceof Error ? error.message : 'Unknown error streaming content');
+  }
+};
+
+/**
+ * Analyze emotion from text
+ */
+export const analyzeEmotion = async (text: string): Promise<GenAIResponse<any>> => {
+  try {
+    const prompt = `
+      Analyze the emotional content of the following text and return a JSON object with:
+      1. The primary emotion (anger, fear, joy, sadness, surprise, disgust, trust, anticipation)
+      2. The intensity of the emotion on a scale of 1-10
+      3. Any secondary emotions detected
+      4. Key phrases that indicate the emotional state
+      
+      Text to analyze: "${text}"
+      
+      Return only the JSON object without any additional text.
+    `;
+    
+    const { data, error } = await generateText(prompt, { temperature: 0.1 });
+    
+    if (error || !data) {
+      return { data: null, error: error || 'Failed to analyze emotion' };
+    }
+    
+    // Parse the JSON response
+    try {
+      const jsonData = JSON.parse(data);
+      return { data: jsonData, error: null };
+    } catch (parseError) {
+      return { 
+        data: null, 
+        error: 'Failed to parse emotion analysis result' 
+      };
+    }
+  } catch (error) {
+    console.error('Error analyzing emotion:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error analyzing emotion' 
+    };
+  }
+};
+
+/**
+ * Analyze conflict patterns in a conversation
+ */
+export const analyzeConflictPatterns = async (
+  conversation: string[]
+): Promise<GenAIResponse<any>> => {
+  try {
+    const conversationText = conversation.join('\n');
+    
+    const prompt = `
+      Analyze the following conversation for conflict patterns and return a JSON object with:
+      1. Identified conflict patterns (criticism, contempt, defensiveness, stonewalling)
+      2. Communication breakdowns and their causes
+      3. Potential resolution pathways
+      4. Key phrases that escalated or de-escalated the conflict
+      
+      Conversation:
+      ${conversationText}
+      
+      Return only the JSON object without any additional text.
+    `;
+    
+    const { data, error } = await generateText(prompt, { temperature: 0.2 });
+    
+    if (error || !data) {
+      return { data: null, error: error || 'Failed to analyze conflict patterns' };
+    }
+    
+    // Parse the JSON response
+    try {
+      const jsonData = JSON.parse(data);
+      return { data: jsonData, error: null };
+    } catch (parseError) {
+      return { 
+        data: null, 
+        error: 'Failed to parse conflict analysis result' 
+      };
+    }
+  } catch (error) {
+    console.error('Error analyzing conflict patterns:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error analyzing conflict patterns' 
+    };
+  }
+};
+
+/**
+ * Generate a session summary
+ */
+export const generateSessionSummary = async (
+  sessionTranscript: string,
+  sessionMetadata: any
+): Promise<GenAIResponse<any>> => {
+  try {
+    const prompt = `
+      Generate a comprehensive summary of the following mediation session:
+      
+      Session Type: ${sessionMetadata.type}
+      Duration: ${sessionMetadata.duration} minutes
+      Participants: ${sessionMetadata.participants.join(', ')}
+      
+      Transcript:
+      ${sessionTranscript}
+      
+      Please include:
+      1. Key points discussed
+      2. Areas of agreement and disagreement
+      3. Action items and next steps
+      4. Emotional dynamics observed
+      5. Progress made towards resolution
+      
+      Format the response as a JSON object with these sections.
+    `;
+    
+    const { data, error } = await generateText(prompt, { temperature: 0.3 });
+    
+    if (error || !data) {
+      return { data: null, error: error || 'Failed to generate session summary' };
+    }
+    
+    // Parse the JSON response
+    try {
+      const jsonData = JSON.parse(data);
+      return { data: jsonData, error: null };
+    } catch (parseError) {
+      // If JSON parsing fails, return the text as is
+      return { data: { summary: data }, error: null };
+    }
+  } catch (error) {
+    console.error('Error generating session summary:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error generating session summary' 
+    };
+  }
+};
+
+/**
+ * Generate a response for Alex based on conversation context
+ */
+export const generateAlexResponse = async (
+  userMessage: string,
+  conversationHistory: ChatMessage[],
+  sessionContext: any,
+  emotionalState: any
+): Promise<GenAIResponse<string>> => {
+  try {
+    // Create a chat session with the conversation history
+    const { data: chat, error: chatError } = createChatSession(conversationHistory);
+    
+    if (chatError || !chat) {
+      return { data: null, error: chatError || 'Failed to create chat session' };
+    }
+    
+    // Create a system prompt with context
+    const systemPrompt = `
+      You are Alex, an AI mediator and communication facilitator in the Understand.me application.
+      Current session type: ${sessionContext.type}
+      Current phase: ${sessionContext.phase}
+      Emotional state detected: ${JSON.stringify(emotionalState)}
+      
+      Your role is to:
+      1. Facilitate clear communication
+      2. Identify underlying needs and interests
+      3. Help parties find common ground
+      4. Maintain a calm, empathetic tone
+      5. Guide the conversation towards productive outcomes
+      
+      Respond to the user's message in a natural, conversational way that advances the mediation process.
+    `;
+    
+    // Send the system prompt and user message to the chat
+    const { data: response, error: responseError } = await sendMessageToChat(
+      chat,
+      [
+        { text: systemPrompt },
+        { text: userMessage }
+      ]
+    );
+    
+    if (responseError || !response) {
+      return { data: null, error: responseError || 'Failed to generate Alex response' };
+    }
+    
+    return { data: response, error: null };
+  } catch (error) {
+    console.error('Error generating Alex response:', error);
+    return { 
+      data: null, 
+      error: error instanceof Error ? error.message : 'Unknown error generating Alex response' 
+    };
+  }
+};
+
+// Export the main client for direct access if needed
+export const genaiClient = {
+  genAI,
+  getModel,
 };
 ```
 
