@@ -14,10 +14,11 @@ The Understand.me application is an AI-mediated communication platform powered b
 This boilerplate establishes the foundation for these integrations, focusing on:
 1. Setting up the project structure with proper separation of concerns
 2. Configuring core dependencies and environment variables
-3. Implementing the ElevenLabs voice integration for the AI agent "Alex"
-4. Setting up Supabase for authentication and data storage
-5. Creating the navigation flow with onboarding before authentication
-6. Establishing the basic UI components and screens
+3. Implementing the ElevenLabs voice integration for multiple AI agents
+4. Creating a multi-agent architecture supporting various AI personalities (Alex, and others)
+5. Setting up Supabase for authentication and data storage
+6. Creating the navigation flow with onboarding before authentication
+7. Establishing the basic UI components and screens with agent flexibility
 
 ## 1. Project Structure Overview
 
@@ -42,13 +43,13 @@ understand-me/
 │   │   ├── conversation/       # Conversation-specific components
 │   │   ├── forms/              # Form components
 │   │   ├── voice/              # Voice interaction components
-│   │   ├── alex/               # Alex AI agent components
-│   │   └── session/            # Session-related components
+│   │   ├── agents/             # AI agent components (Alex, and others)
+│   │   └��─ session/            # Session-related components
 │   ├── contexts/               # React contexts for state management
 │   │   ├── auth/               # Authentication context
 │   │   ├── session/            # Session context
 │   │   ├── voice/              # Voice context
-│   │   └── alex/               # Alex AI agent context
+│   │   └── agents/             # AI agent contexts (Alex, and others)
 │   ├── hooks/                  # Custom React hooks
 │   │   ├── useAudio/           # Audio recording and playback hooks
 │   │   ├── useVoice/           # Voice synthesis and recognition hooks
@@ -74,7 +75,7 @@ understand-me/
 │   ├── services/               # Business logic services
 │   │   ├── auth/               # Authentication service
 │   │   ├── conversation/       # Conversation processing service
-│   │   ├── mediation/          # Mediation logic service
+│   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
 │   │   ├── analysis/           # Analysis service for multimodal inputs
 │   │   └── notification/       # Notification service
@@ -87,7 +88,7 @@ understand-me/
 │   │   ├── api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
 │   │   ├── session.ts          # Session types
-│   │   ├── voice.ts            # Voice types
+│   │   ���── voice.ts            # Voice types
 │   │   └── index.ts            # Type exports
 │   └── utils/                  # Utility functions
 │       ├── formatting.ts       # Text and data formatting utilities
@@ -500,11 +501,11 @@ if (env.isDev) {
 
 ## 4. ElevenLabs Integration with Expo React Native
 
-Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement the following core components for the AI agent "Alex" voice synthesis:
+Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement the following core components for multiple AI agent voice synthesis:
 
 ### 4.1. Voice Service Setup
 
-Create a comprehensive voice service in `src/services/voice/elevenLabsService.ts` that implements the ElevenLabs integration for the AI agent "Alex":
+Create a comprehensive voice service in `src/services/voice/elevenLabsService.ts` that implements the ElevenLabs integration for multiple AI agents:
 
 ```typescript
 import { Audio } from 'expo-av';
@@ -534,7 +535,7 @@ export enum VoiceEvent {
   FINISH = 'voice_finish',
 }
 
-// Voice emotion types for Alex
+// Voice emotion types for AI agents
 export enum VoiceEmotion {
   NEUTRAL = 'neutral',
   HAPPY = 'happy',
@@ -792,9 +793,9 @@ export const streamSpeech = async (
 };
 ```
 
-### 4.2. Alex Voice Component
+### 4.2. Agent Voice Component
 
-Create a specialized voice component for the AI agent "Alex" in `src/components/alex/AlexVoice.tsx`:
+Create a specialized voice component for AI agents in `src/components/agents/AgentVoice.tsx`:
 
 ```typescript
 import React, { useState, useEffect, useRef } from 'react';
@@ -805,7 +806,9 @@ import LottieView from 'lottie-react-native';
 import { speakText, stopSpeaking, VoiceEvent, VoiceEmotion, voiceEventEmitter } from '@services/voice/elevenLabsService';
 import { useTheme } from 'react-native-paper';
 
-interface AlexVoiceProps {
+interface AgentVoiceProps {
+  agentId: string;
+  agentName: string;
   text: string;
   voiceId?: string;
   autoPlay?: boolean;
@@ -818,7 +821,9 @@ interface AlexVoiceProps {
   style?: any;
 }
 
-export const AlexVoice: React.FC<AlexVoiceProps> = ({
+export const AgentVoice: React.FC<AgentVoiceProps> = ({
+  agentId,
+  agentName,
   text,
   voiceId,
   autoPlay = false,
@@ -867,26 +872,26 @@ export const AlexVoice: React.FC<AlexVoiceProps> = ({
     }).start();
   };
 
-  // Get animation source based on emotion
+  // Get animation source based on emotion and agent
   const getAnimationSource = () => {
     switch (emotion) {
       case VoiceEmotion.HAPPY:
-        return require('@assets/animations/alex_happy.json');
+        return require(`@assets/animations/${agentId}_happy.json`);
       case VoiceEmotion.SAD:
-        return require('@assets/animations/alex_sad.json');
+        return require(`@assets/animations/${agentId}_sad.json`);
       case VoiceEmotion.EXCITED:
-        return require('@assets/animations/alex_excited.json');
+        return require(`@assets/animations/${agentId}_excited.json`);
       case VoiceEmotion.CONCERNED:
-        return require('@assets/animations/alex_concerned.json');
+        return require(`@assets/animations/${agentId}_concerned.json`);
       case VoiceEmotion.THOUGHTFUL:
-        return require('@assets/animations/alex_thoughtful.json');
+        return require(`@assets/animations/${agentId}_thoughtful.json`);
       case VoiceEmotion.EMPATHETIC:
-        return require('@assets/animations/alex_empathetic.json');
+        return require(`@assets/animations/${agentId}_empathetic.json`);
       case VoiceEmotion.PROFESSIONAL:
-        return require('@assets/animations/alex_professional.json');
+        return require(`@assets/animations/${agentId}_professional.json`);
       case VoiceEmotion.NEUTRAL:
       default:
-        return require('@assets/animations/alex_neutral.json');
+        return require(`@assets/animations/${agentId}_neutral.json`);
     }
   };
 
@@ -1079,18 +1084,20 @@ const styles = StyleSheet.create({
 });
 ```
 
-### 4.3. Alex Message Component
+### 4.3. Agent Message Component
 
-Create a component for displaying Alex's messages in `src/components/alex/AlexMessage.tsx`:
+Create a component for displaying agent messages in `src/components/agents/AgentMessage.tsx`:
 
 ```typescript
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
-import { AlexVoice } from './AlexVoice';
+import { AgentVoice } from './AgentVoice';
 import { VoiceEmotion } from '@services/voice/elevenLabsService';
 
-interface AlexMessageProps {
+interface AgentMessageProps {
+  agentId: string;
+  agentName: string;
   message: string;
   emotion?: VoiceEmotion;
   autoPlay?: boolean;
@@ -1098,7 +1105,9 @@ interface AlexMessageProps {
   onPlaybackComplete?: () => void;
 }
 
-export const AlexMessage: React.FC<AlexMessageProps> = ({
+export const AgentMessage: React.FC<AgentMessageProps> = ({
+  agentId,
+  agentName,
   message,
   emotion = VoiceEmotion.NEUTRAL,
   autoPlay = false,
@@ -1120,7 +1129,9 @@ export const AlexMessage: React.FC<AlexMessageProps> = ({
         </Card.Content>
       </Card>
       
-      <AlexVoice
+      <AgentVoice
+        agentId={agentId}
+        agentName={agentName}
         text={message}
         emotion={emotion}
         autoPlay={autoPlay}
@@ -1158,7 +1169,60 @@ const styles = StyleSheet.create({
 });
 ```
 
-### 4.4. Audio Permission Setup
+### 4.4. Multi-Agent Usage Examples
+
+Here are examples of how to use the agent components with different AI agents:
+
+#### Using with Alex (Default Agent)
+```typescript
+// Example usage with Alex
+<AgentMessage
+  agentId="alex"
+  agentName="Alex"
+  message="Hello! I'm Alex, your AI mediator. How can I help you today?"
+  emotion={VoiceEmotion.HAPPY}
+  autoPlay={true}
+/>
+
+<AgentVoice
+  agentId="alex"
+  agentName="Alex"
+  text="I understand you're feeling frustrated. Let's work through this together."
+  emotion={VoiceEmotion.EMPATHETIC}
+  autoPlay={false}
+  visualFeedback={true}
+/>
+```
+
+#### Using with Other Agents
+```typescript
+// Example usage with a different agent (e.g., "Maya" - a coaching specialist)
+<AgentMessage
+  agentId="maya"
+  agentName="Maya"
+  message="Hi there! I'm Maya, your personal coach. Ready to unlock your potential?"
+  emotion={VoiceEmotion.EXCITED}
+  autoPlay={true}
+/>
+
+// Example usage with "Dr. Chen" - a professional therapist agent
+<AgentVoice
+  agentId="dr_chen"
+  agentName="Dr. Chen"
+  text="Let's explore what's behind these feelings in a safe space."
+  emotion={VoiceEmotion.PROFESSIONAL}
+  autoPlay={false}
+  visualFeedback={true}
+/>
+```
+
+#### Agent Configuration Requirements
+For each agent, you'll need:
+- Animation files: `@assets/animations/{agentId}_{emotion}.json`
+- Voice configuration in your voice service
+- Agent-specific prompts and personality settings
+
+### 4.5. Audio Permission Setup
 
 Create an enhanced audio permission hook in `src/hooks/useAudioPermissions.ts` that handles all necessary permissions for voice interactions:
 
