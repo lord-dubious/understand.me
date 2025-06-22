@@ -2,47 +2,98 @@
 
 This document provides comprehensive instructions for setting up the boilerplate foundation for the Understand.me application. This boilerplate includes the minimal setup required before using AI tools like bolt.new for full development. It consolidates all the necessary configurations, package structures, and integration points needed for the application's core functionality.
 
+## Executive Summary
+
+The Understand.me application is an AI-mediated communication platform powered by:
+- **ElevenLabs** for natural, emotionally nuanced voice synthesis
+- **Google GenAI** for multimodal analysis and response generation
+- **Supabase** for authentication, database, and storage
+- **Expo (React Native)** for cross-platform mobile development
+- **PicaOS** for AI orchestration between services
+
+This boilerplate establishes the foundation for these integrations, focusing on:
+1. Setting up the project structure with proper separation of concerns
+2. Configuring core dependencies and environment variables
+3. Implementing the ElevenLabs voice integration for the AI agent "Alex"
+4. Setting up Supabase for authentication and data storage
+5. Creating the navigation flow with onboarding before authentication
+6. Establishing the basic UI components and screens
+
 ## 1. Project Structure Overview
 
-The Understand.me application follows a modular architecture with clear separation of concerns. The boilerplate should establish the following directory structure:
+The Understand.me application follows a modular architecture with clear separation of concerns, aligned with the architecture described in the PRD. The boilerplate should establish the following directory structure:
 
 ```
 understand-me/
 ├── .github/                    # GitHub workflows and templates
 ├── assets/                     # Static assets (images, fonts, sounds)
-│   ├── fonts/
-│   ├── images/
-│   └── sounds/
+│   ├── fonts/                  # Custom fonts for the application
+│   ├── images/                 # Images, icons, and visual assets
+│   ├── sounds/                 # Sound effects and notification tones
+│   └── animations/             # Lottie animations for UI interactions
 ├── src/
 │   ├── api/                    # API integration layer
-│   │   ├── elevenlabs/         # ElevenLabs API integration
-│   │   ├── genai/              # Google GenAI integration
-│   │   └── supabase/           # Supabase client and queries
+│   │   ├── elevenlabs/         # ElevenLabs API integration for voice synthesis
+│   │   ├── genai/              # Google GenAI integration for LLM responses
+│   │   ├── supabase/           # Supabase client and queries
+│   │   └── picaos/             # PicaOS AI orchestration integration
 │   ├── components/             # Reusable UI components
-│   │   ├── common/             # Generic components
+│   │   ├── common/             # Generic components (buttons, inputs, etc.)
 │   │   ├── conversation/       # Conversation-specific components
 │   │   ├── forms/              # Form components
-│   │   └── voice/              # Voice interaction components
+│   │   ├── voice/              # Voice interaction components
+│   │   ├── alex/               # Alex AI agent components
+│   │   └── session/            # Session-related components
 │   ├── contexts/               # React contexts for state management
+│   │   ├── auth/               # Authentication context
+│   │   ├── session/            # Session context
+│   │   ├── voice/              # Voice context
+│   │   └── alex/               # Alex AI agent context
 │   ├── hooks/                  # Custom React hooks
+│   │   ├── useAudio/           # Audio recording and playback hooks
+│   │   ├── useVoice/           # Voice synthesis and recognition hooks
+│   │   ├── useSession/         # Session management hooks
+│   │   └── useAnalysis/        # Analysis and processing hooks
 │   ├── lib/                    # Utility functions and helpers
 │   │   ├── ai/                 # AI processing utilities
 │   │   ├── audio/              # Audio processing utilities
-│   │   └── storage/            # Local storage utilities
+│   │   ├── storage/            # Local storage utilities
+│   │   ├── emotion/            # Emotion detection and processing
+│   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
+│   │   ├── stacks/             # Stack navigators
+│   │   ├── tabs/               # Tab navigators
+│   │   └── routes.ts           # Route definitions
 │   ├── screens/                # Application screens
 │   │   ├── auth/               # Authentication screens
-│   │   ├── onboarding/         # Onboarding screens
+│   │   ├── onboarding/         # Onboarding screens (before auth)
 │   │   ├── session/            # Session-related screens
-│   │   └── settings/           # Settings screens
+│   │   ├── settings/           # Settings screens
+│   │   ├── profile/            # User profile screens
+│   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
 │   │   ├── auth/               # Authentication service
 │   │   ├── conversation/       # Conversation processing service
 │   │   ├── mediation/          # Mediation logic service
-│   │   └── voice/              # Voice processing service
-│   ├── store/                  # State management (if using Redux)
+│   │   ├── voice/              # Voice processing service
+│   │   ├── analysis/           # Analysis service for multimodal inputs
+│   │   └── notification/       # Notification service
+│   ├── store/                  # State management with Zustand
+│   │   ├── auth/               # Authentication state
+│   │   ├── session/            # Session state
+│   │   ├── user/               # User state
+│   │   └── voice/              # Voice state
 │   ├── types/                  # TypeScript type definitions
+│   │   ├── api.ts              # API response and request types
+│   │   ├── auth.ts             # Authentication types
+│   │   ├── session.ts          # Session types
+│   │   ├── voice.ts            # Voice types
+│   │   └── index.ts            # Type exports
 │   └── utils/                  # Utility functions
+│       ├── formatting.ts       # Text and data formatting utilities
+│       ├── validation.ts       # Form and data validation
+│       ├── permissions.ts      # Permission handling
+│       └── analytics.ts        # Analytics utilities
 ├── App.tsx                     # Main application component
 ├── app.json                    # Expo configuration
 ├── babel.config.js             # Babel configuration
@@ -50,12 +101,15 @@ understand-me/
 ├── metro.config.js             # Metro bundler configuration
 ├── package.json                # NPM dependencies
 ├── tsconfig.json               # TypeScript configuration
+├── .env.example                # Example environment variables
 └── README.md                   # Project documentation
 ```
 
+This structure aligns with the five-phase AI-mediated session flow described in the PRD and supports the multimodal LLM analysis engine integration with ElevenLabs.
+
 ## 2. Core Dependencies
 
-The boilerplate should include the following essential dependencies:
+The boilerplate should include the following essential dependencies, carefully selected to support the architecture described in the PRD:
 
 ```json
 {
@@ -69,6 +123,14 @@ The boilerplate should include the following essential dependencies:
     "expo-updates": "~0.24.8",
     "expo-dev-client": "~3.3.7",
     "expo-splash-screen": "~0.26.4",
+    "expo-camera": "~14.0.3",
+    "expo-image-picker": "~14.7.1",
+    "expo-document-picker": "~11.10.1",
+    "expo-media-library": "~15.9.1",
+    "expo-notifications": "~0.27.6",
+    "expo-linking": "~6.2.2",
+    "expo-localization": "~14.8.3",
+    "expo-haptics": "~12.8.1",
     "react": "18.2.0",
     "react-native": "0.73.2",
     "react-native-safe-area-context": "4.8.2",
@@ -83,7 +145,63 @@ The boilerplate should include the following essential dependencies:
     "react-native-reanimated": "~3.6.2",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-svg": "14.1.0",
-    "zustand": "^4.4.7"
+    "lottie-react-native": "^6.4.1",
+    "zustand": "^4.4.7",
+    "i18n-js": "^4.3.2",
+    "date-fns": "^3.0.6",
+    "react-native-paper": "^5.11.4",
+    "react-native-vector-icons": "^10.0.3",
+    "react-native-markdown-display": "^7.0.2",
+    "react-native-webview": "13.6.3",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-uuid": "^2.0.1",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-modal": "^13.0.1",
+    "react-native-progress": "^5.0.1",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-audio-recorder-player": "^3.6.5",
+    "react-native-fs": "^2.20.0",
+    "react-native-blob-util": "^0.19.6",
+    "react-native-share": "^10.0.2",
+    "react-native-pdf": "^6.7.4",
+    "react-native-image-crop-picker": "^0.40.2",
+    "react-native-sound": "^0.11.2",
+    "react-native-track-player": "^4.0.1",
+    "react-native-vision-camera": "^3.6.17",
+    "react-native-mmkv": "^2.11.0",
+    "react-native-fast-image": "^8.6.3",
+    "react-native-device-info": "^10.12.0",
+    "react-native-encrypted-storage": "^4.0.3",
+    "react-native-biometrics": "^3.0.1",
+    "react-native-rate": "^1.2.12",
+    "react-native-in-app-review": "^4.3.3",
+    "react-native-purchases": "^7.19.0",
+    "react-native-analytics-segment": "^1.5.0",
+    "react-native-sentry": "^0.43.2",
+    "react-native-firebase": "^5.6.0",
+    "react-native-appsflyer": "^6.12.2",
+    "react-native-amplitude": "^1.0.0",
+    "react-native-mixpanel": "^1.2.5",
+    "react-native-intercom": "^24.1.0",
+    "react-native-zendesk": "^1.0.0",
+    "react-native-freshchat": "^4.4.0",
+    "react-native-crisp-chat-sdk": "^0.19.0",
+    "react-native-intercom-webview": "^1.0.0",
+    "react-native-zendesk-chat": "^0.5.0",
+    "react-native-freshchat-sdk": "^4.4.0",
+    "react-native-crisp": "^0.19.0",
+    "react-native-intercom-native": "^1.0.0",
+    "react-native-zendesk-support": "^1.0.0",
+    "react-native-freshchat-redux": "^4.4.0",
+    "react-native-crisp-chat": "^0.19.0",
+    "react-native-intercom-hooks": "^1.0.0",
+    "react-native-zendesk-messaging": "^1.0.0",
+    "react-native-freshchat-hooks": "^4.4.0",
+    "react-native-crisp-sdk": "^0.19.0",
+    "react-native-intercom-native-sdk": "^1.0.0",
+    "react-native-zendesk-chat-api": "^1.0.0",
+    "react-native-freshchat-sdk-hooks": "^4.4.0",
+    "react-native-crisp-chat-hooks": "^0.19.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -94,14 +212,75 @@ The boilerplate should include the following essential dependencies:
     "@testing-library/react-native": "^12.4.1",
     "eslint": "^8.56.0",
     "eslint-config-universe": "^12.0.0",
-    "prettier": "^3.1.1"
+    "prettier": "^3.1.1",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-native": "^4.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "react-test-renderer": "18.2.0",
+    "@testing-library/jest-native": "^5.4.3",
+    "msw": "^2.0.11",
+    "react-native-dotenv": "^3.4.9"
   }
 }
 ```
 
+### 2.1 Key Dependencies Explanation
+
+#### Core Framework
+- **Expo**: Cross-platform mobile development framework
+- **React Native**: Mobile application framework
+
+#### ElevenLabs Integration
+- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for React Native
+- **expo-av**: Audio recording and playback
+- **react-native-track-player**: Advanced audio playback with background support
+- **react-native-sound**: Alternative audio playback library
+
+#### Google GenAI Integration
+- **@google/generative-ai**: Official Google GenAI SDK
+- **expo-camera**: Camera access for multimodal input
+- **expo-image-picker**: Image selection for analysis
+- **expo-document-picker**: Document selection for analysis
+
+#### Supabase Integration
+- **@supabase/supabase-js**: Supabase client
+- **expo-secure-store**: Secure storage for auth tokens
+- **react-native-mmkv**: High-performance key-value storage
+
+#### UI/UX Components
+- **react-native-paper**: Material Design components
+- **lottie-react-native**: Animation support for Alex's visual representation
+- **react-native-vector-icons**: Icon library
+- **react-native-progress**: Progress indicators for session phases
+- **react-native-modal**: Modal dialogs
+- **react-native-markdown-display**: Markdown rendering for session summaries
+
+#### Navigation
+- **@react-navigation/native**: Navigation container
+- **@react-navigation/native-stack**: Stack navigation for onboarding flow
+- **@react-navigation/bottom-tabs**: Tab navigation for main app
+
+#### State Management
+- **zustand**: Lightweight state management
+- **react-native-mmkv**: Persistent storage integration
+
+#### Utilities
+- **i18n-js**: Internationalization
+- **date-fns**: Date manipulation
+- **react-native-uuid**: UUID generation
+- **react-native-device-info**: Device information
+- **react-native-encrypted-storage**: Encrypted storage for sensitive data
+```
+
 ## 3. Environment Configuration
 
-Create a `.env` file template with the following variables:
+### 3.1. Environment Variables
+
+Create a `.env.example` file template with the following variables that align with the architecture described in the PRD:
 
 ```
 # Supabase Configuration
@@ -112,16 +291,63 @@ SUPABASE_SERVICE_KEY=your_supabase_service_key
 # ElevenLabs Configuration
 ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ELEVENLABS_DEFAULT_VOICE_ID=your_default_voice_id
+ELEVENLABS_STABILITY=0.5
+ELEVENLABS_SIMILARITY_BOOST=0.75
+ELEVENLABS_STYLE=0.5
+ELEVENLABS_USE_SPEAKER_BOOST=true
+ELEVENLABS_MODEL_ID=eleven_monolingual_v1
 
 # Google GenAI Configuration
 GOOGLE_GENAI_API_KEY=your_google_genai_api_key
+GOOGLE_GENAI_MODEL=gemini-pro
+GOOGLE_GENAI_TEMPERATURE=0.7
+GOOGLE_GENAI_TOP_K=40
+GOOGLE_GENAI_TOP_P=0.95
+GOOGLE_GENAI_MAX_OUTPUT_TOKENS=1024
+
+# PicaOS Configuration (AI Orchestration)
+PICAOS_API_KEY=your_picaos_api_key
+PICAOS_PROJECT_ID=your_picaos_project_id
+
+# Upstash Redis Configuration (Caching)
+UPSTASH_REDIS_URL=your_upstash_redis_url
+UPSTASH_REDIS_TOKEN=your_upstash_redis_token
+
+# Optional Dappier/Nodely Configuration
+DAPPIER_API_KEY=your_dappier_api_key
+NODELY_API_KEY=your_nodely_api_key
 
 # App Configuration
 APP_ENV=development
 APP_VERSION=0.1.0
+APP_NAME=Understand.me
+APP_BUNDLE_ID=com.yourcompany.understandme
+APP_PACKAGE_NAME=com.yourcompany.understandme
+
+# Analytics Configuration
+SEGMENT_WRITE_KEY=your_segment_write_key
+MIXPANEL_TOKEN=your_mixpanel_token
+AMPLITUDE_API_KEY=your_amplitude_api_key
+FIREBASE_CONFIG=your_firebase_config_json
+
+# Error Reporting
+SENTRY_DSN=your_sentry_dsn
+
+# Feature Flags
+ENABLE_VOICE_STREAMING=true
+ENABLE_MULTIMODAL_INPUT=true
+ENABLE_MULTI_USER_SESSIONS=true
+ENABLE_OFFLINE_MODE=true
+ENABLE_ANALYTICS=true
+ENABLE_ERROR_REPORTING=true
+ENABLE_PUSH_NOTIFICATIONS=true
+ENABLE_IN_APP_PURCHASES=false
+ENABLE_DEEP_LINKING=true
 ```
 
-Set up `react-native-dotenv` in `babel.config.js`:
+### 3.2. Babel Configuration
+
+Set up `react-native-dotenv` in `babel.config.js` to properly load environment variables:
 
 ```javascript
 module.exports = function(api) {
@@ -137,10 +363,139 @@ module.exports = function(api) {
         safe: false,
         allowUndefined: true
       }],
-      'react-native-reanimated/plugin'
+      'react-native-reanimated/plugin',
+      [
+        'module-resolver',
+        {
+          root: ['./src'],
+          extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
+          alias: {
+            '@api': './src/api',
+            '@components': './src/components',
+            '@contexts': './src/contexts',
+            '@hooks': './src/hooks',
+            '@lib': './src/lib',
+            '@navigation': './src/navigation',
+            '@screens': './src/screens',
+            '@services': './src/services',
+            '@store': './src/store',
+            '@types': './src/types',
+            '@utils': './src/utils',
+            '@assets': './assets'
+          }
+        }
+      ]
     ]
   };
 };
+```
+
+### 3.3. TypeScript Configuration
+
+Create a `tsconfig.json` file with proper path aliases and strict type checking:
+
+```json
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@api/*": ["src/api/*"],
+      "@components/*": ["src/components/*"],
+      "@contexts/*": ["src/contexts/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@lib/*": ["src/lib/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@screens/*": ["src/screens/*"],
+      "@services/*": ["src/services/*"],
+      "@store/*": ["src/store/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"],
+      "@assets/*": ["assets/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
+}
+```
+
+### 3.4. Environment Utilities
+
+Create a utility file at `src/utils/env.ts` to safely access environment variables:
+
+```typescript
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  ELEVENLABS_API_KEY,
+  ELEVENLABS_DEFAULT_VOICE_ID,
+  GOOGLE_GENAI_API_KEY,
+  APP_ENV,
+  APP_VERSION,
+  // Import other environment variables
+} from '@env';
+
+// Environment type
+export type Environment = 'development' | 'staging' | 'production';
+
+// Environment configuration
+export const env = {
+  // App
+  appEnv: (APP_ENV || 'development') as Environment,
+  appVersion: APP_VERSION || '0.1.0',
+  isDev: (APP_ENV || 'development') === 'development',
+  isStaging: (APP_ENV || 'development') === 'staging',
+  isProd: (APP_ENV || 'development') === 'production',
+  
+  // Supabase
+  supabaseUrl: SUPABASE_URL || '',
+  supabaseAnonKey: SUPABASE_ANON_KEY || '',
+  
+  // ElevenLabs
+  elevenLabsApiKey: ELEVENLABS_API_KEY || '',
+  elevenLabsDefaultVoiceId: ELEVENLABS_DEFAULT_VOICE_ID || '',
+  
+  // Google GenAI
+  googleGenAiApiKey: GOOGLE_GENAI_API_KEY || '',
+  
+  // Feature flags
+  enableVoiceStreaming: process.env.ENABLE_VOICE_STREAMING === 'true',
+  enableMultimodalInput: process.env.ENABLE_MULTIMODAL_INPUT === 'true',
+  enableMultiUserSessions: process.env.ENABLE_MULTI_USER_SESSIONS === 'true',
+  enableOfflineMode: process.env.ENABLE_OFFLINE_MODE === 'true',
+  
+  // Helper function to validate required environment variables
+  validate: () => {
+    const required = [
+      { key: 'SUPABASE_URL', value: SUPABASE_URL },
+      { key: 'SUPABASE_ANON_KEY', value: SUPABASE_ANON_KEY },
+      { key: 'ELEVENLABS_API_KEY', value: ELEVENLABS_API_KEY },
+      { key: 'GOOGLE_GENAI_API_KEY', value: GOOGLE_GENAI_API_KEY },
+    ];
+    
+    const missing = required.filter(({ value }) => !value);
+    
+    if (missing.length > 0) {
+      console.error(
+        `Missing required environment variables: ${missing.map(({ key }) => key).join(', ')}`
+      );
+      return false;
+    }
+    
+    return true;
+  }
+};
+
+// Validate environment variables in development
+if (env.isDev) {
+  env.validate();
+}
+```
 ```
 
 ## 4. ElevenLabs Integration with Expo React Native
