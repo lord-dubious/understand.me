@@ -79,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-���������������   │   └── mediation/          # Mediation workflow utilities
+�����������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -93,7 +93,7 @@ understand-me/
 │   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
 │   │   ├── auth/               # Authentication service
-│   │   ├── conversation/       # Conversation processing service
+���   ���   ���─��� conversation/       # Conversation processing service
 │   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
 │   │   ├── analysis/           # Analysis service for multimodal inputs
@@ -108,7 +108,7 @@ understand-me/
 │   │   ├── auth.ts             # Authentication types
 │   │   ├── session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
-│   │   └── index.ts            # Type exports
+│   ���   ���─��� index.ts            # Type exports
 │   └── utils/                  # Utility functions
 │       ├── formatting.ts       # Text and data formatting utilities
 │       ├── validation.ts       # Form and data validation
@@ -147,7 +147,7 @@ The boilerplate includes carefully curated dependencies organized by functionali
     
     // AI & Voice Integration
     "@elevenlabs/react-native-text-to-speech": "^1.0.0",
-    "@google/generative-ai": "^0.2.0",
+    "@google/genai": "^0.3.0",
     "expo-av": "~13.10.0",
     "expo-speech": "~11.7.0",
     "expo-dom-components": "~0.7.0",
@@ -259,7 +259,7 @@ The development dependencies ensure code quality, testing capabilities, and stre
 
 #### 🤖 AI & Voice Integration
 - **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for cross-platform voice synthesis
-- **@google/generative-ai**: Google GenAI SDK (Gemini 2.0) for multimodal AI processing
+- **@google/genai**: Latest Google GenAI SDK (Gemini 2.0) for multimodal AI processing
 - **expo-av**: Audio recording and playback with microphone permissions
 - **react-native-track-player**: Advanced audio playback with background support
 - **expo-dom-components**: For cross-platform ElevenLabs Conversational AI integration (2024 approach)
@@ -1985,20 +1985,22 @@ Set up a comprehensive Google GenAI client for the multimodal LLM analysis engin
 
 ```typescript
 import { 
-  GoogleGenerativeAI, 
+  GoogleGenAI, 
   HarmCategory, 
   HarmBlockThreshold,
-  GenerativeModel,
-  ChatSession,
   Content,
   Part,
-  EnhancedGenerateContentResponse
-} from '@google/generative-ai';
+  FunctionDeclaration,
+  Type
+} from '@google/genai';
 import { env } from '@utils/env';
 import * as FileSystem from 'expo-file-system';
 
-// Initialize the Google GenAI client
-const genAI = new GoogleGenerativeAI(env.googleGenAiApiKey);
+// Initialize the Google GenAI client (new SDK)
+const ai = new GoogleGenAI({
+  apiKey: env.googleGenAiApiKey,
+  apiVersion: 'v1beta' // Use beta for latest Gemini 2.0 features
+});
 
 // Safety settings for content generation
 const safetySettings = [
@@ -2028,10 +2030,11 @@ const defaultGenerationConfig = {
   maxOutputTokens: Number(env.googleGenAiMaxOutputTokens) || 1024,
 };
 
-// Model types
+// Model types (Gemini 2.0)
 export enum ModelType {
-  TEXT = 'gemini-pro',
-  VISION = 'gemini-pro-vision',
+  TEXT = 'gemini-2.0-flash-exp',
+  VISION = 'gemini-2.0-flash-exp', // Unified multimodal model
+  THINKING = 'gemini-2.0-flash-thinking-exp',
 }
 
 // Response types
@@ -2053,17 +2056,19 @@ export interface FileData {
 }
 
 /**
- * Get a model instance with the specified configuration
+ * Generate content configuration helper
  */
-const getModel = (modelName: ModelType = ModelType.TEXT, options = {}): GenerativeModel => {
-  return genAI.getGenerativeModel({
+const getGenerationConfig = (modelName: ModelType = ModelType.TEXT, options = {}) => {
+  return {
     model: modelName,
-    safetySettings,
-    generationConfig: {
-      ...defaultGenerationConfig,
-      ...options,
-    },
-  });
+    config: {
+      generationConfig: {
+        ...defaultGenerationConfig,
+        ...options,
+      },
+      safetySettings,
+    }
+  };
 };
 
 /**
@@ -2092,22 +2097,23 @@ const fileToGenerativePart = async (file: FileData): Promise<Part> => {
 };
 
 /**
- * Generate text response using Google GenAI
+ * Generate text response using Google GenAI (new SDK)
  */
 export const generateText = async (
   prompt: string,
   options = {}
 ): Promise<GenAIResponse<string>> => {
   try {
-    // Get the Gemini Pro model
-    const model = getModel(ModelType.TEXT, options);
+    // Get generation configuration
+    const config = getGenerationConfig(ModelType.TEXT, options);
 
-    // Generate content
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    // Generate content using new SDK
+    const response = await ai.models.generateContent({
+      ...config,
+      contents: prompt,
+    });
     
-    return { data: text, error: null };
+    return { data: response.text, error: null };
   } catch (error) {
     console.error('Error generating text:', error);
     return { 
@@ -2118,7 +2124,7 @@ export const generateText = async (
 };
 
 /**
- * Generate multimodal response using Google GenAI
+ * Generate multimodal response using Google GenAI (new SDK)
  */
 export const generateMultimodalResponse = async (
   textPrompt: string,
@@ -2126,8 +2132,8 @@ export const generateMultimodalResponse = async (
   options = {}
 ): Promise<GenAIResponse<string>> => {
   try {
-    // Get the Gemini Pro Vision model
-    const model = getModel(ModelType.VISION, options);
+    // Get generation configuration for multimodal
+    const config = getGenerationConfig(ModelType.VISION, options);
     
     // Convert files to generative parts
     const fileParts: Part[] = await Promise.all(
@@ -2140,12 +2146,13 @@ export const generateMultimodalResponse = async (
       ...fileParts,
     ];
     
-    // Generate content
-    const result = await model.generateContent(parts);
-    const response = result.response;
-    const text = response.text();
+    // Generate content using new SDK
+    const response = await ai.models.generateContent({
+      ...config,
+      contents: parts,
+    });
     
-    return { data: text, error: null };
+    return { data: response.text, error: null };
   } catch (error) {
     console.error('Error generating multimodal response:', error);
     return { 
@@ -2156,15 +2163,44 @@ export const generateMultimodalResponse = async (
 };
 
 /**
- * Start a chat session with Google GenAI
+ * Generate streaming text response using Google GenAI (new SDK)
+ */
+export const generateTextStream = async function* (
+  prompt: string,
+  options = {}
+): AsyncGenerator<string, void, unknown> {
+  try {
+    // Get generation configuration
+    const config = getGenerationConfig(ModelType.TEXT, options);
+
+    // Generate content stream using new SDK
+    const response = await ai.models.generateContentStream({
+      ...config,
+      contents: prompt,
+    });
+    
+    // Yield chunks as they arrive
+    for await (const chunk of response) {
+      if (chunk.text) {
+        yield chunk.text;
+      }
+    }
+  } catch (error) {
+    console.error('Error generating text stream:', error);
+    throw error;
+  }
+};
+
+/**
+ * Start a chat session with Google GenAI (new SDK)
  */
 export const createChatSession = (
   history: ChatMessage[] = [],
   options = {}
-): GenAIResponse<ChatSession> => {
+): GenAIResponse<any> => {
   try {
-    // Get the Gemini Pro model
-    const model = getModel(ModelType.TEXT, options);
+    // Get generation configuration
+    const config = getGenerationConfig(ModelType.TEXT, options);
 
     // Convert history to the format expected by the API
     const formattedHistory = history.map(message => ({
@@ -2172,8 +2208,9 @@ export const createChatSession = (
       parts: typeof message.parts === 'string' ? [{ text: message.parts }] : message.parts,
     }));
 
-    // Create a chat session
-    const chat = model.startChat({
+    // Create a chat session using new SDK
+    const chat = ai.chats.create({
+      ...config,
       history: formattedHistory,
     });
     
