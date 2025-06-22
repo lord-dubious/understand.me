@@ -2215,58 +2215,189 @@ export const genaiClient = {
 };
 ```
 
-## 7. Authentication Context
+## 7. Authentication and Session Management
 
-Create an authentication context in `src/contexts/AuthContext.tsx`:
+### 7.1. Authentication Context
+
+Create a comprehensive authentication context in `src/contexts/auth/AuthContext.tsx`:
 
 ```typescript
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase, signIn, signUp, signOut, getSession } from '../api/supabase/supabaseClient';
+import { supabase, authService, dbService } from '@api/supabase/supabaseClient';
+import { storage } from '@api/supabase/supabaseClient';
+import * as SecureStore from 'expo-secure-store';
+import { Alert, Platform } from 'react-native';
 
-interface AuthContextType {
+// Auth state type
+export type AuthState = {
   user: User | null;
   session: Session | null;
+  profile: any | null;
   isLoading: boolean;
+  isAuthenticated: boolean;
+  isNewUser: boolean;
+  error: string | null;
+};
+
+// Auth context type
+interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any, isNewUser: boolean }>;
   signOut: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (password: string) => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google' | 'apple' | 'facebook') => Promise<{ error: any }>;
+  updateProfile: (data: any) => Promise<{ error: any }>;
+  refreshSession: () => Promise<{ error: any }>;
+  clearError: () => void;
 }
 
+// Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Initial auth state
+const initialState: AuthState = {
+  user: null,
+  session: null,
+  profile: null,
+  isLoading: true,
+  isAuthenticated: false,
+  isNewUser: false,
+  error: null,
+};
 
+// Auth provider component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, setState] = useState<AuthState>(initialState);
+
+  // Clear error
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  // Load user profile
+  const loadUserProfile = useCallback(async (userId: string) => {
+    try {
+      const { data: profile, error } = await dbService.getUserProfile(userId);
+      
+      if (error) {
+        console.error('Error loading user profile:', error);
+        return null;
+      }
+      
+      return profile;
+    } catch (error) {
+      console.error('Error in loadUserProfile:', error);
+      return null;
+    }
+  }, []);
+
+  // Update auth state
+  const updateAuthState = useCallback(async (session: Session | null) => {
+    try {
+      if (!session) {
+        setState({
+          user: null,
+          session: null,
+          profile: null,
+          isLoading: false,
+          isAuthenticated: false,
+          isNewUser: false,
+          error: null,
+        });
+        return;
+      }
+      
+      const user = session.user;
+      const profile = await loadUserProfile(user.id);
+      const isNewUser = !profile;
+      
+      setState({
+        user,
+        session,
+        profile,
+        isLoading: false,
+        isAuthenticated: true,
+        isNewUser,
+        error: null,
+      });
+      
+      // If new user, create profile
+      if (isNewUser) {
+        await dbService.updateUserProfile(user.id, {
+          id: user.id,
+          email: user.email,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error('Error updating auth state:', error);
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Unknown error updating auth state',
+      }));
+    }
+  }, [loadUserProfile]);
+
+  // Initialize auth state
   useEffect(() => {
-    // Check for existing session
-    const loadSession = async () => {
+    const initializeAuth = async () => {
       try {
-        setIsLoading(true);
-        const { session, error } = await getSession();
+        setState(prev => ({ ...prev, isLoading: true }));
+        
+        // Check for existing session
+        const { session, error } = await authService.getSession();
         
         if (error) {
           throw error;
         }
         
-        setSession(session);
-        setUser(session?.user || null);
+        await updateAuthState(session);
       } catch (error) {
-        console.error('Error loading session:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error initializing auth:', error);
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Unknown error initializing auth',
+        }));
       }
     };
 
-    loadSession();
+    initializeAuth();
+  }, [updateAuthState]);
 
-    // Set up auth state change listener
+  // Set up auth state change listener
+  useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user || null);
+      async (event, newSession) => {
+        console.log('Auth state changed:', event);
+        
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          await updateAuthState(newSession);
+        } else if (event === 'SIGNED_OUT') {
+          setState({
+            user: null,
+            session: null,
+            profile: null,
+            isLoading: false,
+            isAuthenticated: false,
+            isNewUser: false,
+            error: null,
+          });
+          
+          // Clear local storage on sign out
+          if (Platform.OS !== 'web') {
+            try {
+              await SecureStore.deleteItemAsync('supabase-auth');
+              storage.clearAll();
+            } catch (error) {
+              console.error('Error clearing storage on sign out:', error);
+            }
+          }
+        }
       }
     );
 
@@ -2274,24 +2405,718 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [updateAuthState]);
 
+  // Sign in
+  const signIn = async (email: string, password: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await authService.signIn(email, password);
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      await updateAuthState(data.session);
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error signing in';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Sign up
+  const signUp = async (email: string, password: string, metadata = {}) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await authService.signUp(email, password, metadata);
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error, isNewUser: false };
+      }
+      
+      // If email confirmation is required
+      if (!data.session) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false,
+          error: null,
+        }));
+        return { error: null, isNewUser: true };
+      }
+      
+      await updateAuthState(data.session);
+      return { error: null, isNewUser: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error signing up';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage, isNewUser: false };
+    }
+  };
+
+  // Sign out
+  const signOut = async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { error } = await authService.signOut();
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      setState({
+        user: null,
+        session: null,
+        profile: null,
+        isLoading: false,
+        isAuthenticated: false,
+        isNewUser: false,
+        error: null,
+      });
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error signing out';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Reset password
+  const resetPassword = async (email: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { error } = await authService.resetPassword(email);
+      
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: error ? error.message : null 
+      }));
+      
+      return { error };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error resetting password';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Update password
+  const updatePassword = async (password: string) => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { error } = await authService.updatePassword(password);
+      
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: error ? error.message : null 
+      }));
+      
+      return { error };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error updating password';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Sign in with OAuth
+  const signInWithOAuth = async (provider: 'google' | 'apple' | 'facebook') => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await authService.signInWithOAuth(provider);
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      // OAuth sign-in is handled by the auth state change listener
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error signing in with OAuth';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Update profile
+  const updateProfile = async (data: any) => {
+    try {
+      if (!state.user) {
+        return { error: 'User not authenticated' };
+      }
+      
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { error } = await dbService.updateUserProfile(state.user.id, {
+        ...data,
+        updated_at: new Date().toISOString(),
+      });
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      // Reload profile
+      const profile = await loadUserProfile(state.user.id);
+      
+      setState(prev => ({ 
+        ...prev, 
+        profile,
+        isLoading: false,
+        error: null,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error updating profile';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Refresh session
+  const refreshSession = async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await authService.refreshSession();
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      await updateAuthState(data.session);
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error refreshing session';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Context value
   const value = {
-    user,
-    session,
-    isLoading,
+    ...state,
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    updatePassword,
+    signInWithOAuth,
+    updateProfile,
+    refreshSession,
+    clearError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// Auth hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+### 7.2. Session Context
+
+Create a session management context in `src/contexts/session/SessionContext.tsx`:
+
+```typescript
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { useAuth } from '@contexts/auth/AuthContext';
+import { dbService, realtimeService } from '@api/supabase/supabaseClient';
+import { RealtimeChannel } from '@supabase/supabase-js';
+
+// Session phase enum
+export enum SessionPhase {
+  PREPARATION = 'preparation',
+  INTRODUCTION = 'introduction',
+  EXPLORATION = 'exploration',
+  NEGOTIATION = 'negotiation',
+  RESOLUTION = 'resolution',
+  FOLLOW_UP = 'follow_up',
+}
+
+// Session type enum
+export enum SessionType {
+  PERSONAL_REFLECTION = 'personal_reflection',
+  SKILL_DEVELOPMENT = 'skill_development',
+  ONE_ON_ONE = 'one_on_one',
+  GROUP = 'group',
+  TEAM = 'team',
+}
+
+// Session state type
+export type SessionState = {
+  currentSession: any | null;
+  sessions: any[];
+  participants: any[];
+  messages: any[];
+  currentPhase: SessionPhase;
+  isLoading: boolean;
+  isActive: boolean;
+  error: string | null;
+};
+
+// Session context type
+interface SessionContextType extends SessionState {
+  createSession: (data: any) => Promise<{ sessionId: string | null, error: any }>;
+  joinSession: (sessionId: string) => Promise<{ error: any }>;
+  leaveSession: () => Promise<{ error: any }>;
+  updateSession: (sessionId: string, updates: any) => Promise<{ error: any }>;
+  sendMessage: (content: string, type: string) => Promise<{ messageId: string | null, error: any }>;
+  loadUserSessions: () => Promise<{ error: any }>;
+  setCurrentPhase: (phase: SessionPhase) => void;
+  clearError: () => void;
+}
+
+// Create the session context
+const SessionContext = createContext<SessionContextType | undefined>(undefined);
+
+// Initial session state
+const initialState: SessionState = {
+  currentSession: null,
+  sessions: [],
+  participants: [],
+  messages: [],
+  currentPhase: SessionPhase.PREPARATION,
+  isLoading: false,
+  isActive: false,
+  error: null,
+};
+
+// Session provider component
+export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  const [state, setState] = useState<SessionState>(initialState);
+  const [subscriptions, setSubscriptions] = useState<RealtimeChannel[]>([]);
+
+  // Clear error
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  // Set current phase
+  const setCurrentPhase = useCallback((phase: SessionPhase) => {
+    setState(prev => ({ ...prev, currentPhase: phase }));
+    
+    // If in an active session, update the session phase
+    if (state.currentSession) {
+      dbService.updateSession(state.currentSession.id, { current_phase: phase })
+        .catch(error => console.error('Error updating session phase:', error));
+    }
+  }, [state.currentSession]);
+
+  // Load user sessions
+  const loadUserSessions = useCallback(async () => {
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+    
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await dbService.getUserSessions(user.id);
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      setState(prev => ({ 
+        ...prev, 
+        sessions: data || [],
+        isLoading: false,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error loading sessions';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  }, [user]);
+
+  // Create session
+  const createSession = async (data: any) => {
+    if (!user) {
+      return { sessionId: null, error: 'User not authenticated' };
+    }
+    
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const sessionData = {
+        ...data,
+        host_id: user.id,
+        current_phase: SessionPhase.PREPARATION,
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      
+      const { data: session, error } = await dbService.createSession(sessionData);
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { sessionId: null, error };
+      }
+      
+      // Add host as participant
+      await dbService.addParticipantToSession(session.id, user.id, 'host');
+      
+      // Set as current session
+      await joinSession(session.id);
+      
+      return { sessionId: session.id, error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error creating session';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { sessionId: null, error: errorMessage };
+    }
+  };
+
+  // Join session
+  const joinSession = async (sessionId: string) => {
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+    
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      // Get session details
+      const { data: session, error: sessionError } = await dbService.getSessionById(sessionId);
+      
+      if (sessionError || !session) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: sessionError?.message || 'Session not found' 
+        }));
+        return { error: sessionError || new Error('Session not found') };
+      }
+      
+      // Get session messages
+      const { data: messages, error: messagesError } = await dbService.getSessionMessages(sessionId);
+      
+      if (messagesError) {
+        console.error('Error loading session messages:', messagesError);
+      }
+      
+      // Check if user is already a participant
+      const isParticipant = session.participants?.some((p: any) => p.user_id === user.id);
+      
+      if (!isParticipant) {
+        // Add user as participant
+        await dbService.addParticipantToSession(sessionId, user.id, 'participant');
+      }
+      
+      // Set up realtime subscriptions
+      const messagesSub = realtimeService.subscribeToSessionMessages(
+        sessionId,
+        (payload) => {
+          const newMessage = payload.new;
+          setState(prev => ({
+            ...prev,
+            messages: [...prev.messages, newMessage],
+          }));
+        }
+      );
+      
+      const sessionSub = realtimeService.subscribeToSessionUpdates(
+        sessionId,
+        (payload) => {
+          const updatedSession = payload.new;
+          setState(prev => ({
+            ...prev,
+            currentSession: updatedSession,
+            currentPhase: updatedSession.current_phase,
+          }));
+        }
+      );
+      
+      const participantsSub = realtimeService.subscribeToParticipantUpdates(
+        sessionId,
+        async () => {
+          // Reload session to get updated participants
+          const { data: refreshedSession } = await dbService.getSessionById(sessionId);
+          if (refreshedSession) {
+            setState(prev => ({
+              ...prev,
+              participants: refreshedSession.participants || [],
+            }));
+          }
+        }
+      );
+      
+      setSubscriptions([messagesSub, sessionSub, participantsSub]);
+      
+      setState(prev => ({ 
+        ...prev, 
+        currentSession: session,
+        participants: session.participants || [],
+        messages: messages || [],
+        currentPhase: session.current_phase || SessionPhase.PREPARATION,
+        isLoading: false,
+        isActive: true,
+        error: null,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error joining session';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Leave session
+  const leaveSession = async () => {
+    try {
+      // Unsubscribe from all channels
+      subscriptions.forEach(sub => sub.unsubscribe());
+      setSubscriptions([]);
+      
+      setState(prev => ({
+        ...prev,
+        currentSession: null,
+        participants: [],
+        messages: [],
+        currentPhase: SessionPhase.PREPARATION,
+        isActive: false,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error leaving session';
+      setState(prev => ({ 
+        ...prev, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Update session
+  const updateSession = async (sessionId: string, updates: any) => {
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+    
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { error } = await dbService.updateSession(sessionId, {
+        ...updates,
+        updated_at: new Date().toISOString(),
+      });
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { error };
+      }
+      
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false,
+      }));
+      
+      return { error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error updating session';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { error: errorMessage };
+    }
+  };
+
+  // Send message
+  const sendMessage = async (content: string, type: string = 'text') => {
+    if (!user || !state.currentSession) {
+      return { messageId: null, error: 'No active session' };
+    }
+    
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const { data, error } = await dbService.addMessageToSession(
+        state.currentSession.id,
+        user.id,
+        content,
+        type
+      );
+      
+      if (error) {
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false, 
+          error: error.message 
+        }));
+        return { messageId: null, error };
+      }
+      
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false,
+      }));
+      
+      return { messageId: data?.id || null, error: null };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error sending message';
+      setState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: errorMessage 
+      }));
+      return { messageId: null, error: errorMessage };
+    }
+  };
+
+  // Load user sessions on auth change
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUserSessions();
+    } else {
+      setState(initialState);
+    }
+  }, [isAuthenticated, loadUserSessions]);
+
+  // Clean up subscriptions on unmount
+  useEffect(() => {
+    return () => {
+      subscriptions.forEach(sub => sub.unsubscribe());
+    };
+  }, [subscriptions]);
+
+  // Context value
+  const value = {
+    ...state,
+    createSession,
+    joinSession,
+    leaveSession,
+    updateSession,
+    sendMessage,
+    loadUserSessions,
+    setCurrentPhase,
+    clearError,
+  };
+
+  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+};
+
+// Session hook
+export const useSession = () => {
+  const context = useContext(SessionContext);
+  if (context === undefined) {
+    throw new Error('useSession must be used within a SessionProvider');
   }
   return context;
 };
