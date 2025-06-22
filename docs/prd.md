@@ -8,6 +8,27 @@ This Product Requirements Document (PRD) defines the functional requirements for
 ### 1.2. Product Overview
 "Understand.me" is an AI-mediated mobile application designed to enhance communication, facilitate understanding, and guide users through structured conversational processes. Its core is "Alex," an AI voice agent that acts as a facilitator, analyst, coach, and mediator. The application supports various interaction types, from personal reflection and skill development to complex, multi-participant mediated sessions. It aims to create clearer, more empathetic, and productive interactions by leveraging advanced AI for transcription, translation, analysis, and guidance. The platform is built using a serverless-first architecture with Expo (React Native) for the mobile frontend, and a backend stack including Supabase, PicaOS (AI orchestration), Google GenAI, ElevenLabs, Upstash Redis, and potentially Dappier and Nodely for specialized data handling and workflows.
 
+#### 1.2.1. ElevenLabs Voice Integration
+The application leverages ElevenLabs' advanced voice synthesis technology to power "Alex," providing natural, emotionally nuanced voice interactions across all platforms (iOS, Android, and potentially web). This integration enables:
+
+* High-quality, natural-sounding voice synthesis with emotional range
+* Voice customization for different contexts and emotional states
+* Cross-platform compatibility through Expo's DOM components architecture
+* Seamless voice interaction flow between user input and AI responses
+
+The ElevenLabs integration is implemented using their official React SDK and API, with specific optimizations for mobile performance and latency reduction. The voice synthesis capabilities are critical for creating an engaging, human-like mediation experience that builds trust and comfort with users.
+
+#### 1.2.2. Multimodal LLM Analysis Engine
+At the core of "Understand.me" is a sophisticated multimodal Large Language Model (LLM) analysis engine that processes and understands various forms of input, including text, voice, images, and documents. This engine serves as the cognitive backbone of "Alex," enabling deep understanding of communication patterns, emotional states, and conflict dynamics. Key capabilities include:
+
+* **Multimodal Input Processing:** Analyzes text, voice tone, facial expressions (from images/video), and document content to form a comprehensive understanding of communication context.
+* **Emotional Intelligence:** Detects emotional states, sentiment, and underlying tensions from verbal and non-verbal cues.
+* **Conflict Pattern Recognition:** Identifies common conflict patterns, communication breakdowns, and potential resolution pathways based on historical data and research.
+* **Cultural and Contextual Awareness:** Adapts analysis based on cultural contexts, relationship dynamics, and situational factors.
+* **Real-time Adaptation:** Continuously refines understanding as conversations evolve, adjusting mediation strategies accordingly.
+
+The multimodal LLM engine integrates with ElevenLabs to ensure that voice responses not only contain appropriate content but are delivered with the right emotional tone and cadence to facilitate effective communication.
+
 ### 1.3. Scope
 This PRD covers the **functional requirements** of the "Understand.me" mobile application. This includes:
 *   User authentication and management.
@@ -30,6 +51,256 @@ This PRD should be read in conjunction with the following project documents:
 *   `docs/development_guide/README.md` (UI Development Guide - for UI/UX specifics)
 *   `docs/developer_guide/README.md` (Developer's Guide - for technical implementation details)
 *   `docs/technical_product_knowledge_base/README.md` (Technical Product Knowledge Base - for deep technical synthesis)
+
+### 1.5. Application Architecture with ElevenLabs Integration
+
+The "Understand.me" application is built on a modern, serverless architecture that leverages several key technologies to deliver a seamless, cross-platform experience. This section provides an overview of the complete application architecture with a focus on the ElevenLabs voice integration.
+
+#### 1.5.1. Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Client Application                          │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │   Expo (React   │  │  State Management│  │  UI Components  │  │
+│  │     Native)     │  │    (Zustand)    │  │   (React Native)│  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+│           │                    │                    │           │
+│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
+│  │  Voice Services │  │  Session Manager│  │  Authentication │  │
+│  │  (ElevenLabs)   │  │                │  │    (Supabase)   │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+└───────────┼────────────────────┼────────────────────┼───────────┘
+            │                    │                    │
+┌───────────┼────────────────────┼────────────────────┼───────────┐
+│           │                    │                    │           │
+│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
+│  │  PicaOS (AI     │  │  Supabase       │  │  Upstash Redis  │  │
+│  │  Orchestration) │  │  (Database/Auth)│  │    (Caching)    │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+│           │                    │                    │           │
+│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
+│  │  Google GenAI   │  │  Supabase       │  │  Supabase       │  │
+│  │    (LLM)        │  │  Storage        │  │  Edge Functions │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+│           │                    │                    │           │
+│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
+│  │  ElevenLabs API │  │  Supabase       │  │  Dappier/Nodely │  │
+│  │  (Voice)        │  │  Realtime       │  │  (Optional)     │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+│                                                                  │
+│                      Backend Services                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 1.5.2. Key Components
+
+1. **Client Application:**
+   * **Expo (React Native):** Cross-platform mobile framework that allows the application to run on iOS, Android, and potentially web.
+   * **State Management:** Zustand for lightweight, flexible state management across the application.
+   * **UI Components:** Custom React Native components following the design system.
+   * **Voice Services:** Integration with ElevenLabs for voice synthesis and recognition.
+   * **Session Manager:** Handles the creation, configuration, and state management of mediation sessions.
+   * **Authentication:** Client-side authentication using Supabase Auth.
+
+2. **Backend Services:**
+   * **PicaOS:** AI orchestration layer that coordinates between different AI services.
+   * **Supabase:** Provides database, authentication, storage, and realtime capabilities.
+   * **Upstash Redis:** High-performance caching for frequently accessed data and voice responses.
+   * **Google GenAI:** Large language model for generating AI responses and analysis.
+   * **ElevenLabs API:** Voice synthesis for the AI agent "Alex".
+   * **Supabase Edge Functions:** Serverless functions for backend logic.
+   * **Dappier/Nodely:** Optional services for specialized data handling and workflows.
+
+#### 1.5.3. ElevenLabs Integration Flow
+
+The following diagram illustrates the flow of data for voice interactions using ElevenLabs:
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  User Input │     │ Expo App    │     │ PicaOS      │
+│  (Voice)    │────▶│ (React      │────▶│ (AI         │
+│             │     │  Native)    │     │ Orchestration)
+└─────────────┘     └─────────────┘     └──────┬──────┘
+                                                │
+                                                ▼
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  User       │     │ Expo App    │     │ ElevenLabs  │
+│  (Hears     │◀────│ (Audio      │◀────│ API         │
+│   Response) │     │  Playback)  │     │ (TTS)       │
+└─────────────┘     └─────────────┘     └──────▲──────┘
+                                                │
+                                                │
+                                         ┌──────┴──────┐
+                                         │ Google GenAI│
+                                         │ (Response   │
+                                         │  Generation)│
+                                         └─────────────┘
+```
+
+1. **User Voice Input:**
+   * User speaks into the device microphone.
+   * Expo app captures audio using `expo-av`.
+   * Audio is sent to PicaOS for processing.
+
+2. **Speech Processing:**
+   * PicaOS sends audio to Google GenAI for speech-to-text conversion.
+   * The transcribed text is analyzed for intent and context.
+   * Google GenAI generates an appropriate response script.
+
+3. **Voice Synthesis:**
+   * PicaOS sends the response script to ElevenLabs API.
+   * ElevenLabs synthesizes the text into natural-sounding speech.
+   * The audio response is returned to the Expo app.
+
+4. **Audio Playback:**
+   * Expo app plays the audio response using `expo-av`.
+   * User hears Alex's voice response.
+   * The conversation continues with the next user input.
+
+#### 1.5.4. Data Flow and Storage
+
+1. **User Data:**
+   * User profiles and authentication data stored in Supabase.
+   * User preferences and settings cached in Upstash Redis for quick access.
+
+2. **Session Data:**
+   * Session configurations and metadata stored in Supabase.
+   * Active session state maintained in Supabase Realtime for multi-participant synchronization.
+   * Session transcripts and summaries stored in Supabase for future reference.
+
+3. **Voice Data:**
+   * Temporary audio recordings processed in memory and not persisted unless explicitly required.
+   * Frequently used voice responses cached in Upstash Redis to reduce API calls.
+   * Voice configuration preferences stored in user profiles.
+
+4. **Multimedia Files:**
+   * User-uploaded files stored in Supabase Storage.
+   * File metadata and references stored in Supabase database.
+   * File analysis results cached for quick access during sessions.
+
+### 1.6. Application Development Roadmap
+
+The development of the "Understand.me" application will follow a structured approach to ensure all components are properly integrated and tested. This roadmap provides a high-level overview of the development process from initial setup to final deployment.
+
+#### 1.6.1. Phase 1: Project Setup and Infrastructure (Weeks 1-2)
+
+1. **Environment Setup:**
+   * Create Expo project with TypeScript template
+   * Configure development environments for iOS, Android, and web
+   * Set up version control and CI/CD pipelines
+   * Configure linting and code formatting tools
+
+2. **Backend Infrastructure:**
+   * Set up Supabase project and database schema
+   * Configure authentication services
+   * Set up storage buckets for multimedia files
+   * Implement basic API endpoints and test connectivity
+
+3. **AI Service Integration:**
+   * Set up Google GenAI integration
+   * Configure ElevenLabs API access
+   * Create initial AI orchestration layer with PicaOS
+   * Test basic AI functionality (text generation, voice synthesis)
+
+#### 1.6.2. Phase 2: Core Functionality Development (Weeks 3-6)
+
+1. **Authentication and User Management:**
+   * Implement sign-up and login flows
+   * Create user profile management
+   * Set up social login integrations
+   * Implement password reset and account recovery
+
+2. **Voice Agent Implementation:**
+   * Develop ElevenLabs integration using Expo DOM components
+   * Create voice input/output components
+   * Implement voice recording and playback functionality
+   * Set up voice caching and optimization
+
+3. **Session Management:**
+   * Create session creation and configuration screens
+   * Implement participant invitation system
+   * Develop session joining functionality
+   * Create session state management
+
+4. **AI Mediation Core:**
+   * Implement the five-phase mediation flow
+   * Create context analysis functionality
+   * Develop real-time transcription and analysis
+   * Implement AI guidance and intervention logic
+
+#### 1.6.3. Phase 3: Advanced Features and Refinement (Weeks 7-10)
+
+1. **Multimedia Handling:**
+   * Implement file upload and management
+   * Create document preview functionality
+   * Develop image and video handling
+   * Implement AI analysis of multimedia content
+
+2. **Real-time Communication:**
+   * Set up Supabase Realtime for live updates
+   * Implement notification system
+   * Create real-time session state synchronization
+   * Develop multi-participant interaction flows
+
+3. **Personal Growth Module:**
+   * Create insights generation and tracking
+   * Implement progress visualization
+   * Develop resource recommendation system
+   * Create goal setting and tracking functionality
+
+4. **Post-Session Workflows:**
+   * Implement summary generation
+   * Create review and approval flows
+   * Develop digital sign-off functionality
+   * Implement follow-up scheduling
+
+#### 1.6.4. Phase 4: Testing, Optimization, and Launch (Weeks 11-12)
+
+1. **Comprehensive Testing:**
+   * Conduct unit and integration testing
+   * Perform cross-platform compatibility testing
+   * Execute performance and load testing
+   * Conduct user acceptance testing
+
+2. **Optimization:**
+   * Optimize application performance
+   * Reduce API costs through caching and batching
+   * Improve voice quality and latency
+   * Enhance offline capabilities
+
+3. **Documentation and Training:**
+   * Complete developer documentation
+   * Create user guides and tutorials
+   * Prepare training materials for hosts/mediators
+   * Document API endpoints and integration points
+
+4. **Launch Preparation:**
+   * Finalize app store listings
+   * Prepare marketing materials
+   * Set up analytics and monitoring
+   * Configure production environment
+
+#### 1.6.5. Post-Launch Support and Iteration (Ongoing)
+
+1. **Monitoring and Maintenance:**
+   * Monitor application performance and usage
+   * Track API costs and optimize as needed
+   * Address bugs and issues
+   * Perform regular security updates
+
+2. **User Feedback and Iteration:**
+   * Collect and analyze user feedback
+   * Prioritize feature requests and enhancements
+   * Implement iterative improvements
+   * Conduct A/B testing for new features
+
+3. **Expansion and Enhancement:**
+   * Develop additional AI capabilities
+   * Expand language support
+   * Create enterprise integration options
+   * Develop advanced analytics and reporting
 
 ## 2. User Personas & Roles (Functional Focus)
 
@@ -74,6 +345,1738 @@ This section summarizes the key user personas and their primary functional goals
 ## 3. System-Wide Functional Requirements
 
 This section details functional requirements that apply across multiple features or define core system capabilities.
+
+### 3.0. AI Engine Technical Implementation
+
+This section outlines the technical implementation details for the core AI components of the "Understand.me" application, including the multimodal LLM analysis engine and the ElevenLabs voice integration.
+
+### 3.0.A. Multimodal LLM Analysis Engine
+
+The multimodal LLM analysis engine is the cognitive core of the "Understand.me" application, enabling sophisticated understanding and analysis of communication patterns, emotional states, and conflict dynamics. This section details the technical implementation of this engine.
+
+#### 3.0.A.1. Multimodal Input Processing Architecture
+
+*   **FR-SYS-AI-001:** The system must process and analyze multiple input modalities, including text, voice, images, and documents.
+    *   **Frontend Development Outline:**
+        *   Implement input capture components for each modality (text input, voice recording via `expo-av`, image capture via `expo-image-picker`, document upload via `expo-document-picker`).
+        *   Create preprocessing pipelines for each modality to optimize data before sending to the backend.
+        *   Implement UI components to display analysis results and insights.
+        *   Create visualization components for emotional analysis, communication patterns, and conflict dynamics.
+    *   **Backend/Serverless Development Outline:**
+        *   **PicaOS/Edge Function:** Orchestrates the processing of multimodal inputs, routing each to appropriate analysis services.
+        *   **Google GenAI:** Provides multimodal LLM capabilities for analyzing text, images, and transcribed audio.
+        *   **Specialized Services:** Integrate with specialized services for specific analysis tasks (e.g., voice tone analysis, facial expression recognition).
+        *   **Supabase Database:** Stores analysis results, patterns, and insights for future reference and learning.
+    *   **Key Technical Considerations/Challenges:**
+        *   Efficient handling of large multimedia files.
+        *   Synchronization of analysis across different modalities.
+        *   Latency management for real-time analysis.
+        *   Privacy and security considerations for sensitive data.
+
+#### 3.0.A.2. Emotional Intelligence and Sentiment Analysis
+
+*   **FR-SYS-AI-002:** The system must detect and analyze emotional states, sentiment, and underlying tensions from verbal and non-verbal cues.
+    *   **Frontend Development Outline:**
+        *   Create UI components to visualize emotional states and sentiment analysis.
+        *   Implement real-time feedback mechanisms for emotional insights.
+        *   Develop user interfaces for emotional trend visualization over time.
+    *   **Backend/Serverless Development Outline:**
+        *   **Text Analysis:** Use Google GenAI to analyze text for sentiment, emotional states, and communication patterns.
+        *   **Voice Analysis:** Process audio to detect emotional cues in voice tone, pace, and volume.
+        *   **Image Analysis:** Analyze facial expressions and body language in uploaded images or video frames.
+        *   **Multimodal Fusion:** Combine insights from different modalities to form a comprehensive emotional understanding.
+    *   **Key Technical Considerations/Challenges:**
+        *   Accuracy of emotional detection across different cultures and contexts.
+        *   Handling ambiguous or mixed emotional signals.
+        *   Adapting to individual baseline emotional expressions.
+        *   Ethical considerations in emotional analysis and feedback.
+
+#### 3.0.A.3. Conflict Pattern Recognition and Resolution Strategies
+
+*   **FR-SYS-AI-003:** The system must identify common conflict patterns, communication breakdowns, and potential resolution pathways.
+    *   **Frontend Development Outline:**
+        *   Create visualizations of identified conflict patterns.
+        *   Implement UI for suggested resolution strategies.
+        *   Develop interactive components for exploring different resolution approaches.
+    *   **Backend/Serverless Development Outline:**
+        *   **Pattern Recognition:** Use Google GenAI to identify common conflict patterns from conversation transcripts and context.
+        *   **Resolution Database:** Maintain a database of effective resolution strategies for different conflict types.
+        *   **Strategy Generation:** Generate personalized resolution strategies based on identified patterns and participant profiles.
+        *   **Effectiveness Tracking:** Monitor and learn from the effectiveness of suggested strategies over time.
+    *   **Key Technical Considerations/Challenges:**
+        *   Building a comprehensive database of conflict patterns and resolution strategies.
+        *   Personalizing strategies to specific contexts and relationships.
+        *   Balancing automated suggestions with human agency and creativity.
+        *   Ethical considerations in conflict intervention.
+
+#### 3.0.A.4. Lightweight Analysis Methods
+
+*   **FR-SYS-AI-004:** The system must implement lightweight analysis methods for real-time processing and offline capabilities.
+    *   **Frontend Development Outline:**
+        *   Implement client-side analysis for basic sentiment detection and keyword extraction.
+        *   Create efficient data structures for storing and processing conversation history on-device.
+        *   Develop UI components that can function with limited backend connectivity.
+    *   **Backend/Serverless Development Outline:**
+        *   **Edge Processing:** Deploy lightweight models to edge functions for faster processing.
+        *   **Progressive Analysis:** Implement tiered analysis approach, starting with lightweight methods and progressively applying more sophisticated analysis as needed.
+        *   **Caching Strategies:** Cache common patterns and responses to reduce processing requirements.
+        *   **Offline Mode:** Provide basic functionality when full backend services are unavailable.
+    *   **Key Technical Considerations/Challenges:**
+        *   Balancing accuracy with processing efficiency.
+        *   Managing model size for edge deployment.
+        *   Synchronizing offline analysis with cloud-based insights when connectivity is restored.
+        *   Providing meaningful value even with limited processing capabilities.
+
+#### 3.0.A.5. Implementation Architecture
+
+The multimodal LLM analysis engine is implemented using a layered architecture that combines specialized models with a central orchestration layer:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  Multimodal Input Layer                      │
+│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐  │
+│  │   Text   │   │  Voice   │   │  Image   │   │ Document │  │
+│  │  Input   │   │  Input   │   │  Input   │   │  Input   │  │
+│  └────┬─────┘   └────┬─────┘   └────┬─────┘   └────┬─────┘  │
+└───────┼───────────────┼───────────────┼───────────────┼─────┘
+         │               │               │               │
+┌────────┼───────────────┼───────────────┼───────────────┼────┐
+│        │               │               │               │    │
+│  ┌─────▼──────┐  ┌─────▼──────┐  ┌─────▼──────┐  ┌────▼───┐ │
+│  │    Text    │  │   Voice    │  │   Image    │  │Document│ │
+│  │  Analysis  │  │  Analysis  │  │  Analysis  │  │Analysis│ │
+│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └────┬───┘ │
+│        │               │               │               │    │
+│        └───────────────┼───────────────┼───────────────┘    │
+│                        │               │                    │
+│  ┌────────────────────▼───────────────▼──────────────────┐  │
+│  │                 Fusion Layer                          │  │
+│  │   (Combines insights from different modalities)       │  │
+│  └────────────────────────┬───────────────────────────────┘  │
+│                           │                                  │
+│  ┌────────────────────────▼───────────────────────────────┐  │
+│  │              Contextual Understanding                  │  │
+│  │  (Incorporates session history, participant profiles)  │  │
+│  └────────────────────────┬───────────────────────────────┘  │
+│                           │                                  │
+│  ┌────────────────────────▼───────────────────────────────┐  │
+│  │                 Strategy Generation                    │  │
+│  │   (Produces guidance, interventions, summaries)        │  │
+│  └────────────────────────┬───────────────────────────────┘  │
+│                           │                                  │
+│                 Analysis Engine Core                         │
+└────────────────────────────┬──────────────────────────────────┘
+                             │
+┌────────────────────────────▼──────────────────────────────────┐
+│                    Integration Layer                          │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐│
+│  │   ElevenLabs    │  │    UI/UX        │  │   Database      ││
+│  │  Voice Synthesis│  │   Components    │  │   Storage       ││
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 3.0.A.6. Implementation with Vercel AI SDK
+
+The multimodal LLM analysis engine can be efficiently implemented using the Vercel AI SDK, which provides a unified interface for working with various AI models and services. This approach offers several advantages:
+
+1. **Unified API:** The AI SDK provides a consistent interface for working with different LLM providers.
+2. **Streaming Responses:** Built-in support for streaming responses, which is crucial for real-time conversation.
+3. **Cross-Platform Support:** Works across different platforms, including React Native through libraries like `react-native-ai`.
+4. **Integration with ElevenLabs:** The AI SDK has built-in support for ElevenLabs integration.
+5. **TypeScript Support:** Strong typing for better development experience and fewer runtime errors.
+
+Here's how to implement the core of the multimodal analysis engine using the Vercel AI SDK:
+
+```typescript
+// services/aiEngine.ts
+
+import { createAI, createStreamableUI, getMutableAIState } from 'ai/rsc';
+import { nanoid } from 'nanoid';
+import { createElevenLabsStream } from '@ai-sdk/elevenlabs';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Initialize Google GenAI for multimodal processing
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
+const multimodalModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+
+// Define the AI state interface
+interface AIState {
+  messages: {
+    id: string;
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    createdAt: Date;
+  }[];
+  sessionContext: {
+    sessionId: string;
+    sessionType: string;
+    participantIds: string[];
+    conflictType?: string;
+    emotionalStates?: Record<string, any>;
+  };
+  analysis: {
+    emotionalStates: Record<string, any>;
+    communicationPatterns: Record<string, any>;
+    conflictAnalysis: Record<string, any>;
+    resolutionProgress: number;
+  };
+}
+
+// Create the AI engine
+export const AI = createAI<AIState>({
+  initialAIState: {
+    messages: [],
+    sessionContext: {
+      sessionId: '',
+      sessionType: '',
+      participantIds: [],
+    },
+    analysis: {
+      emotionalStates: {},
+      communicationPatterns: {},
+      conflictAnalysis: {},
+      resolutionProgress: 0,
+    },
+  },
+  actions: {
+    submitUserInput: async (userInput: {
+      text?: string;
+      audioUrl?: string;
+      imageUrls?: string[];
+      documentUrls?: string[];
+    }) => {
+      const aiState = getMutableAIState<AIState>();
+      const currentState = aiState.get();
+      
+      // Add user message to the state
+      if (userInput.text) {
+        aiState.update({
+          ...currentState,
+          messages: [
+            ...currentState.messages,
+            {
+              id: nanoid(),
+              role: 'user',
+              content: userInput.text,
+              createdAt: new Date(),
+            },
+          ],
+        });
+      }
+      
+      // Process multimodal input
+      const analysisResult = await performMultimodalAnalysis(userInput, currentState.sessionContext);
+      
+      // Update analysis in the state
+      aiState.update({
+        ...aiState.get(),
+        analysis: analysisResult,
+      });
+      
+      // Generate response based on analysis
+      const responseText = await generateResponse(analysisResult, aiState.get().sessionContext);
+      
+      // Determine emotional tone for voice
+      const emotionalState = determineResponseEmotion(analysisResult);
+      
+      // Add assistant message to the state
+      aiState.update({
+        ...aiState.get(),
+        messages: [
+          ...aiState.get().messages,
+          {
+            id: nanoid(),
+            role: 'assistant',
+            content: responseText,
+            createdAt: new Date(),
+          },
+        ],
+      });
+      
+      // Generate voice response with ElevenLabs
+      const voiceStream = await createElevenLabsStream({
+        model: 'eleven_monolingual_v1',
+        voiceId: getVoiceIdForEmotion(emotionalState),
+        input: responseText,
+        voiceSettings: getVoiceSettingsForEmotion(emotionalState),
+      });
+      
+      return createStreamableUI(
+        <div className="ai-response">
+          <p>{responseText}</p>
+          <audio src={URL.createObjectURL(voiceStream)} controls autoPlay />
+        </div>
+      );
+    },
+    
+    updateSessionContext: async (sessionContext: Partial<AIState['sessionContext']>) => {
+      const aiState = getMutableAIState<AIState>();
+      
+      aiState.update({
+        ...aiState.get(),
+        sessionContext: {
+          ...aiState.get().sessionContext,
+          ...sessionContext,
+        },
+      });
+      
+      return 'Session context updated';
+    },
+  },
+});
+
+// Helper functions for multimodal analysis
+async function performMultimodalAnalysis(
+  input: {
+    text?: string;
+    audioUrl?: string;
+    imageUrls?: string[];
+    documentUrls?: string[];
+  },
+  sessionContext: AIState['sessionContext']
+) {
+  // Process text input
+  let textAnalysis = null;
+  if (input.text) {
+    textAnalysis = await analyzeText(input.text, sessionContext);
+  }
+  
+  // Process audio input (voice tone analysis)
+  let audioAnalysis = null;
+  if (input.audioUrl) {
+    audioAnalysis = await analyzeAudio(input.audioUrl);
+  }
+  
+  // Process image input
+  let imageAnalysis = null;
+  if (input.imageUrls && input.imageUrls.length > 0) {
+    imageAnalysis = await analyzeImages(input.imageUrls);
+  }
+  
+  // Process document input
+  let documentAnalysis = null;
+  if (input.documentUrls && input.documentUrls.length > 0) {
+    documentAnalysis = await analyzeDocuments(input.documentUrls);
+  }
+  
+  // Combine all analyses
+  return fusionLayer(textAnalysis, audioAnalysis, imageAnalysis, documentAnalysis, sessionContext);
+}
+
+// Function to analyze text using Google GenAI
+async function analyzeText(text: string, context: any) {
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+  
+  const prompt = `
+    Analyze the following text from a conversation:
+    "${text}"
+    
+    Context:
+    ${JSON.stringify(context)}
+    
+    Provide analysis of:
+    1. Emotional states expressed
+    2. Communication patterns
+    3. Potential conflict indicators
+    4. Level of understanding between participants
+    
+    Format the response as JSON.
+  `;
+  
+  const result = await model.generateContent(prompt);
+  const textAnalysis = JSON.parse(result.response.text());
+  return textAnalysis;
+}
+
+// Function to analyze images using Google GenAI Vision
+async function analyzeImages(imageUrls: string[]) {
+  const imageContents = await Promise.all(
+    imageUrls.map(async (url) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return {
+        inlineData: {
+          data: await blobToBase64(blob),
+          mimeType: blob.type,
+        },
+      };
+    })
+  );
+  
+  const prompt = `
+    Analyze these images for:
+    1. Facial expressions and emotions
+    2. Body language
+    3. Environmental context
+    4. Any visible text or documents
+    
+    Format the response as JSON.
+  `;
+  
+  const result = await multimodalModel.generateContent([prompt, ...imageContents]);
+  const imageAnalysis = JSON.parse(result.response.text());
+  return imageAnalysis;
+}
+
+// Helper function to convert blob to base64
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// Other helper functions would be implemented similarly
+
+// Get voice ID based on emotional state
+function getVoiceIdForEmotion(emotion: string): string {
+  switch (emotion) {
+    case 'empathetic':
+      return 'pNInz6obpgDQGcFmaJgB'; // Example voice ID for empathetic tone
+    case 'assertive':
+      return 'VR6AewLTigWG4xSOukaG'; // Example voice ID for assertive tone
+    case 'neutral':
+    default:
+      return 'EXAVITQu4vr4xnSDxMaL'; // Example voice ID for neutral tone
+  }
+}
+
+// Get voice settings based on emotional state
+function getVoiceSettingsForEmotion(emotion: string) {
+  switch (emotion) {
+    case 'empathetic':
+      return {
+        stability: 0.75,
+        similarityBoost: 0.6,
+        style: 0.3,
+        speakingRate: 0.9,
+      };
+    case 'assertive':
+      return {
+        stability: 0.4,
+        similarityBoost: 0.8,
+        style: 0.5,
+        speakingRate: 1.1,
+      };
+    case 'neutral':
+    default:
+      return {
+        stability: 0.5,
+        similarityBoost: 0.75,
+        style: 0.0,
+        speakingRate: 1.0,
+      };
+  }
+}
+```
+
+This implementation leverages the Vercel AI SDK to create a streamlined, efficient multimodal analysis engine that integrates seamlessly with ElevenLabs for voice synthesis. The AI SDK's streaming capabilities ensure that responses are delivered in real-time, enhancing the conversational experience.
+
+For React Native integration, the `react-native-ai` library can be used to connect to this backend implementation, providing a cross-platform solution that works on iOS, Android, and web.
+
+#### 3.0.A.6.1. React Native Integration with AI SDK and ElevenLabs
+
+To implement the multimodal LLM analysis engine in a React Native application with Expo, we can use the following approach:
+
+```typescript
+// components/AIMediator.tsx
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import { useAI } from '../hooks/useAI';
+
+interface AIMediator {
+  sessionId: string;
+  sessionType: string;
+  participantIds: string[];
+}
+
+export default function AIMediator({ sessionId, sessionType, participantIds }: AIMediator) {
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  
+  // Initialize AI context
+  const { submitUserInput, updateSessionContext, analysis } = useAI();
+  
+  // Initialize session context
+  useEffect(() => {
+    const initSession = async () => {
+      await updateSessionContext({
+        sessionId,
+        sessionType,
+        participantIds,
+      });
+    };
+    
+    initSession();
+  }, [sessionId, sessionType, participantIds]);
+  
+  // Request permissions
+  useEffect(() => {
+    const requestPermissions = async () => {
+      const { status: audioStatus } = await Audio.requestPermissionsAsync();
+      const { status: imageStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (audioStatus !== 'granted' || imageStatus !== 'granted' || cameraStatus !== 'granted') {
+        alert('Permissions are required for full functionality');
+      }
+    };
+    
+    requestPermissions();
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+    };
+  }, []);
+  
+  // Start recording
+  const startRecording = async () => {
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: true,
+      });
+      
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+    }
+  };
+  
+  // Stop recording and process audio
+  const stopRecording = async () => {
+    if (!recording) return;
+    
+    setIsRecording(false);
+    setIsProcessing(true);
+    
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      
+      if (uri) {
+        // Upload audio file to backend for processing
+        const audioUrl = await uploadAudioFile(uri);
+        
+        // Submit audio for analysis
+        const response = await submitUserInput({
+          audioUrl,
+        });
+        
+        // Add response to messages
+        setMessages(prev => [...prev, response]);
+        
+        // Play response audio
+        if (response.audioUrl) {
+          setAudioUrl(response.audioUrl);
+          await playResponseAudio(response.audioUrl);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+    } finally {
+      setRecording(null);
+      setIsProcessing(false);
+    }
+  };
+  
+  // Upload audio file to backend
+  const uploadAudioFile = async (uri: string): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri,
+        type: 'audio/m4a',
+        name: 'recording.m4a',
+      } as any);
+      
+      const response = await fetch('https://your-api-endpoint.com/upload-audio', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Failed to upload audio:', error);
+      throw error;
+    }
+  };
+  
+  // Play response audio
+  const playResponseAudio = async (url: string) => {
+    try {
+      // Download audio file if it's a remote URL
+      const fileUri = `${FileSystem.cacheDirectory}response-${Date.now()}.mp3`;
+      await FileSystem.downloadAsync(url, fileUri);
+      
+      // Load and play the sound
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: fileUri },
+        { shouldPlay: true }
+      );
+      
+      soundRef.current = sound;
+      
+      // Unload sound when finished playing
+      sound.setOnPlaybackStatusUpdate(status => {
+        if (status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.error('Failed to play audio:', error);
+    }
+  };
+  
+  // Pick image for analysis
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setIsProcessing(true);
+        
+        // Upload image file
+        const imageUrl = await uploadImageFile(result.assets[0].uri);
+        
+        // Submit image for analysis
+        const response = await submitUserInput({
+          imageUrls: [imageUrl],
+        });
+        
+        // Add response to messages
+        setMessages(prev => [...prev, response]);
+        
+        // Play response audio
+        if (response.audioUrl) {
+          setAudioUrl(response.audioUrl);
+          await playResponseAudio(response.audioUrl);
+        }
+        
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Failed to pick image:', error);
+      setIsProcessing(false);
+    }
+  };
+  
+  // Upload image file to backend
+  const uploadImageFile = async (uri: string): Promise<string> => {
+    // Similar implementation to uploadAudioFile
+    return 'https://example.com/uploaded-image.jpg';
+  };
+  
+  // Pick document for analysis
+  const pickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'text/plain'],
+        copyToCacheDirectory: true,
+      });
+      
+      if (result.type === 'success') {
+        setIsProcessing(true);
+        
+        // Upload document file
+        const documentUrl = await uploadDocumentFile(result.uri);
+        
+        // Submit document for analysis
+        const response = await submitUserInput({
+          documentUrls: [documentUrl],
+        });
+        
+        // Add response to messages
+        setMessages(prev => [...prev, response]);
+        
+        // Play response audio
+        if (response.audioUrl) {
+          setAudioUrl(response.audioUrl);
+          await playResponseAudio(response.audioUrl);
+        }
+        
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Failed to pick document:', error);
+      setIsProcessing(false);
+    }
+  };
+  
+  // Upload document file to backend
+  const uploadDocumentFile = async (uri: string): Promise<string> => {
+    // Similar implementation to uploadAudioFile
+    return 'https://example.com/uploaded-document.pdf';
+  };
+  
+  // Submit text input
+  const submitText = async (text: string) => {
+    if (!text.trim()) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      // Submit text for analysis
+      const response = await submitUserInput({
+        text,
+      });
+      
+      // Add response to messages
+      setMessages(prev => [...prev, response]);
+      
+      // Play response audio
+      if (response.audioUrl) {
+        setAudioUrl(response.audioUrl);
+        await playResponseAudio(response.audioUrl);
+      }
+    } catch (error) {
+      console.error('Failed to submit text:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  return (
+    <View style={styles.container}>
+      {/* Display messages */}
+      <View style={styles.messagesContainer}>
+        {messages.map((msg, index) => (
+          <View key={index} style={styles.messageItem}>
+            <Text style={styles.messageSender}>
+              {msg.role === 'assistant' ? 'Alex' : 'You'}:
+            </Text>
+            <Text style={styles.messageContent}>{msg.content}</Text>
+          </View>
+        ))}
+      </View>
+      
+      {/* Analysis insights (optional) */}
+      {analysis && Object.keys(analysis.emotionalStates).length > 0 && (
+        <View style={styles.analysisContainer}>
+          <Text style={styles.analysisTitle}>Insights:</Text>
+          <Text style={styles.analysisText}>
+            Emotional state: {Object.values(analysis.emotionalStates)[0]?.primaryEmotion || 'neutral'}
+          </Text>
+          <Text style={styles.analysisText}>
+            Conflict level: {analysis.conflictAnalysis?.escalationLevel || 0}/5
+          </Text>
+        </View>
+      )}
+      
+      {/* Input controls */}
+      <View style={styles.controlsContainer}>
+        {isProcessing ? (
+          <ActivityIndicator size="large" color="#3B82F6" />
+        ) : (
+          <>
+            <TouchableOpacity
+              style={[styles.recordButton, isRecording && styles.recordingButton]}
+              onPress={isRecording ? stopRecording : startRecording}
+            >
+              <Text style={styles.buttonText}>
+                {isRecording ? 'Stop Recording' : 'Start Recording'}
+              </Text>
+            </TouchableOpacity>
+            
+            <View style={styles.mediaButtonsContainer}>
+              <TouchableOpacity style={styles.mediaButton} onPress={pickImage}>
+                <Text style={styles.mediaButtonText}>Image</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.mediaButton} onPress={pickDocument}>
+                <Text style={styles.mediaButtonText}>Document</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+  },
+  messagesContainer: {
+    flex: 1,
+    marginBottom: 16,
+  },
+  messageItem: {
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  messageSender: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#4B5563',
+  },
+  messageContent: {
+    color: '#1F2937',
+  },
+  analysisContainer: {
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#EFF6FF',
+  },
+  analysisTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#1E40AF',
+  },
+  analysisText: {
+    color: '#1E3A8A',
+    marginBottom: 4,
+  },
+  controlsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  recordButton: {
+    backgroundColor: '#3B82F6',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    marginBottom: 16,
+    width: '80%',
+    alignItems: 'center',
+  },
+  recordingButton: {
+    backgroundColor: '#EF4444',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  mediaButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '80%',
+  },
+  mediaButton: {
+    backgroundColor: '#6B7280',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  mediaButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+});
+```
+
+This React Native component provides a complete interface for interacting with the multimodal LLM analysis engine, allowing users to:
+
+1. Record voice input for analysis
+2. Upload images for visual analysis
+3. Upload documents for content analysis
+4. Submit text input directly
+5. Receive AI responses with voice synthesis via ElevenLabs
+6. View analysis insights about emotional states and conflict dynamics
+
+The component integrates with the AI SDK backend through a custom hook (`useAI`), which would handle the communication with the server-side implementation of the Vercel AI SDK.
+
+#### 3.0.A.7. Sample Implementation of Multimodal Analysis
+
+The following code snippet demonstrates how the multimodal analysis engine processes different types of input:
+
+```typescript
+// services/multimodalAnalysis.ts
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { supabase } from './supabaseClient';
+import { processAudio } from './audioProcessing';
+import { processImage } from './imageProcessing';
+import { processDocument } from './documentProcessing';
+
+// Initialize Google GenAI
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+interface AnalysisInput {
+  text?: string;
+  audioUrl?: string;
+  imageUrls?: string[];
+  documentUrls?: string[];
+  sessionContext: {
+    sessionId: string;
+    participantIds: string[];
+    sessionType: string;
+    previousInteractions?: any[];
+  };
+}
+
+interface AnalysisResult {
+  emotionalStates: {
+    [participantId: string]: {
+      primaryEmotion: string;
+      secondaryEmotions: string[];
+      intensity: number;
+      confidence: number;
+    };
+  };
+  communicationPatterns: {
+    dominantSpeaker: string | null;
+    interruptionCount: number;
+    turnTakingBalance: number;
+    listeningQuality: number;
+  };
+  conflictAnalysis: {
+    conflictType: string;
+    rootCauses: string[];
+    escalationLevel: number;
+    suggestedApproaches: string[];
+  };
+  resolutionProgress: number;
+  nextSteps: {
+    recommendedAction: string;
+    alternativeActions: string[];
+    rationale: string;
+  };
+}
+
+export async function performMultimodalAnalysis(
+  input: AnalysisInput
+): Promise<AnalysisResult> {
+  try {
+    // Process each modality in parallel
+    const [textAnalysis, audioAnalysis, imageAnalysis, documentAnalysis] = 
+      await Promise.all([
+        input.text ? analyzeText(input.text, input.sessionContext) : null,
+        input.audioUrl ? processAudio(input.audioUrl) : null,
+        input.imageUrls?.length ? Promise.all(input.imageUrls.map(url => processImage(url))) : null,
+        input.documentUrls?.length ? Promise.all(input.documentUrls.map(url => processDocument(url))) : null,
+      ]);
+    
+    // Fusion layer - combine insights from different modalities
+    const fusedAnalysis = fusionLayer(
+      textAnalysis, 
+      audioAnalysis, 
+      imageAnalysis, 
+      documentAnalysis,
+      input.sessionContext
+    );
+    
+    // Generate strategies based on fused analysis
+    const strategies = await generateStrategies(fusedAnalysis, input.sessionContext);
+    
+    // Store analysis results for future reference
+    await storeAnalysisResults(fusedAnalysis, strategies, input.sessionContext.sessionId);
+    
+    return {
+      ...fusedAnalysis,
+      ...strategies
+    };
+  } catch (error) {
+    console.error('Error in multimodal analysis:', error);
+    throw new Error('Failed to complete multimodal analysis');
+  }
+}
+
+async function analyzeText(text: string, context: any) {
+  // Use Google GenAI for text analysis
+  const prompt = `
+    Analyze the following text from a conversation:
+    "${text}"
+    
+    Context:
+    ${JSON.stringify(context)}
+    
+    Provide analysis of:
+    1. Emotional states expressed
+    2. Communication patterns
+    3. Potential conflict indicators
+    4. Level of understanding between participants
+    
+    Format the response as JSON.
+  `;
+  
+  const result = await model.generateContent(prompt);
+  const textAnalysis = JSON.parse(result.response.text());
+  return textAnalysis;
+}
+
+function fusionLayer(textAnalysis: any, audioAnalysis: any, imageAnalysis: any, documentAnalysis: any, context: any) {
+  // Combine insights from different modalities with weighted importance
+  // This is a simplified example - actual implementation would be more sophisticated
+  
+  const emotionalStates = {};
+  const communicationPatterns = {
+    dominantSpeaker: null,
+    interruptionCount: 0,
+    turnTakingBalance: 0,
+    listeningQuality: 0
+  };
+  
+  // Combine emotional analysis from text and voice
+  if (textAnalysis?.emotions && audioAnalysis?.voiceEmotions) {
+    // Weighted combination of text and voice emotional analysis
+    // Voice emotions might be more reliable for certain emotions
+    // Text analysis might be better for complex emotional states
+  }
+  
+  // Add insights from images (facial expressions, body language)
+  if (imageAnalysis) {
+    // Incorporate facial expression analysis
+    // Consider body language cues
+  }
+  
+  // Add context from documents
+  if (documentAnalysis) {
+    // Extract relevant background information
+    // Identify potential topics of contention
+  }
+  
+  // Consider session history and participant profiles from context
+  
+  return {
+    emotionalStates,
+    communicationPatterns,
+    conflictAnalysis: {
+      conflictType: '',
+      rootCauses: [],
+      escalationLevel: 0,
+      suggestedApproaches: []
+    },
+    resolutionProgress: 0
+  };
+}
+
+async function generateStrategies(analysis: any, context: any) {
+  // Generate intervention strategies based on analysis
+  const prompt = `
+    Based on the following analysis of a conversation:
+    ${JSON.stringify(analysis)}
+    
+    And this context:
+    ${JSON.stringify(context)}
+    
+    Generate:
+    1. The most appropriate next action for the AI mediator
+    2. Alternative approaches that could be considered
+    3. Rationale for the recommended action
+    
+    Format the response as JSON.
+  `;
+  
+  const result = await model.generateContent(prompt);
+  const strategies = JSON.parse(result.response.text());
+  
+  return {
+    nextSteps: {
+      recommendedAction: strategies.recommendedAction,
+      alternativeActions: strategies.alternativeActions,
+      rationale: strategies.rationale
+    }
+  };
+}
+
+async function storeAnalysisResults(analysis: any, strategies: any, sessionId: string) {
+  // Store results in Supabase for future reference and learning
+  const { error } = await supabase
+    .from('session_analysis')
+    .insert({
+      session_id: sessionId,
+      timestamp: new Date().toISOString(),
+      analysis_data: analysis,
+      strategies: strategies
+    });
+  
+  if (error) {
+    console.error('Error storing analysis results:', error);
+  }
+}
+```
+
+### 3.0.B. ElevenLabs Voice Integration Technical Implementation
+
+The ElevenLabs voice integration is a critical component of the "Understand.me" application, providing the voice capabilities for the AI agent "Alex." This section outlines the technical implementation details for developers.
+
+#### 3.0.B.1. Integration Between Multimodal LLM and ElevenLabs
+
+The seamless integration between the multimodal LLM analysis engine and ElevenLabs voice synthesis is crucial for creating a natural, emotionally intelligent AI mediator. This integration enables "Alex" to not only understand the content and context of conversations but also respond with appropriate emotional tone and cadence.
+
+*   **FR-SYS-VOICE-000:** The system must seamlessly integrate the multimodal LLM analysis engine with ElevenLabs voice synthesis.
+    *   **Frontend Development Outline:**
+        *   Create a unified interface that coordinates between analysis results and voice output.
+        *   Implement UI components that reflect the emotional state of "Alex" during voice synthesis.
+        *   Develop feedback mechanisms to indicate when analysis is being processed and voice is being generated.
+    *   **Backend/Serverless Development Outline:**
+        *   **PicaOS Orchestration:** Coordinate the flow of data between the multimodal analysis engine and ElevenLabs.
+        *   **Emotional Mapping Service:** Translate emotional analysis into appropriate voice parameters for ElevenLabs.
+        *   **Response Generation Pipeline:** Generate text responses based on analysis and optimize them for voice synthesis.
+    *   **Key Technical Considerations/Challenges:**
+        *   Ensuring consistent emotional tone between analysis and voice output.
+        *   Minimizing latency in the end-to-end process from analysis to voice output.
+        *   Handling edge cases where emotional analysis might be ambiguous or complex.
+
+The following diagram illustrates the integration flow between the multimodal LLM analysis engine and ElevenLabs:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  Multimodal Analysis Engine                      │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Analysis Results                             │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │   Emotional     │  │  Communication   │  │    Conflict     │  │
+│  │    States       │  │    Patterns     │  │    Analysis     │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Response Generation                           │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │    Content      │  │   Emotional     │  │   Linguistic     │  │
+│  │   Generation    │  │    Mapping      │  │   Optimization   │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    ElevenLabs Parameters                         │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │    Voice ID     │  │    Stability    │  │  Similarity     │  │
+│  │    Selection    │  │     Setting     │  │     Boost       │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │     Style       │  │   Speaking      │                       │
+│  │    Parameter    │  │      Rate       │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    ElevenLabs API Call                           │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Voice Output to User                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+The integration code between the multimodal analysis engine and ElevenLabs might look like this:
+
+```typescript
+// services/voiceResponseGenerator.ts
+
+import { performMultimodalAnalysis } from './multimodalAnalysis';
+import { generateVoiceResponse } from './elevenLabsService';
+import { emotionToVoiceMapper } from './emotionMapping';
+
+interface ResponseInput {
+  text?: string;
+  audioUrl?: string;
+  imageUrls?: string[];
+  documentUrls?: string[];
+  sessionContext: {
+    sessionId: string;
+    participantIds: string[];
+    sessionType: string;
+    previousInteractions?: any[];
+  };
+}
+
+interface VoiceResponseResult {
+  responseText: string;
+  audioUrl: string;
+  emotionalState: string;
+  voiceParameters: {
+    voiceId: string;
+    stability: number;
+    similarityBoost: number;
+    style: number;
+    speakingRate: number;
+  };
+}
+
+export async function generateAIResponse(
+  input: ResponseInput
+): Promise<VoiceResponseResult> {
+  try {
+    // Step 1: Perform multimodal analysis
+    const analysisResult = await performMultimodalAnalysis(input);
+    
+    // Step 2: Generate appropriate text response based on analysis
+    const responseText = await generateTextResponse(analysisResult, input.sessionContext);
+    
+    // Step 3: Determine appropriate emotional tone for response
+    const emotionalState = determineResponseEmotion(analysisResult);
+    
+    // Step 4: Map emotional state to voice parameters
+    const voiceParameters = emotionToVoiceMapper(emotionalState);
+    
+    // Step 5: Generate voice response using ElevenLabs
+    const audioUrl = await generateVoiceResponse(responseText, voiceParameters);
+    
+    return {
+      responseText,
+      audioUrl,
+      emotionalState,
+      voiceParameters
+    };
+  } catch (error) {
+    console.error('Error generating AI response:', error);
+    throw new Error('Failed to generate AI response');
+  }
+}
+
+async function generateTextResponse(analysisResult: any, sessionContext: any) {
+  // Generate appropriate text response based on analysis
+  // This could use Google GenAI or other LLM
+  
+  const responseStrategy = analysisResult.nextSteps.recommendedAction;
+  
+  // Different response strategies based on analysis
+  switch (responseStrategy) {
+    case 'ask_clarifying_question':
+      return generateClarifyingQuestion(analysisResult);
+    case 'summarize_perspectives':
+      return generatePerspectiveSummary(analysisResult);
+    case 'suggest_resolution':
+      return generateResolutionSuggestion(analysisResult);
+    case 'acknowledge_emotion':
+      return generateEmotionalAcknowledgment(analysisResult);
+    case 'redirect_conversation':
+      return generateRedirection(analysisResult);
+    default:
+      return generateGenericResponse(analysisResult);
+  }
+}
+
+function determineResponseEmotion(analysisResult: any) {
+  // Determine appropriate emotional tone for response
+  // Based on participant emotional states and conflict analysis
+  
+  const participantEmotions = Object.values(analysisResult.emotionalStates);
+  const conflictLevel = analysisResult.conflictAnalysis.escalationLevel;
+  
+  // Check for high emotional intensity
+  const highIntensityEmotions = participantEmotions.filter(
+    (emotion: any) => emotion.intensity > 0.7
+  );
+  
+  if (highIntensityEmotions.length > 0) {
+    // If participants are highly emotional, respond with calm, empathetic tone
+    return 'empathetic';
+  } else if (conflictLevel > 3) {
+    // If conflict is escalated but emotions aren't intense, use assertive tone
+    return 'assertive';
+  } else {
+    // Default balanced tone
+    return 'neutral';
+  }
+}
+
+// Helper functions for different response types
+function generateClarifyingQuestion(analysis: any) {
+  // Generate a clarifying question based on analysis
+  return `I notice there might be some uncertainty about ${analysis.conflictAnalysis.rootCauses[0]}. Could you help me understand more about that?`;
+}
+
+function generatePerspectiveSummary(analysis: any) {
+  // Generate a summary of different perspectives
+  return `I'm hearing different perspectives here. On one hand, there's a view that... On the other hand, there's a perspective that...`;
+}
+
+function generateResolutionSuggestion(analysis: any) {
+  // Generate a suggestion for resolution
+  return `Based on what I'm hearing, one possible way forward might be to ${analysis.conflictAnalysis.suggestedApproaches[0]}. How does that sound?`;
+}
+
+function generateEmotionalAcknowledgment(analysis: any) {
+  // Generate an acknowledgment of emotions
+  const primaryEmotion = Object.values(analysis.emotionalStates)[0].primaryEmotion;
+  return `I can hear that this situation is causing some ${primaryEmotion}. That's completely understandable given the circumstances.`;
+}
+
+function generateRedirection(analysis: any) {
+  // Generate a redirection to more productive discussion
+  return `I wonder if it might be helpful to shift our focus to ${analysis.conflictAnalysis.suggestedApproaches[0]}?`;
+}
+
+function generateGenericResponse(analysis: any) {
+  // Generate a generic response
+  return `Thank you for sharing that. Let's continue exploring this together.`;
+}
+```
+
+#### 3.0.B.2. ElevenLabs Integration Architecture
+
+*   **FR-SYS-VOICE-001:** The system must integrate with ElevenLabs API for high-quality voice synthesis.
+    *   **Frontend Development Outline:**
+        *   Implement voice playback using `expo-av` Audio component.
+        *   Create a voice service wrapper that handles communication with the backend for voice synthesis requests.
+        *   Implement caching mechanisms for frequently used voice responses to reduce latency and API costs.
+        *   Handle playback states (loading, playing, paused, error) with appropriate UI feedback.
+    *   **Backend/Serverless Development Outline:**
+        *   **PicaOS/Edge Function:** Handles communication with ElevenLabs API, sending text scripts and receiving audio data.
+        *   **Upstash Redis:** Optionally cache common voice responses to improve performance and reduce API costs.
+        *   **Supabase Storage:** Store generated audio files temporarily or permanently as needed.
+    *   **Key Technical Considerations/Challenges:**
+        *   Latency management for real-time conversation flow.
+        *   Bandwidth optimization for mobile networks.
+        *   API usage monitoring and cost control.
+        *   Fallback mechanisms for offline or error scenarios.
+
+#### 3.0.2. Expo Integration with ElevenLabs
+
+*   **FR-SYS-VOICE-002:** The system must implement cross-platform voice capabilities using Expo's DOM components architecture.
+    *   **Frontend Development Outline:**
+        *   Utilize Expo DOM components with the `use dom` directive to enable web technologies in the native app.
+        *   Implement the ElevenLabs React SDK within DOM components for voice synthesis.
+        *   Configure proper permissions for microphone access in `app.json` for iOS and Android.
+        *   Create a voice interaction component that handles both voice input and output.
+    *   **Backend/Serverless Development Outline:**
+        *   Ensure backend services support the requirements of the Expo DOM components architecture.
+        *   Implement appropriate CORS and security configurations for API endpoints.
+    *   **Key Technical Considerations/Challenges:**
+        *   Cross-platform consistency in voice quality and interaction.
+        *   Proper handling of microphone permissions across platforms.
+        *   Performance optimization for DOM components in native environments.
+
+#### 3.0.3. Implementation Steps for ElevenLabs with Expo
+
+1. **Project Setup:**
+   * Create a new Expo project using `npx create-expo-app@latest --template blank-typescript`.
+   * Configure microphone permissions in `app.json` for iOS and Android.
+   * Install required dependencies:
+     ```bash
+     npx expo install @elevenlabs/react
+     npx expo install expo-dev-client
+     npx expo install react-native-webview
+     npx expo install react-dom react-native-web @expo/metro-runtime
+     npx expo install expo-av
+     ```
+
+2. **ElevenLabs SDK Integration:**
+   * Create a DOM component for voice interaction using the `use dom` directive.
+   * Implement the ElevenLabs React SDK within this component.
+   * Set up voice configuration options for different emotional states and contexts.
+   * Implement error handling and fallback mechanisms.
+
+3. **Voice Input/Output Implementation:**
+   * Create a microphone permission request function.
+   * Implement voice recording using `expo-av`.
+   * Set up audio playback for ElevenLabs-generated responses.
+   * Create UI components for voice interaction (recording button, playback controls, etc.).
+
+4. **Backend Integration:**
+   * Set up secure API key management for ElevenLabs.
+   * Create serverless functions to handle voice synthesis requests.
+   * Implement caching mechanisms for frequently used responses.
+   * Set up monitoring and logging for API usage.
+
+5. **Testing and Optimization:**
+   * Test voice quality and latency across different devices and network conditions.
+   * Optimize audio file sizes and streaming for mobile networks.
+   * Implement analytics to track voice interaction quality and user satisfaction.
+   * Create fallback mechanisms for offline or error scenarios.
+
+#### 3.0.4. Technical Challenges and Solutions for ElevenLabs Integration
+
+Integrating ElevenLabs with Expo React Native presents several technical challenges that developers should be aware of. This section outlines these challenges and provides recommended solutions.
+
+1. **Cross-Platform Audio Handling:**
+   * **Challenge:** Audio recording and playback behavior differs across iOS, Android, and web platforms.
+   * **Solution:** 
+     * Use `expo-av` for native platforms with platform-specific configurations.
+     * Implement the Web Audio API within DOM components for web support.
+     * Create platform-specific fallback mechanisms when native capabilities are limited.
+     * Test thoroughly on all target platforms to ensure consistent behavior.
+
+2. **Microphone Permission Management:**
+   * **Challenge:** Different platforms have different permission models and user experiences.
+   * **Solution:**
+     * Configure permissions properly in `app.json` for iOS and Android.
+     * Implement a unified permission request flow that works across platforms.
+     * Provide clear user feedback when permissions are denied.
+     * Implement graceful fallbacks to text input when voice input is unavailable.
+
+3. **Network Latency and Reliability:**
+   * **Challenge:** Voice synthesis API calls can introduce noticeable latency in conversation flow.
+   * **Solution:**
+     * Implement client-side caching for common responses.
+     * Use streaming responses when available from ElevenLabs.
+     * Provide visual feedback during processing (loading indicators, typing animations).
+     * Pre-fetch likely next responses based on conversation context.
+     * Implement offline fallback modes with pre-cached responses.
+
+4. **Voice Quality and Emotional Range:**
+   * **Challenge:** Achieving consistent voice quality with appropriate emotional nuance.
+   * **Solution:**
+     * Create a mapping system between emotional states and ElevenLabs voice parameters.
+     * Test different voice configurations extensively to find optimal settings.
+     * Implement A/B testing to gather user feedback on voice quality.
+     * Consider creating custom voice clones for the Alex persona if budget allows.
+
+5. **Memory and Performance Optimization:**
+   * **Challenge:** Audio processing can be resource-intensive on mobile devices.
+   * **Solution:**
+     * Implement proper audio buffer management and cleanup.
+     * Use appropriate audio compression formats for different network conditions.
+     * Optimize component rendering to prevent unnecessary re-renders during audio processing.
+     * Implement background processing for audio when possible.
+
+#### 3.0.5. ElevenLabs API Configuration and Setup
+
+The ElevenLabs API requires proper configuration and setup to ensure optimal performance and security. This section provides detailed instructions for setting up the ElevenLabs integration.
+
+1. **API Key Management:**
+   * Create an ElevenLabs account at [elevenlabs.io](https://elevenlabs.io/sign-up).
+   * Navigate to the [API Key settings](https://elevenlabs.io/app/settings/api-keys) to generate a new API key.
+   * Store the API key securely in environment variables or a secure key management system.
+   * Configure Supabase Edge Functions or PicaOS to access the API key securely.
+
+2. **Voice Selection and Configuration:**
+   * Browse the [ElevenLabs voice library](https://elevenlabs.io/app/voices) to select appropriate voices for the Alex persona.
+   * Consider creating a custom voice clone for a unique Alex persona if budget allows.
+   * Test different voice settings to find the optimal configuration for clarity and emotional range.
+   * Document the selected voice IDs and configurations for different emotional states.
+
+3. **API Endpoint Configuration:**
+   * Set up the following ElevenLabs API endpoints in your backend services:
+     * Text-to-Speech: `https://api.elevenlabs.io/v1/text-to-speech/{voice_id}`
+     * Voice Settings: `https://api.elevenlabs.io/v1/voices/{voice_id}/settings`
+     * Voice Library: `https://api.elevenlabs.io/v1/voices`
+   * Configure proper error handling and retry logic for API requests.
+   * Implement request throttling to stay within API rate limits.
+
+4. **Usage Monitoring and Optimization:**
+   * Set up monitoring for API usage to track costs and performance.
+   * Implement caching strategies to reduce API calls for frequently used responses.
+   * Configure usage alerts to prevent unexpected costs.
+   * Optimize text inputs to minimize token usage while maintaining quality.
+
+5. **Integration Testing:**
+   * Create a test suite for the ElevenLabs integration.
+   * Test voice quality across different devices and network conditions.
+   * Verify proper error handling and fallback mechanisms.
+   * Conduct user testing to gather feedback on voice quality and naturalness.
+
+#### 3.0.6. Best Practices for ElevenLabs Implementation
+
+1. **API Key Security:**
+   * Never store ElevenLabs API keys in client-side code.
+   * Use server-side functions (Edge Functions, PicaOS) to proxy requests to ElevenLabs.
+   * Implement proper rate limiting and usage monitoring.
+
+2. **Voice Consistency:**
+   * Maintain consistent voice characteristics throughout the user experience.
+   * Document voice IDs and parameters used for different emotional states.
+   * Create a voice style guide for developers to reference.
+
+3. **Error Handling:**
+   * Implement comprehensive error handling for all API interactions.
+   * Provide graceful fallbacks when voice synthesis fails.
+   * Log errors for monitoring and improvement.
+
+4. **Performance Optimization:**
+   * Cache frequently used voice responses.
+   * Implement progressive loading for longer audio segments.
+   * Optimize audio file sizes for mobile networks.
+
+5. **Testing Strategy:**
+   * Test on multiple device types and OS versions.
+   * Test under various network conditions (strong Wi-Fi, weak cellular, offline).
+   * Conduct user testing to gather feedback on voice quality and naturalness.
+   * Implement analytics to track voice interaction success rates.
+
+#### 3.0.6. ElevenLabs Voice Component Implementation
+
+The following is a sample implementation of the ElevenLabs voice component using Expo DOM components. This serves as a reference for developers implementing the voice capabilities of "Alex" in the application.
+
+```typescript
+// components/AlexVoice.tsx
+'use dom';
+
+import { useConversation } from '@elevenlabs/react';
+import { useCallback, useState } from 'react';
+import { View, Pressable, StyleSheet, Text } from 'react-native';
+import { Mic, MicOff } from 'lucide-react-native';
+
+// Request microphone permission function
+async function requestMicrophonePermission() {
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    return true;
+  } catch (error) {
+    console.error('Microphone permission denied:', error);
+    return false;
+  }
+}
+
+// Voice configuration for different emotional states
+const voiceConfigurations = {
+  neutral: {
+    voiceId: 'pNInz6obpgDQGcFmaJgB', // Default voice ID
+    stability: 0.5,
+    similarityBoost: 0.75,
+    style: 0.0,
+    speakingRate: 1.0
+  },
+  empathetic: {
+    voiceId: 'pNInz6obpgDQGcFmaJgB',
+    stability: 0.75,
+    similarityBoost: 0.6,
+    style: 0.3,
+    speakingRate: 0.9
+  },
+  assertive: {
+    voiceId: 'pNInz6obpgDQGcFmaJgB',
+    stability: 0.4,
+    similarityBoost: 0.8,
+    style: 0.5,
+    speakingRate: 1.1
+  }
+};
+
+interface AlexVoiceProps {
+  dom?: import('expo/dom').DOMProps;
+  sessionId: string;
+  sessionContext: string;
+  emotionalState: 'neutral' | 'empathetic' | 'assertive';
+  onMessageReceived: (message: any) => void;
+}
+
+export default function AlexVoice({
+  sessionId,
+  sessionContext,
+  emotionalState = 'neutral',
+  onMessageReceived
+}: AlexVoiceProps) {
+  const [isListening, setIsListening] = useState(false);
+  
+  // Initialize conversation with ElevenLabs
+  const conversation = useConversation({
+    onConnect: () => console.log('Connected to ElevenLabs'),
+    onDisconnect: () => {
+      console.log('Disconnected from ElevenLabs');
+      setIsListening(false);
+    },
+    onMessage: (message) => {
+      console.log('Message received:', message);
+      onMessageReceived(message);
+    },
+    onError: (error) => console.error('ElevenLabs error:', error),
+  });
+
+  // Start conversation with Alex
+  const startConversation = useCallback(async () => {
+    try {
+      // Request microphone permission
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        console.error('Microphone permission denied');
+        return;
+      }
+
+      // Start the conversation with the AI agent
+      await conversation.startSession({
+        agentId: process.env.ELEVENLABS_AGENT_ID!, // Alex agent ID
+        dynamicVariables: {
+          sessionId,
+          sessionContext,
+          emotionalState
+        },
+        voiceSettings: voiceConfigurations[emotionalState]
+      });
+      
+      setIsListening(true);
+    } catch (error) {
+      console.error('Failed to start conversation:', error);
+    }
+  }, [conversation, sessionId, sessionContext, emotionalState]);
+
+  // End conversation with Alex
+  const stopConversation = useCallback(async () => {
+    await conversation.endSession();
+    setIsListening(false);
+  }, [conversation]);
+
+  return (
+    <View style={styles.container}>
+      <Pressable
+        style={[styles.micButton, isListening && styles.micButtonActive]}
+        onPress={isListening ? stopConversation : startConversation}
+      >
+        {isListening ? (
+          <MicOff size={28} color="#FFFFFF" />
+        ) : (
+          <Mic size={28} color="#FFFFFF" />
+        )}
+      </Pressable>
+      <Text style={styles.statusText}>
+        {isListening ? 'Alex is listening...' : 'Tap to speak with Alex'}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  micButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  micButtonActive: {
+    backgroundColor: '#EF4444',
+  },
+  statusText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 8,
+  },
+});
+```
+
+This component can be integrated into the main application by importing it and passing the required props:
+
+```typescript
+// screens/SessionScreen.tsx
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import AlexVoice from '../components/AlexVoice';
+
+export default function SessionScreen({ route }) {
+  const { sessionId } = route.params;
+  const [sessionContext, setSessionContext] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [emotionalState, setEmotionalState] = useState('neutral');
+
+  // Handle messages from Alex
+  const handleMessageReceived = (message) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
+    
+    // Update emotional state based on conversation context
+    if (message.content.includes('frustration') || message.content.includes('anger')) {
+      setEmotionalState('empathetic');
+    } else if (message.content.includes('agreement') || message.content.includes('resolution')) {
+      setEmotionalState('assertive');
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Session with Alex</Text>
+      
+      {/* Display conversation messages */}
+      <View style={styles.messagesContainer}>
+        {messages.map((msg, index) => (
+          <View key={index} style={styles.messageItem}>
+            <Text style={styles.messageSender}>
+              {msg.role === 'assistant' ? 'Alex' : 'You'}:
+            </Text>
+            <Text style={styles.messageContent}>{msg.content}</Text>
+          </View>
+        ))}
+      </View>
+      
+      {/* Alex voice component */}
+      <AlexVoice
+        sessionId={sessionId}
+        sessionContext={sessionContext}
+        emotionalState={emotionalState}
+        onMessageReceived={handleMessageReceived}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#F9FAFB',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#111827',
+  },
+  messagesContainer: {
+    flex: 1,
+    marginBottom: 16,
+  },
+  messageItem: {
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  messageSender: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#4B5563',
+  },
+  messageContent: {
+    color: '#1F2937',
+  },
+});
+```
 
 ### 3.1. Authentication & User Management
 *   **FR-SYS-AUTH-001:** The system must allow users to sign up using an email address and password.
