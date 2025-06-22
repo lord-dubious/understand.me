@@ -1,34 +1,46 @@
 # Understand.me Boilerplate Setup Guide
 
-This document provides comprehensive instructions for setting up the boilerplate foundation for the Understand.me application. This boilerplate includes the minimal setup required before using AI tools like bolt.new for full development. It consolidates all the necessary configurations, package structures, and integration points needed for the application's core functionality.
+This comprehensive guide provides step-by-step instructions for establishing the foundational boilerplate for the Understand.me application. The boilerplate represents the minimal viable setup required before leveraging AI development tools like bolt.new for accelerated development.
+
+This guide consolidates all essential configurations, package structures, and integration points necessary for the application's core functionality, ensuring a robust foundation for multi-agent AI-mediated communication.
 
 ## Executive Summary
 
-The Understand.me application is an AI-mediated communication platform powered by:
-- **ElevenLabs** for natural, emotionally nuanced voice synthesis
-- **Google GenAI** for multimodal analysis and response generation
-- **Supabase** for authentication, database, and storage
-- **Expo (React Native)** for cross-platform mobile development
-- **PicaOS** for AI orchestration between services
+Understand.me is a sophisticated AI-mediated communication platform that facilitates meaningful conversations through multiple AI agents. The platform leverages cutting-edge technologies to provide natural, emotionally intelligent interactions:
 
-This boilerplate establishes the foundation for these integrations, focusing on:
-1. Setting up the project structure with proper separation of concerns
-2. Configuring core dependencies and environment variables
-3. Implementing the ElevenLabs voice integration for multiple AI agents
-4. Creating a multi-agent architecture supporting various AI personalities (Udine as primary, Alex, and others)
-5. Setting up Supabase for authentication and data storage
-6. Creating the navigation flow with onboarding before authentication
-7. Establishing the basic UI components and screens with agent flexibility
+### Core Technology Stack
+- **ElevenLabs** - Advanced voice synthesis with emotional nuance and agent-specific voices
+- **Google GenAI** - Multimodal analysis, natural language processing, and intelligent response generation
+- **Supabase** - Comprehensive backend services including authentication, real-time database, and secure storage
+- **Expo (React Native)** - Cross-platform mobile development with native performance
+- **PicaOS** - Intelligent AI orchestration layer managing service interactions and workflow coordination
+
+### Multi-Agent Architecture
+The platform supports multiple AI personalities, each with distinct capabilities:
+- **Udine** - Primary AI assistant providing general support and guidance
+- **Alex** - Specialized mediation expert for conflict resolution
+- **Maya** - Personal coaching specialist for growth and development
+- **Dr. Chen** - Professional therapeutic support agent
+
+### Boilerplate Foundation
+This setup guide establishes the essential foundation for:
+1. **Modular Architecture** - Clean separation of concerns with scalable project structure
+2. **Environment Configuration** - Secure API key management and environment-specific settings
+3. **Voice Integration** - Multi-agent ElevenLabs implementation with emotional voice synthesis
+4. **Agent Management** - Flexible architecture supporting dynamic agent switching and configuration
+5. **Authentication Flow** - Supabase-powered user management with secure session handling
+6. **Navigation Structure** - Intuitive user journey from onboarding through authenticated experiences
+7. **Component Library** - Reusable UI components optimized for agent interactions
 
 ## 1. Project Structure Overview
 
-The Understand.me application follows a modular architecture with clear separation of concerns, aligned with the architecture described in the PRD. The boilerplate should establish the following directory structure:
+The Understand.me application follows a modular, scalable architecture with clear separation of concerns. This structure is designed to support multi-agent AI interactions while maintaining code organization and developer productivity. The boilerplate establishes the following comprehensive directory structure:
 
 ```
 understand-me/
 ├── .github/                    # GitHub workflows and templates
 ├── assets/                     # Static assets (images, fonts, sounds)
-│   ├── fonts/                  # Custom fonts for the application
+│   ├─������������� fonts/                  # Custom fonts for the application
 │   ├── images/                 # Images, icons, and visual assets
 │   ├── sounds/                 # Sound effects and notification tones
 │   └── animations/             # Lottie animations for UI interactions
@@ -49,7 +61,7 @@ understand-me/
 │   │   ├── auth/               # Authentication context
 │   │   ├── session/            # Session context
 │   │   ├── voice/              # Voice context
-│   │   └── agents/             # AI agent contexts (Alex, and others)
+│   │   └── agents/             # AI agent contexts (Udine, Alex, and others)
 │   ├── hooks/                  # Custom React hooks
 │   │   ├── useAudio/           # Audio recording and playback hooks
 │   │   ├── useVoice/           # Voice synthesis and recognition hooks
@@ -57,7 +69,7 @@ understand-me/
 │   │   └── useAnalysis/        # Analysis and processing hooks
 │   ├── lib/                    # Utility functions and helpers
 │   │   ├── ai/                 # AI processing utilities
-│   │   ├── audio/              # Audio processing utilities
+│   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
 │   │   └── mediation/          # Mediation workflow utilities
@@ -85,7 +97,7 @@ understand-me/
 │   │   ├── user/               # User state
 │   │   └── voice/              # Voice state
 │   ├── types/                  # TypeScript type definitions
-│   │   ├── api.ts              # API response and request types
+��   ��   ��─�� api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
 │   │   ├── session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
@@ -110,107 +122,106 @@ This structure aligns with the five-phase AI-mediated session flow described in 
 
 ## 2. Core Dependencies
 
-The boilerplate should include the following essential dependencies, carefully selected to support the architecture described in the PRD:
+The boilerplate includes carefully curated dependencies organized by functionality to support the multi-agent AI architecture. Each dependency serves a specific purpose in delivering the platform's core capabilities:
+
+### 2.1. Production Dependencies
 
 ```json
 {
   "dependencies": {
+    // Core Framework
     "expo": "~50.0.0",
+    "react": "18.2.0",
+    "react-native": "0.73.2",
     "expo-status-bar": "~1.11.1",
-    "expo-av": "~13.10.0",
-    "expo-file-system": "~16.0.5",
-    "expo-speech": "~11.7.0",
-    "expo-secure-store": "~12.8.1",
-    "expo-updates": "~0.24.8",
     "expo-dev-client": "~3.3.7",
     "expo-splash-screen": "~0.26.4",
+    "expo-updates": "~0.24.8",
+    
+    // AI & Voice Integration
+    "@elevenlabs/react-native-text-to-speech": "^1.0.0",
+    "@google/generative-ai": "^0.2.0",
+    "expo-av": "~13.10.0",
+    "expo-speech": "~11.7.0",
+    "react-native-audio-recorder-player": "^3.6.5",
+    "react-native-track-player": "^4.0.1",
+    "react-native-sound": "^0.11.2",
+    
+    // Multimodal Input Support
     "expo-camera": "~14.0.3",
     "expo-image-picker": "~14.7.1",
     "expo-document-picker": "~11.10.1",
     "expo-media-library": "~15.9.1",
+    "react-native-vision-camera": "^3.6.17",
+    "react-native-image-crop-picker": "^0.40.2",
+    
+    // Backend & Authentication
+    "@supabase/supabase-js": "^2.39.3",
+    "expo-secure-store": "~12.8.1",
+    "react-native-encrypted-storage": "^4.0.3",
+    "react-native-biometrics": "^3.0.1",
+    
+    // Navigation
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/native-stack": "^6.9.17",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    
+    // UI Components & Animation
+    "react-native-paper": "^5.11.4",
+    "lottie-react-native": "^6.4.1",
+    "react-native-vector-icons": "^10.0.3",
+    "react-native-reanimated": "~3.6.2",
+    "react-native-gesture-handler": "~2.14.0",
+    "react-native-svg": "14.1.0",
+    "react-native-modal": "^13.0.1",
+    "react-native-progress": "^5.0.1",
+    
+    // State Management & Storage
+    "zustand": "^4.4.7",
+    "react-native-mmkv": "^2.11.0",
+    
+    // Utilities
+    "react-native-dotenv": "^3.4.9",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-uuid": "^2.0.1",
+    "react-native-device-info": "^10.12.0",
+    "expo-file-system": "~16.0.5",
     "expo-notifications": "~0.27.6",
     "expo-linking": "~6.2.2",
     "expo-localization": "~14.8.3",
     "expo-haptics": "~12.8.1",
-    "react": "18.2.0",
-    "react-native": "0.73.2",
-    "react-native-safe-area-context": "4.8.2",
-    "react-native-screens": "~3.29.0",
-    "@react-navigation/native": "^6.1.9",
-    "@react-navigation/native-stack": "^6.9.17",
-    "@react-navigation/bottom-tabs": "^6.5.11",
-    "@supabase/supabase-js": "^2.39.3",
-    "@elevenlabs/react-native-text-to-speech": "^1.0.0",
-    "@google/generative-ai": "^0.2.0",
-    "react-native-dotenv": "^3.4.9",
-    "react-native-reanimated": "~3.6.2",
-    "react-native-gesture-handler": "~2.14.0",
-    "react-native-svg": "14.1.0",
-    "lottie-react-native": "^6.4.1",
-    "zustand": "^4.4.7",
     "i18n-js": "^4.3.2",
     "date-fns": "^3.0.6",
-    "react-native-paper": "^5.11.4",
-    "react-native-vector-icons": "^10.0.3",
+    
+    // Content & Sharing
     "react-native-markdown-display": "^7.0.2",
     "react-native-webview": "13.6.3",
-    "react-native-url-polyfill": "^2.0.0",
-    "react-native-uuid": "^2.0.1",
-    "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-modal": "^13.0.1",
-    "react-native-progress": "^5.0.1",
-    "react-native-chart-kit": "^6.12.0",
-    "react-native-audio-recorder-player": "^3.6.5",
-    "react-native-fs": "^2.20.0",
-    "react-native-blob-util": "^0.19.6",
     "react-native-share": "^10.0.2",
     "react-native-pdf": "^6.7.4",
-    "react-native-image-crop-picker": "^0.40.2",
-    "react-native-sound": "^0.11.2",
-    "react-native-track-player": "^4.0.1",
-    "react-native-vision-camera": "^3.6.17",
-    "react-native-mmkv": "^2.11.0",
     "react-native-fast-image": "^8.6.3",
-    "react-native-device-info": "^10.12.0",
-    "react-native-encrypted-storage": "^4.0.3",
-    "react-native-biometrics": "^3.0.1",
+    
+    // User Experience
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-rate": "^1.2.12",
-    "react-native-in-app-review": "^4.3.3",
-    "react-native-purchases": "^7.19.0",
-    "react-native-analytics-segment": "^1.5.0",
-    "react-native-sentry": "^0.43.2",
-    "react-native-firebase": "^5.6.0",
-    "react-native-appsflyer": "^6.12.2",
-    "react-native-amplitude": "^1.0.0",
-    "react-native-mixpanel": "^1.2.5",
-    "react-native-intercom": "^24.1.0",
-    "react-native-zendesk": "^1.0.0",
-    "react-native-freshchat": "^4.4.0",
-    "react-native-crisp-chat-sdk": "^0.19.0",
-    "react-native-intercom-webview": "^1.0.0",
-    "react-native-zendesk-chat": "^0.5.0",
-    "react-native-freshchat-sdk": "^4.4.0",
-    "react-native-crisp": "^0.19.0",
-    "react-native-intercom-native": "^1.0.0",
-    "react-native-zendesk-support": "^1.0.0",
-    "react-native-freshchat-redux": "^4.4.0",
-    "react-native-crisp-chat": "^0.19.0",
-    "react-native-intercom-hooks": "^1.0.0",
-    "react-native-zendesk-messaging": "^1.0.0",
-    "react-native-freshchat-hooks": "^4.4.0",
-    "react-native-crisp-sdk": "^0.19.0",
-    "react-native-intercom-native-sdk": "^1.0.0",
-    "react-native-zendesk-chat-api": "^1.0.0",
-    "react-native-freshchat-sdk-hooks": "^4.4.0",
-    "react-native-crisp-chat-hooks": "^0.19.0"
+    "react-native-in-app-review": "^4.3.3"
   },
   "devDependencies": {
+    // Build & Compilation
     "@babel/core": "^7.20.0",
-    "@types/react": "~18.2.45",
     "typescript": "^5.3.0",
+    "@types/react": "~18.2.45",
+    
+    // Testing
     "jest": "^29.7.0",
     "jest-expo": "~50.0.1",
     "@testing-library/react-native": "^12.4.1",
+    "@testing-library/jest-native": "^5.4.3",
+    "react-test-renderer": "18.2.0",
+    "msw": "^2.0.11",
+    
+    // Code Quality
     "eslint": "^8.56.0",
     "eslint-config-universe": "^12.0.0",
     "prettier": "^3.1.1",
@@ -219,69 +230,59 @@ The boilerplate should include the following essential dependencies, carefully s
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-native": "^4.1.0",
+    
+    // Git Hooks
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "react-test-renderer": "18.2.0",
-    "@testing-library/jest-native": "^5.4.3",
-    "msw": "^2.0.11",
-    "react-native-dotenv": "^3.4.9"
+    "lint-staged": "^15.2.0"
   }
 }
 ```
 
-### 2.1 Key Dependencies Explanation
+### 2.2. Development Dependencies
 
-#### Core Framework
-- **Expo**: Cross-platform mobile development framework
-- **React Native**: Mobile application framework
+The development dependencies ensure code quality, testing capabilities, and streamlined development workflow:
 
-#### ElevenLabs Integration
-- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for React Native
-- **expo-av**: Audio recording and playback
+- **TypeScript & Babel**: Type safety and modern JavaScript compilation
+- **Testing Suite**: Comprehensive testing with Jest and React Native Testing Library
+- **Code Quality**: ESLint and Prettier for consistent code formatting and linting
+- **Git Hooks**: Husky and lint-staged for pre-commit quality checks
+
+### 2.3. Key Dependencies by Functionality
+
+#### 🤖 AI & Voice Integration
+- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for multi-agent voice synthesis
+- **@google/generative-ai**: Google GenAI SDK for intelligent conversation processing
+- **expo-av**: Audio recording and playback for voice interactions
 - **react-native-track-player**: Advanced audio playback with background support
-- **react-native-sound**: Alternative audio playback library
 
-#### Google GenAI Integration
-- **@google/generative-ai**: Official Google GenAI SDK
-- **expo-camera**: Camera access for multimodal input
-- **expo-image-picker**: Image selection for analysis
-- **expo-document-picker**: Document selection for analysis
+#### 📱 Multimodal Input Support
+- **expo-camera**: Camera access for visual input analysis
+- **expo-image-picker**: Image selection for multimodal conversations
+- **expo-document-picker**: Document analysis capabilities
+- **react-native-vision-camera**: Advanced camera features for real-time processing
 
-#### Supabase Integration
-- **@supabase/supabase-js**: Supabase client
-- **expo-secure-store**: Secure storage for auth tokens
-- **react-native-mmkv**: High-performance key-value storage
+#### 🔐 Backend & Authentication
+- **@supabase/supabase-js**: Comprehensive backend client
+- **expo-secure-store**: Secure token storage
+- **react-native-encrypted-storage**: Encrypted data persistence
+- **react-native-biometrics**: Biometric authentication support
 
-#### UI/UX Components
-- **react-native-paper**: Material Design components
-- **lottie-react-native**: Animation support for Alex's visual representation
-- **react-native-vector-icons**: Icon library
-- **react-native-progress**: Progress indicators for session phases
-- **react-native-modal**: Modal dialogs
-- **react-native-markdown-display**: Markdown rendering for session summaries
+#### 🎨 UI Components & Animation
+- **react-native-paper**: Material Design component library
+- **lottie-react-native**: Agent animation support (Udine, Alex, Maya, Dr. Chen)
+- **react-native-reanimated**: High-performance animations
+- **react-native-vector-icons**: Comprehensive icon library
 
-#### Navigation
-- **@react-navigation/native**: Navigation container
-- **@react-navigation/native-stack**: Stack navigation for onboarding flow
-- **@react-navigation/bottom-tabs**: Tab navigation for main app
-
-#### State Management
+#### 🧭 Navigation & State
+- **@react-navigation/native**: Navigation framework
 - **zustand**: Lightweight state management
-- **react-native-mmkv**: Persistent storage integration
-
-#### Utilities
-- **i18n-js**: Internationalization
-- **date-fns**: Date manipulation
-- **react-native-uuid**: UUID generation
-- **react-native-device-info**: Device information
-- **react-native-encrypted-storage**: Encrypted storage for sensitive data
-```
+- **react-native-mmkv**: High-performance storage solution
 
 ## 3. Environment Configuration
 
 ### 3.1. Environment Variables
 
-Create a `.env.example` file template with the following variables that align with the architecture described in the PRD:
+The application requires comprehensive environment configuration to support multi-agent AI interactions and secure service integrations. Create a `.env.example` file with the following structure:
 
 ```
 # Supabase Configuration
@@ -289,9 +290,16 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_KEY=your_supabase_service_key
 
-# ElevenLabs Configuration
+# ElevenLabs Configuration - Multi-Agent Voice Synthesis
 ELEVENLABS_API_KEY=your_elevenlabs_api_key
-ELEVENLABS_DEFAULT_VOICE_ID=your_default_voice_id
+
+# Agent-Specific Voice IDs
+ELEVENLABS_UDINE_VOICE_ID=your_udine_voice_id
+ELEVENLABS_ALEX_VOICE_ID=your_alex_voice_id
+ELEVENLABS_MAYA_VOICE_ID=your_maya_voice_id
+ELEVENLABS_DR_CHEN_VOICE_ID=your_dr_chen_voice_id
+
+# Voice Synthesis Settings
 ELEVENLABS_STABILITY=0.5
 ELEVENLABS_SIMILARITY_BOOST=0.75
 ELEVENLABS_STYLE=0.5
