@@ -15,7 +15,7 @@ This boilerplate establishes the foundation for these integrations, focusing on:
 1. Setting up the project structure with proper separation of concerns
 2. Configuring core dependencies and environment variables
 3. Implementing the ElevenLabs voice integration for multiple AI agents
-4. Creating a multi-agent architecture supporting various AI personalities (Alex, and others)
+4. Creating a multi-agent architecture supporting various AI personalities (Udine as primary, Alex, and others)
 5. Setting up Supabase for authentication and data storage
 6. Creating the navigation flow with onboarding before authentication
 7. Establishing the basic UI components and screens with agent flexibility
@@ -43,7 +43,7 @@ understand-me/
 │   │   ├── conversation/       # Conversation-specific components
 │   │   ├── forms/              # Form components
 │   │   ├── voice/              # Voice interaction components
-│   │   ├── agents/             # AI agent components (Alex, and others)
+│   │   ├── agents/             # AI agent components (Udine, Alex, and others)
 │   │   └��─ session/            # Session-related components
 │   ├── contexts/               # React contexts for state management
 │   │   ├── auth/               # Authentication context
@@ -1173,20 +1173,20 @@ const styles = StyleSheet.create({
 
 Here are examples of how to use the agent components with different AI agents:
 
-#### Using with Alex (Default Agent)
+#### Using with Udine (Default Agent)
 ```typescript
-// Example usage with Alex
+// Example usage with Udine
 <AgentMessage
-  agentId="alex"
-  agentName="Alex"
-  message="Hello! I'm Alex, your AI mediator. How can I help you today?"
+  agentId="udine"
+  agentName="Udine"
+  message="Hello! I'm Udine, your AI assistant. How can I help you today?"
   emotion={VoiceEmotion.HAPPY}
   autoPlay={true}
 />
 
 <AgentVoice
-  agentId="alex"
-  agentName="Alex"
+  agentId="udine"
+  agentName="Udine"
   text="I understand you're feeling frustrated. Let's work through this together."
   emotion={VoiceEmotion.EMPATHETIC}
   autoPlay={false}
@@ -1196,7 +1196,16 @@ Here are examples of how to use the agent components with different AI agents:
 
 #### Using with Other Agents
 ```typescript
-// Example usage with a different agent (e.g., "Maya" - a coaching specialist)
+// Example usage with Alex - a mediation specialist
+<AgentMessage
+  agentId="alex"
+  agentName="Alex"
+  message="Hi! I'm Alex, your AI mediator. Let's work through this conflict together."
+  emotion={VoiceEmotion.EMPATHETIC}
+  autoPlay={true}
+/>
+
+// Example usage with Maya - a coaching specialist
 <AgentMessage
   agentId="maya"
   agentName="Maya"
@@ -1205,7 +1214,7 @@ Here are examples of how to use the agent components with different AI agents:
   autoPlay={true}
 />
 
-// Example usage with "Dr. Chen" - a professional therapist agent
+// Example usage with Dr. Chen - a professional therapist agent
 <AgentVoice
   agentId="dr_chen"
   agentName="Dr. Chen"
@@ -1219,8 +1228,10 @@ Here are examples of how to use the agent components with different AI agents:
 #### Agent Configuration Requirements
 For each agent, you'll need:
 - Animation files: `@assets/animations/{agentId}_{emotion}.json`
-- Voice configuration in your voice service
+  - Example: `udine_happy.json`, `alex_empathetic.json`, `maya_excited.json`
+- Voice configuration in your ElevenLabs service
 - Agent-specific prompts and personality settings
+- Unique agent IDs and display names
 
 ### 4.5. Audio Permission Setup
 
