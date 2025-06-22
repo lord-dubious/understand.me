@@ -16,11 +16,18 @@ Understand.me is a sophisticated AI-mediated communication platform that facilit
 - **PicaOS** - Intelligent AI orchestration layer managing service interactions and workflow coordination
 
 ### Multi-Agent Architecture
-The platform supports multiple AI personalities, each with distinct capabilities:
-- **Udine** - Primary AI assistant providing general support and guidance
-- **Alex** - Specialized mediation expert for conflict resolution
-- **Maya** - Personal coaching specialist for growth and development
-- **Dr. Chen** - Professional therapeutic support agent
+The platform implements a unified agent system where all agents share the same core functionality but differ in personality and presentation. This approach ensures consistent behavior while allowing for personalized user experiences:
+
+- **Udine** - Primary AI assistant (default) - Warm, supportive, and approachable personality
+- **Alex** - Alternative personality - Professional mediation specialist tone
+- **Maya** - Alternative personality - Energetic coaching specialist approach  
+- **Dr. Chen** - Alternative personality - Calm, therapeutic professional demeanor
+
+**Key Architecture Principles:**
+- **Unified Functionality**: All agents use the same underlying AI models and capabilities
+- **Personality Differentiation**: Agents differ only in voice, visual representation, and conversational tone
+- **User Selectable**: Users can choose their preferred agent via settings (defaulting to Udine)
+- **Consistent Experience**: Switching agents maintains conversation context and functionality
 
 ### Boilerplate Foundation
 This setup guide establishes the essential foundation for:
@@ -40,7 +47,7 @@ The Understand.me application follows a modular, scalable architecture with clea
 understand-me/
 ├── .github/                    # GitHub workflows and templates
 ├── assets/                     # Static assets (images, fonts, sounds)
-│   ├─������������� fonts/                  # Custom fonts for the application
+│   ├─��������������� fonts/                  # Custom fonts for the application
 │   ├── images/                 # Images, icons, and visual assets
 │   ├── sounds/                 # Sound effects and notification tones
 │   └── animations/             # Lottie animations for UI interactions
@@ -72,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-│   │   └── mediation/          # Mediation workflow utilities
+���������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -143,6 +150,7 @@ The boilerplate includes carefully curated dependencies organized by functionali
     "@google/generative-ai": "^0.2.0",
     "expo-av": "~13.10.0",
     "expo-speech": "~11.7.0",
+    "expo-dom-components": "~0.7.0",
     "react-native-audio-recorder-player": "^3.6.5",
     "react-native-track-player": "^4.0.1",
     "react-native-sound": "^0.11.2",
@@ -250,10 +258,11 @@ The development dependencies ensure code quality, testing capabilities, and stre
 ### 2.3. Key Dependencies by Functionality
 
 #### 🤖 AI & Voice Integration
-- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for multi-agent voice synthesis
-- **@google/generative-ai**: Google GenAI SDK for intelligent conversation processing
-- **expo-av**: Audio recording and playback for voice interactions
+- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for cross-platform voice synthesis
+- **@google/generative-ai**: Google GenAI SDK (Gemini 2.0) for multimodal AI processing
+- **expo-av**: Audio recording and playback with microphone permissions
 - **react-native-track-player**: Advanced audio playback with background support
+- **expo-dom-components**: For cross-platform ElevenLabs Conversational AI integration (2024 approach)
 
 #### 📱 Multimodal Input Support
 - **expo-camera**: Camera access for visual input analysis
@@ -306,13 +315,17 @@ ELEVENLABS_STYLE=0.5
 ELEVENLABS_USE_SPEAKER_BOOST=true
 ELEVENLABS_MODEL_ID=eleven_monolingual_v1
 
-# Google GenAI Configuration
+# Google GenAI Configuration - Gemini 2.0
 GOOGLE_GENAI_API_KEY=your_google_genai_api_key
-GOOGLE_GENAI_MODEL=gemini-pro
+GOOGLE_GENAI_MODEL=gemini-2.0-flash-exp
 GOOGLE_GENAI_TEMPERATURE=0.7
 GOOGLE_GENAI_TOP_K=40
 GOOGLE_GENAI_TOP_P=0.95
-GOOGLE_GENAI_MAX_OUTPUT_TOKENS=1024
+GOOGLE_GENAI_MAX_OUTPUT_TOKENS=2048
+
+# Multimodal Configuration
+GOOGLE_GENAI_VISION_MODEL=gemini-2.0-flash-exp
+GOOGLE_GENAI_ENABLE_MULTIMODAL=true
 
 # PicaOS Configuration (AI Orchestration)
 PICAOS_API_KEY=your_picaos_api_key
@@ -1234,14 +1247,150 @@ Here are examples of how to use the agent components with different AI agents:
 ```
 
 #### Agent Configuration Requirements
-For each agent, you'll need:
+The unified agent system requires consistent configuration across all personalities:
+
+**Visual Assets:**
 - Animation files: `@assets/animations/{agentId}_{emotion}.json`
   - Example: `udine_happy.json`, `alex_empathetic.json`, `maya_excited.json`
-- Voice configuration in your ElevenLabs service
-- Agent-specific prompts and personality settings
-- Unique agent IDs and display names
+- Avatar images: `@assets/images/agents/{agentId}_avatar.png`
 
-### 4.5. Audio Permission Setup
+**Voice Configuration:**
+- Agent-specific voice IDs in ElevenLabs service
+- Consistent voice settings across all agents for uniform quality
+- Personality-appropriate voice characteristics (tone, pace, warmth)
+
+**Personality Configuration:**
+- Agent-specific system prompts defining personality traits
+- Consistent core functionality with personality-specific language patterns
+- Unified response templates with personality variations
+
+**Technical Requirements:**
+- Unique agent IDs for switching and configuration
+- Consistent API interfaces across all agent personalities
+- Shared conversation context and memory systems
+
+### 4.5. Modern ElevenLabs Integration (2024 Approach)
+
+Based on the latest ElevenLabs documentation, the recommended approach for cross-platform voice agents uses Expo DOM components. Create `src/components/ConversationalAI.tsx`:
+
+```typescript
+import { dom } from 'expo/dom';
+import { useEffect, useRef } from 'react';
+
+// Define the DOM component for ElevenLabs Conversational AI
+const ConvAIDOMComponent = dom(({ 
+  agentId, 
+  platform, 
+  onToolCall 
+}: {
+  agentId: string;
+  platform: string;
+  onToolCall: (toolName: string, args: any) => Promise<any>;
+}) => {
+  useEffect(() => {
+    // Import ElevenLabs Conversational AI SDK
+    import('@elevenlabs/conversational-ai').then(({ Conversation }) => {
+      const conversation = new Conversation({
+        agentId,
+        onConnect: () => console.log('Connected to agent:', agentId),
+        onDisconnect: () => console.log('Disconnected from agent:', agentId),
+        onMessage: (message) => console.log('Agent message:', message),
+        onError: (error) => console.error('Conversation error:', error),
+      });
+
+      // Start conversation with dynamic variables
+      conversation.startSession({
+        variables: {
+          platform,
+          agentPersonality: agentId,
+        }
+      });
+    });
+  }, [agentId, platform]);
+
+  return (
+    <div style={{ width: '100%', height: '400px' }}>
+      <div id="conversation-container" />
+    </div>
+  );
+});
+
+export default ConvAIDOMComponent;
+```
+
+### 4.6. Agent Switching Service
+
+Create a unified agent service in `src/services/AgentService.ts`:
+
+```typescript
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export interface Agent {
+  id: string;
+  name: string;
+  personality: string;
+  voiceId: string;
+  avatar: string;
+  description: string;
+}
+
+export const AVAILABLE_AGENTS: Agent[] = [
+  {
+    id: 'udine',
+    name: 'Udine',
+    personality: 'warm_supportive',
+    voiceId: process.env.ELEVENLABS_UDINE_VOICE_ID!,
+    avatar: require('@assets/images/agents/udine_avatar.png'),
+    description: 'Warm, supportive, and approachable AI assistant'
+  },
+  {
+    id: 'alex',
+    name: 'Alex',
+    personality: 'professional_mediator',
+    voiceId: process.env.ELEVENLABS_ALEX_VOICE_ID!,
+    avatar: require('@assets/images/agents/alex_avatar.png'),
+    description: 'Professional mediation specialist'
+  },
+  {
+    id: 'maya',
+    name: 'Maya',
+    personality: 'energetic_coach',
+    voiceId: process.env.ELEVENLABS_MAYA_VOICE_ID!,
+    avatar: require('@assets/images/agents/maya_avatar.png'),
+    description: 'Energetic coaching specialist'
+  },
+  {
+    id: 'dr_chen',
+    name: 'Dr. Chen',
+    personality: 'calm_therapeutic',
+    voiceId: process.env.ELEVENLABS_DR_CHEN_VOICE_ID!,
+    avatar: require('@assets/images/agents/dr_chen_avatar.png'),
+    description: 'Calm, therapeutic professional'
+  }
+];
+
+interface AgentStore {
+  currentAgent: Agent;
+  setCurrentAgent: (agent: Agent) => void;
+  getAgentById: (id: string) => Agent | undefined;
+}
+
+export const useAgentStore = create<AgentStore>()(
+  persist(
+    (set, get) => ({
+      currentAgent: AVAILABLE_AGENTS[0], // Default to Udine
+      setCurrentAgent: (agent: Agent) => set({ currentAgent: agent }),
+      getAgentById: (id: string) => AVAILABLE_AGENTS.find(agent => agent.id === id),
+    }),
+    {
+      name: 'agent-storage',
+    }
+  )
+);
+```
+
+### 4.7. Audio Permission Setup
 
 Create an enhanced audio permission hook in `src/hooks/useAudioPermissions.ts` that handles all necessary permissions for voice interactions:
 
@@ -3588,23 +3737,104 @@ export default LandingScreen;
 - Run tests: `npm test` or `yarn test`
 - Run tests with coverage: `npm test -- --coverage`
 
-## 14. Next Steps for AI Implementation
+## 14. Modern Implementation Patterns (2024 Updates)
+
+### 14.1. Supabase Real-Time Integration
+
+Based on 2024 best practices, implement real-time features using Supabase's enhanced real-time capabilities:
+
+```typescript
+// src/hooks/useRealtimeSession.ts
+import { useEffect, useState } from 'react';
+import { supabase } from '@/services/supabase';
+import { RealtimeChannel } from '@supabase/supabase-js';
+
+export const useRealtimeSession = (sessionId: string) => {
+  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+
+  useEffect(() => {
+    const sessionChannel = supabase
+      .channel(`session:${sessionId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `session_id=eq.${sessionId}`
+      }, (payload) => {
+        setMessages(prev => [...prev, payload.new]);
+      })
+      .on('presence', { event: 'sync' }, () => {
+        console.log('Participants synced');
+      })
+      .subscribe();
+
+    setChannel(sessionChannel);
+
+    return () => {
+      sessionChannel.unsubscribe();
+    };
+  }, [sessionId]);
+
+  return { messages, channel };
+};
+```
+
+### 14.2. Enhanced Security Patterns
+
+Implement Row Level Security (RLS) with agent-aware policies:
+
+```sql
+-- Enable RLS on sessions table
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+
+-- Policy for user access to their own sessions
+CREATE POLICY "Users can access their own sessions" ON sessions
+  FOR ALL USING (
+    auth.uid() = host_id OR 
+    auth.uid() IN (
+      SELECT user_id FROM participants 
+      WHERE session_id = sessions.id
+    )
+  );
+
+-- Policy for agent context access
+CREATE POLICY "Agent context access" ON agent_contexts
+  FOR ALL USING (
+    auth.uid() = user_id AND
+    agent_id IN ('udine', 'alex', 'maya', 'dr_chen')
+  );
+```
+
+## 15. Next Steps for AI Implementation
 
 After setting up this boilerplate, the AI agent (e.g., bolt.new) should focus on:
 
-1. Implementing the full UI components based on the design specifications
-2. Developing the conversation analysis engine using Google GenAI
-3. Implementing the ElevenLabs voice synthesis for Alex's responses
-4. Setting up the Supabase database schema and queries
-5. Implementing the session management logic
-6. Building the mediation workflow
-7. Implementing user profile and settings management
-8. Adding analytics and telemetry
-9. Implementing multi-user session capabilities
-10. Adding offline support and data synchronization
+1. **Modern UI Components** - Implement components using React Native Paper with agent-aware theming
+2. **Gemini 2.0 Integration** - Develop conversation analysis using the latest multimodal capabilities
+3. **Cross-Platform Voice** - Implement ElevenLabs DOM components for unified voice experience
+4. **Agent Switching Logic** - Build seamless agent personality switching with context preservation
+5. **Real-Time Features** - Implement Supabase real-time subscriptions for live sessions
+6. **Security Implementation** - Set up RLS policies and secure API key management
+7. **Multimodal Processing** - Add image, document, and voice input processing
+8. **Offline Capabilities** - Implement MMKV-based offline storage and sync
+9. **Performance Optimization** - Add caching layers and optimize for mobile performance
+10. **Analytics Integration** - Implement privacy-compliant usage analytics
 
-## 15. Conclusion
+## 16. Conclusion
 
-This boilerplate setup guide provides the foundation for building the Understand.me application. It includes all the necessary configurations, dependencies, and basic component structures needed to start development. The AI agent can use this as a comprehensive guide to build the actual implementation, focusing on the application's core functionality rather than the initial setup.
+This comprehensive boilerplate setup guide provides a modern, research-backed foundation for building the Understand.me application. Updated with 2024 best practices, it establishes a robust architecture that supports:
 
-The integration with ElevenLabs for voice synthesis, Google GenAI for conversation analysis, and Supabase for database management forms the backbone of the application's architecture. This setup ensures that the application can deliver a seamless, AI-mediated communication experience across all supported platforms.
+**Unified Multi-Agent System**: All agents (Udine, Alex, Maya, Dr. Chen) share the same core functionality while offering distinct personalities, ensuring consistent behavior with personalized experiences.
+
+**Modern Technology Integration**: 
+- ElevenLabs DOM components for cross-platform voice synthesis
+- Gemini 2.0 for advanced multimodal AI processing  
+- Supabase real-time features with enhanced security
+- Expo's latest cross-platform capabilities
+
+**Scalable Architecture**: The modular design supports easy agent switching, personality customization, and future expansion while maintaining code quality and developer productivity.
+
+**Production-Ready Security**: Comprehensive environment configuration, Row Level Security policies, and secure API key management ensure enterprise-grade security from day one.
+
+This foundation enables AI development tools to focus on implementing core functionality rather than infrastructure setup, accelerating the development of sophisticated AI-mediated communication experiences across iOS, Android, and web platforms.
