@@ -79,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-�����������������������������������   │   └── mediation/          # Mediation workflow utilities
+���������������������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -92,7 +92,7 @@ understand-me/
 │   │   ├── profile/            # User profile screens
 │   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
-│   │   ├── auth/               # Authentication service
+│   │   ��─�� auth/               # Authentication service
 ���   ���   ���─��� conversation/       # Conversation processing service
 │   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
@@ -122,7 +122,7 @@ understand-me/
 ├── package.json                # NPM dependencies
 ├── tsconfig.json               # TypeScript configuration
 ├── .env.example                # Example environment variables
-└── README.md                   # Project documentation
+└���─ README.md                   # Project documentation
 ```
 
 This structure aligns with the five-phase AI-mediated session flow described in the PRD and supports the multimodal LLM analysis engine integration with ElevenLabs.
@@ -315,16 +315,18 @@ ELEVENLABS_STYLE=0.5
 ELEVENLABS_USE_SPEAKER_BOOST=true
 ELEVENLABS_MODEL_ID=eleven_monolingual_v1
 
-# Google GenAI Configuration - Gemini 2.0
+# Google GenAI Configuration - Gemini 2.0 (Configurable Models)
 GOOGLE_GENAI_API_KEY=your_google_genai_api_key
-GOOGLE_GENAI_MODEL=gemini-2.0-flash-exp
+GOOGLE_GENAI_DEFAULT_MODEL=gemini-2.0-flash-exp
+GOOGLE_GENAI_TEXT_MODEL=gemini-2.0-flash-exp
+GOOGLE_GENAI_VISION_MODEL=gemini-2.0-flash-exp
+GOOGLE_GENAI_THINKING_MODEL=gemini-2.0-flash-thinking-exp
 GOOGLE_GENAI_TEMPERATURE=0.7
 GOOGLE_GENAI_TOP_K=40
 GOOGLE_GENAI_TOP_P=0.95
 GOOGLE_GENAI_MAX_OUTPUT_TOKENS=2048
 
 # Multimodal Configuration
-GOOGLE_GENAI_VISION_MODEL=gemini-2.0-flash-exp
 GOOGLE_GENAI_ENABLE_MULTIMODAL=true
 
 # PicaOS Configuration (AI Orchestration)
@@ -457,6 +459,10 @@ import {
   ELEVENLABS_API_KEY,
   ELEVENLABS_DEFAULT_VOICE_ID,
   GOOGLE_GENAI_API_KEY,
+  GOOGLE_GENAI_DEFAULT_MODEL,
+  GOOGLE_GENAI_TEXT_MODEL,
+  GOOGLE_GENAI_VISION_MODEL,
+  GOOGLE_GENAI_THINKING_MODEL,
   APP_ENV,
   APP_VERSION,
   // Import other environment variables
@@ -482,8 +488,12 @@ export const env = {
   elevenLabsApiKey: ELEVENLABS_API_KEY || '',
   elevenLabsDefaultVoiceId: ELEVENLABS_DEFAULT_VOICE_ID || '',
   
-  // Google GenAI
+  // Google GenAI (Configurable Models)
   googleGenAiApiKey: GOOGLE_GENAI_API_KEY || '',
+  googleGenAiDefaultModel: GOOGLE_GENAI_DEFAULT_MODEL || '',
+  googleGenAiTextModel: GOOGLE_GENAI_TEXT_MODEL || '',
+  googleGenAiVisionModel: GOOGLE_GENAI_VISION_MODEL || '',
+  googleGenAiThinkingModel: GOOGLE_GENAI_THINKING_MODEL || '',
   
   // Feature flags
   enableVoiceStreaming: process.env.ENABLE_VOICE_STREAMING === 'true',
@@ -2030,12 +2040,26 @@ const defaultGenerationConfig = {
   maxOutputTokens: Number(env.googleGenAiMaxOutputTokens) || 1024,
 };
 
-// Model types (Gemini 2.0)
+// Model types (configurable via environment)
 export enum ModelType {
-  TEXT = 'gemini-2.0-flash-exp',
-  VISION = 'gemini-2.0-flash-exp', // Unified multimodal model
-  THINKING = 'gemini-2.0-flash-thinking-exp',
+  TEXT = 'TEXT',
+  VISION = 'VISION', 
+  THINKING = 'THINKING',
 }
+
+// Model mapping from environment variables
+const getModelName = (modelType: ModelType): string => {
+  switch (modelType) {
+    case ModelType.TEXT:
+      return env.googleGenAiTextModel || 'gemini-2.0-flash-exp';
+    case ModelType.VISION:
+      return env.googleGenAiVisionModel || 'gemini-2.0-flash-exp';
+    case ModelType.THINKING:
+      return env.googleGenAiThinkingModel || 'gemini-2.0-flash-thinking-exp';
+    default:
+      return env.googleGenAiDefaultModel || 'gemini-2.0-flash-exp';
+  }
+};
 
 // Response types
 export interface GenAIResponse<T> {
@@ -2058,9 +2082,9 @@ export interface FileData {
 /**
  * Generate content configuration helper
  */
-const getGenerationConfig = (modelName: ModelType = ModelType.TEXT, options = {}) => {
+const getGenerationConfig = (modelType: ModelType = ModelType.TEXT, options = {}) => {
   return {
-    model: modelName,
+    model: getModelName(modelType),
     config: {
       generationConfig: {
         ...defaultGenerationConfig,
