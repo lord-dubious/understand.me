@@ -9,9 +9,10 @@ This guide consolidates all essential configurations, package structures, and in
 Understand.me is a sophisticated AI-mediated communication platform that facilitates meaningful conversations through multiple AI agents. The platform leverages cutting-edge technologies to provide natural, emotionally intelligent interactions:
 
 ### Core Technology Stack
-- **ElevenLabs** - Advanced voice synthesis with emotional nuance and agent-specific voices
+- **ElevenLabs** - Advanced voice synthesis with emotional nuance and agent-specific voices using Conversational AI SDK
 - **Google GenAI (v1.6.0)** - Multimodal analysis using Gemini 2.0 models for natural language processing and intelligent response generation
 - **Supabase** - Comprehensive backend services including authentication, real-time database, and secure storage
+- **Upstash Redis** - High-performance serverless caching layer for AI responses and session state
 - **Expo (React Native)** - Cross-platform mobile development with native performance
 - **Zustand** - Lightweight state management for React Native applications
 
@@ -51,7 +52,7 @@ understand-me/
 │   ├── images/                 # Images, icons, and visual assets
 │   ├── sounds/                 # Sound effects and notification tones
 │   └── animations/             # Lottie animations for UI interactions
-├─��������� src/
+├─����������� src/
 │   ├── api/                    # API integration layer
 │   │   ├── elevenlabs/         # ElevenLabs API integration for voice synthesis
 │   │   ├── genai/              # Google GenAI v1.6.0 integration for LLM responses
@@ -78,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-�����������������������������������������������������������������   │   └── mediation/          # Mediation workflow utilities
+�������������������������������������������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -103,7 +104,7 @@ understand-me/
 │   │   ├── user/               # User state
 │   │   └── voice/              # Voice state
 │   ├── types/                  # TypeScript type definitions
-��   ��   ��─�� api.ts              # API response and request types
+��������������������������   ��   ��─�� api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
 �����   │   ���─��� session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
@@ -117,10 +118,10 @@ understand-me/
 ├── app.json                    # Expo configuration
 ├── babel.config.js             # Babel configuration
 ├── eas.json                    # EAS Build configuration
-├── metro.config.js             # Metro bundler configuration
+������ metro.config.js             # Metro bundler configuration
 ├── package.json                # NPM dependencies
 ├── tsconfig.json               # TypeScript configuration
-��─�� .env.example                # Example environment variables
+���─�� .env.example                # Example environment variables
 └���─ README.md                   # Project documentation
 ```
 
@@ -143,12 +144,14 @@ The boilerplate includes carefully curated dependencies organized by functionali
     
     // AI & Voice Integration
     "@google/genai": "^1.6.0",
-    "elevenlabs": "^0.8.1",
+    "@elevenlabs/react-sdk": "^0.3.0",
+    "expo-dom-components": "~0.7.0",
     "expo-av": "~14.0.0",
     "expo-speech": "~11.7.0",
     
     // Backend & Authentication
     "@supabase/supabase-js": "^2.38.5",
+    "@upstash/redis": "^1.25.1",
     "expo-secure-store": "~12.8.0",
     
     // Navigation
@@ -207,12 +210,14 @@ The development dependencies ensure code quality, testing capabilities, and stre
 
 #### 🤖 AI & Voice Integration
 - **@google/genai**: Latest Google GenAI SDK v1.6.0 (Gemini 2.0) for multimodal AI processing
-- **elevenlabs**: Official ElevenLabs SDK for advanced voice synthesis
+- **@elevenlabs/react-sdk**: Official ElevenLabs React SDK for conversational AI
+- **expo-dom-components**: Enables cross-platform web components in React Native
 - **expo-av**: Audio recording and playback with microphone permissions
 - **expo-speech**: Built-in text-to-speech capabilities
 
 #### 🔐 Backend & Authentication
 - **@supabase/supabase-js**: Comprehensive backend client with real-time capabilities
+- **@upstash/redis**: Serverless Redis for caching AI responses and session state
 - **expo-secure-store**: Secure token storage for authentication
 
 #### 🎨 UI Components & Animation
@@ -278,17 +283,9 @@ GOOGLE_GENAI_MAX_OUTPUT_TOKENS=2048
 # Multimodal Configuration
 GOOGLE_GENAI_ENABLE_MULTIMODAL=true
 
-# PicaOS Configuration (AI Orchestration)
-PICAOS_API_KEY=your_picaos_api_key
-PICAOS_PROJECT_ID=your_picaos_project_id
-
 # Upstash Redis Configuration (Caching)
 UPSTASH_REDIS_URL=your_upstash_redis_url
 UPSTASH_REDIS_TOKEN=your_upstash_redis_token
-
-# Optional Dappier/Nodely Configuration
-DAPPIER_API_KEY=your_dappier_api_key
-NODELY_API_KEY=your_nodely_api_key
 
 # App Configuration
 APP_ENV=development
@@ -481,140 +478,308 @@ if (env.isDev) {
 
 ## 4. ElevenLabs Integration with Expo React Native
 
-Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement the following core components for multiple AI agent voice synthesis:
+Based on the [ElevenLabs Expo React Native documentation](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native), implement cross-platform voice agents using Expo DOM components and the ElevenLabs Conversational AI SDK:
 
-### 4.1. Voice Service Setup
+### 4.1. Conversational AI DOM Component Setup
 
-Create a comprehensive voice service in `src/services/voice/elevenLabsService.ts` that implements the ElevenLabs integration for multiple AI agents:
+Create a DOM component for ElevenLabs integration in `src/components/ConvAI.tsx` using the official approach:
 
 ```typescript
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
-import { env } from '@utils/env';
-import { EventEmitter } from 'events';
+'use dom';
 
-// Voice settings types
-export interface VoiceSettings {
-  stability: number;
-  similarity_boost: number;
-  style: number;
-  use_speaker_boost: boolean;
+import { Conversation } from '@elevenlabs/react-sdk';
+import { useCallback } from 'react';
+
+interface ConvAIProps {
+  agentId: string;
+  platform: 'ios' | 'android' | 'web';
+  onBrightnessChange?: (brightness: number) => void;
+  onVolumeChange?: (volume: number) => void;
 }
 
-// Voice response type
-interface VoiceResponse {
-  audioUrl?: string;
-  error?: string;
-}
-
-// Voice event types
-export enum VoiceEvent {
-  START = 'voice_start',
-  STOP = 'voice_stop',
-  ERROR = 'voice_error',
-  FINISH = 'voice_finish',
-}
-
-// Voice emotion types for AI agents
-export enum VoiceEmotion {
-  NEUTRAL = 'neutral',
-  HAPPY = 'happy',
-  SAD = 'sad',
-  EXCITED = 'excited',
-  CONCERNED = 'concerned',
-  THOUGHTFUL = 'thoughtful',
-  EMPATHETIC = 'empathetic',
-  PROFESSIONAL = 'professional',
-}
-
-// Default voice settings
-const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
-  stability: Number(env.elevenLabsStability) || 0.5,
-  similarity_boost: Number(env.elevenLabsSimilarityBoost) || 0.75,
-  style: Number(env.elevenLabsStyle) || 0.5,
-  use_speaker_boost: env.elevenLabsUseSpeakerBoost !== 'false',
-};
-
-// Voice emotion settings map
-const EMOTION_SETTINGS: Record<VoiceEmotion, Partial<VoiceSettings>> = {
-  [VoiceEmotion.NEUTRAL]: { stability: 0.5, similarity_boost: 0.75, style: 0.5 },
-  [VoiceEmotion.HAPPY]: { stability: 0.4, similarity_boost: 0.8, style: 0.7 },
-  [VoiceEmotion.SAD]: { stability: 0.6, similarity_boost: 0.7, style: 0.3 },
-  [VoiceEmotion.EXCITED]: { stability: 0.3, similarity_boost: 0.9, style: 0.8 },
-  [VoiceEmotion.CONCERNED]: { stability: 0.6, similarity_boost: 0.6, style: 0.4 },
-  [VoiceEmotion.THOUGHTFUL]: { stability: 0.7, similarity_boost: 0.6, style: 0.5 },
-  [VoiceEmotion.EMPATHETIC]: { stability: 0.5, similarity_boost: 0.8, style: 0.6 },
-  [VoiceEmotion.PROFESSIONAL]: { stability: 0.8, similarity_boost: 0.5, style: 0.3 },
-};
-
-// Create a singleton event emitter for voice events
-export const voiceEventEmitter = new EventEmitter();
-
-/**
- * Generates speech from text using ElevenLabs API
- */
-export const generateSpeech = async (
-  text: string,
-  voiceId: string = env.elevenLabsDefaultVoiceId,
-  voiceSettings: VoiceSettings = DEFAULT_VOICE_SETTINGS,
-  emotion: VoiceEmotion = VoiceEmotion.NEUTRAL
-): Promise<VoiceResponse> => {
-  try {
-    // Emit start event
-    voiceEventEmitter.emit(VoiceEvent.START, { text });
-    
-    // Create a unique filename for this audio
-    const fileName = `${Date.now()}.mp3`;
-    const fileUri = `${FileSystem.cacheDirectory}elevenlabs_${fileName}`;
-    
-    // Apply emotion settings if provided
-    const emotionSettings = EMOTION_SETTINGS[emotion] || {};
-    const mergedSettings = { ...DEFAULT_VOICE_SETTINGS, ...emotionSettings, ...voiceSettings };
-    
-    // Prepare request to ElevenLabs API
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': env.elevenLabsApiKey,
-        },
-        body: JSON.stringify({
-          text,
-          model_id: env.elevenLabsModelId || 'eleven_monolingual_v1',
-          voice_settings: mergedSettings,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      const errorMessage = `ElevenLabs API error: ${errorData.detail?.message || response.statusText}`;
-      voiceEventEmitter.emit(VoiceEvent.ERROR, { error: errorMessage });
-      throw new Error(errorMessage);
+export default function ConvAI({ 
+  agentId, 
+  platform, 
+  onBrightnessChange, 
+  onVolumeChange 
+}: ConvAIProps) {
+  
+  // Client tools for native functionality
+  const handleBrightnessChange = useCallback(async (brightness: number) => {
+    if (onBrightnessChange) {
+      onBrightnessChange(brightness);
     }
+    return `Brightness set to ${brightness}%`;
+  }, [onBrightnessChange]);
 
-    // Get the audio data as a blob
-    const audioBlob = await response.blob();
-    
-    // Convert blob to base64
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    
-    return new Promise((resolve, reject) => {
-      reader.onloadend = async () => {
+  const handleVolumeChange = useCallback(async (volume: number) => {
+    if (onVolumeChange) {
+      onVolumeChange(volume);
+    }
+    return `Volume set to ${volume}%`;
+  }, [onVolumeChange]);
+
+  return (
+    <Conversation
+      agentId={agentId}
+      clientTools={{
+        setBrightness: handleBrightnessChange,
+        setVolume: handleVolumeChange,
+      }}
+      variables={{
+        platform: platform,
+      }}
+    />
+  );
+}
+```
+
+### 4.2. Native Client Tools
+
+Create client tools for native functionality in `src/utils/tools.ts`:
+
+```typescript
+import * as Brightness from 'expo-brightness';
+import { Audio } from 'expo-av';
+import { Platform } from 'react-native';
+
+export const nativeTools = {
+  /**
+   * Set device brightness (iOS/Android only)
+   */
+  setBrightness: async (brightness: number): Promise<string> => {
+    try {
+      if (Platform.OS === 'web') {
+        return `Brightness control not supported on web platform`;
+      }
+      
+      const normalizedBrightness = Math.max(0, Math.min(1, brightness / 100));
+      await Brightness.setBrightnessAsync(normalizedBrightness);
+      return `Brightness set to ${brightness}%`;
+    } catch (error) {
+      return `Failed to set brightness: ${error}`;
+    }
+  },
+
+  /**
+   * Set device volume
+   */
+  setVolume: async (volume: number): Promise<string> => {
+    try {
+      const normalizedVolume = Math.max(0, Math.min(1, volume / 100));
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: false,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+      return `Volume set to ${volume}%`;
+    } catch (error) {
+      return `Failed to set volume: ${error}`;
+    }
+  },
+};
+```
+
+### 4.3. App Integration
+
+Add the ConvAI component to your main app in `App.tsx`:
+
+```typescript
+import React, { useState } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import ConvAI from './src/components/ConvAI';
+import { nativeTools } from './src/utils/tools';
+
+export default function App() {
+  const [agentId] = useState(process.env.ELEVENLABS_AGENT_ID || 'your-agent-id');
+  
+  const handleBrightnessChange = async (brightness: number) => {
+    return await nativeTools.setBrightness(brightness);
+  };
+
+  const handleVolumeChange = async (volume: number) => {
+    return await nativeTools.setVolume(volume);
+  };
+
+  return (
+    <View style={styles.container}>
+      <ConvAI
+        agentId={agentId}
+        platform={Platform.OS as 'ios' | 'android' | 'web'}
+        onBrightnessChange={handleBrightnessChange}
+        onVolumeChange={handleVolumeChange}
+      />
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+```
+
+### 4.4. App Configuration
+
+Update your `app.json` to include microphone permissions:
+
+```json
+{
+  "expo": {
+    "name": "understand.me",
+    "slug": "understand-me",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice conversations."
+      }
+    },
+    "android": {
+      "permissions": ["RECORD_AUDIO"]
+    }
+  }
+}
+```
+
+### 4.5. Running the App
+
+To run the app with ElevenLabs integration:
+
+1. **Terminal 1** - Start with tunnel for HTTPS (required for microphone access):
+```bash
+npx expo start --tunnel
+```
+
+2. **Terminal 2** - For native builds (brightness control requires native build):
+```bash
+# iOS
+npx expo run:ios --device
+
+# Android  
+npx expo run:android --device
+```
+
+**Note**: Brightness control is not supported in Expo Go, so you'll need to prebuild for native functionality:
+
+```bash
+npx expo prebuild --clean
+```
+
+### 4.4. Multi-Agent Usage Examples
+
+Here are examples of how to use the agent components with different AI agents:
+
+#### Using with Udine (Default Agent)
+```typescript
+// Example usage with Udine
+<ConvAI
+  agentId="udine-agent-id"
+  platform={Platform.OS as 'ios' | 'android' | 'web'}
+  onBrightnessChange={handleBrightnessChange}
+  onVolumeChange={handleVolumeChange}
+/>
+```
+
+#### Using with Alex (Mediator Agent)
+```typescript
+// Example usage with Alex
+<ConvAI
+  agentId="alex-agent-id"
+  platform={Platform.OS as 'ios' | 'android' | 'web'}
+  onBrightnessChange={handleBrightnessChange}
+  onVolumeChange={handleVolumeChange}
+/>
+```
+
+#### Using with Maya (Emotional Intelligence Agent)
+```typescript
+// Example usage with Maya
+<ConvAI
+  agentId="maya-agent-id"
+  platform={Platform.OS as 'ios' | 'android' | 'web'}
+  onBrightnessChange={handleBrightnessChange}
+  onVolumeChange={handleVolumeChange}
+/>
+```
+
+#### Using with Dr. Chen (Professional Counselor Agent)
+```typescript
+// Example usage with Dr. Chen
+<ConvAI
+  agentId="dr-chen-agent-id"
+  platform={Platform.OS as 'ios' | 'android' | 'web'}
+  onBrightnessChange={handleBrightnessChange}
+  onVolumeChange={handleVolumeChange}
+/>
+```
+
+### 4.5. ElevenLabs Agent Configuration
+
+In your ElevenLabs dashboard:
+
+1. **Create Conversational AI Agents** for each character:
+   - **Udine**: Warm, supportive assistant voice
+   - **Alex**: Professional, calm mediator voice  
+   - **Maya**: Emotionally intelligent, empathetic voice
+   - **Dr. Chen**: Authoritative, professional counselor voice
+
+2. **Set First Message** with platform variable:
+```
+Hello! I'm [Agent Name] and I'm here to help you with your conversation on {{platform}}. How can I assist you today?
+```
+
+3. **Configure System Prompt** with platform awareness:
+```
+You are [Agent Name], an AI assistant specialized in [role]. You are currently running on {{platform}} platform. Adapt your responses accordingly and use the available client tools when appropriate.
+```
+
+4. **Add Client Tools** for each agent:
+   - `setBrightness`: For adjusting device brightness
+   - `setVolume`: For adjusting device volume
+
+## 5. Supabase Integration
+
+### 5.1. Supabase Client Setup
+
+Set up a comprehensive Supabase client with authentication, storage, and database access in `src/api/supabase/supabaseClient.ts`:
+
+```typescript
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { env } from '@utils/env';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MMKV } from 'react-native-mmkv';
+
+// Create MMKV instance for high-performance storage
+export const storage = new MMKV({
+  id: 'supabase-storage',
+  encryptionKey: 'supabase-storage-key',
+});
+
+// Storage adapter based on platform capabilities
+const createStorageAdapter = () => {
+  // Use SecureStore on native platforms when possible
+  if (Platform.OS !== 'web') {
+    // Check if keys are too large for SecureStore (which has a size limit)
+    // If so, fall back to MMKV
+    return {
+      getItem: async (key: string): Promise<string | null> => {
         try {
-          if (typeof reader.result === 'string') {
-            // Extract the base64 data (remove the data URL prefix)
-            const base64Data = reader.result.split(',')[1];
-            
-            // Write the file to the filesystem
-            await FileSystem.writeAsStringAsync(fileUri, base64Data, {
-              encoding: FileSystem.EncodingType.Base64,
-            });
-            
-            resolve({ audioUrl: fileUri });
+          const value = await SecureStore.getItemAsync(key);
+          return value;
+        } catch (error) {
+          // If the key is too large, try MMKV
+          const mmkvValue = storage.getString(key);
+          return mmkvValue || null;
           } else {
             const error = new Error('Failed to convert audio to base64');
             voiceEventEmitter.emit(VoiceEvent.ERROR, { error: error.message });
