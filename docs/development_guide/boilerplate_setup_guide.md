@@ -10,10 +10,10 @@ Understand.me is a sophisticated AI-mediated communication platform that facilit
 
 ### Core Technology Stack
 - **ElevenLabs** - Advanced voice synthesis with emotional nuance and agent-specific voices
-- **Google GenAI** - Multimodal analysis, natural language processing, and intelligent response generation
+- **Google GenAI (v1.6.0)** - Multimodal analysis using Gemini 2.0 models for natural language processing and intelligent response generation
 - **Supabase** - Comprehensive backend services including authentication, real-time database, and secure storage
 - **Expo (React Native)** - Cross-platform mobile development with native performance
-- **PicaOS** - Intelligent AI orchestration layer managing service interactions and workflow coordination
+- **Zustand** - Lightweight state management for React Native applications
 
 ### Multi-Agent Architecture
 The platform implements a unified agent system where all agents share the same core functionality but differ in personality and presentation. This approach ensures consistent behavior while allowing for personalized user experiences:
@@ -51,12 +51,11 @@ understand-me/
 │   ├── images/                 # Images, icons, and visual assets
 │   ├── sounds/                 # Sound effects and notification tones
 │   └── animations/             # Lottie animations for UI interactions
-├── src/
+├─��������� src/
 │   ├── api/                    # API integration layer
 │   │   ├── elevenlabs/         # ElevenLabs API integration for voice synthesis
-│   │   ├── genai/              # Google GenAI integration for LLM responses
-│   │   ├── supabase/           # Supabase client and queries
-│   │   └── picaos/             # PicaOS AI orchestration integration
+│   │   ├── genai/              # Google GenAI v1.6.0 integration for LLM responses
+│   │   └── supabase/           # Supabase client and queries
 │   ├── components/             # Reusable UI components
 │   │   ├── common/             # Generic components (buttons, inputs, etc.)
 │   │   ├── conversation/       # Conversation-specific components
@@ -79,7 +78,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-���������������������������������������������������������   │   └── mediation/          # Mediation workflow utilities
+�����������������������������������������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -92,7 +91,7 @@ understand-me/
 │   │   ├── profile/            # User profile screens
 │   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
-��   ��   ��─�� auth/               # Authentication service
+���   ��   ��─��� auth/               # Authentication service
 ���   ���   ���─��� conversation/       # Conversation processing service
 │   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
@@ -106,7 +105,7 @@ understand-me/
 │   ├── types/                  # TypeScript type definitions
 ��   ��   ��─�� api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
-���   │   ├─��� session.ts          # Session types
+�����   │   ���─��� session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
 │   ���   ���─��� index.ts            # Type exports
 │   └── utils/                  # Utility functions
@@ -121,7 +120,7 @@ understand-me/
 ├── metro.config.js             # Metro bundler configuration
 ├── package.json                # NPM dependencies
 ├── tsconfig.json               # TypeScript configuration
-├─�� .env.example                # Example environment variables
+��─�� .env.example                # Example environment variables
 └���─ README.md                   # Project documentation
 ```
 
@@ -140,108 +139,57 @@ The boilerplate includes carefully curated dependencies organized by functionali
     "expo": "~50.0.0",
     "react": "18.2.0",
     "react-native": "0.73.2",
-    "expo-status-bar": "~1.11.1",
-    "expo-dev-client": "~3.3.7",
-    "expo-splash-screen": "~0.26.4",
-    "expo-updates": "~0.24.8",
+    "expo-status-bar": "~1.11.0",
     
     // AI & Voice Integration
-    "@elevenlabs/react-native-text-to-speech": "^1.0.0",
     "@google/genai": "^1.6.0",
-    "expo-av": "~13.10.0",
+    "elevenlabs": "^0.8.1",
+    "expo-av": "~14.0.0",
     "expo-speech": "~11.7.0",
-    "expo-dom-components": "~0.7.0",
-    "react-native-audio-recorder-player": "^3.6.5",
-    "react-native-track-player": "^4.0.1",
-    "react-native-sound": "^0.11.2",
-    
-    // Multimodal Input Support
-    "expo-camera": "~14.0.3",
-    "expo-image-picker": "~14.7.1",
-    "expo-document-picker": "~11.10.1",
-    "expo-media-library": "~15.9.1",
-    "react-native-vision-camera": "^3.6.17",
-    "react-native-image-crop-picker": "^0.40.2",
     
     // Backend & Authentication
-    "@supabase/supabase-js": "^2.39.3",
-    "expo-secure-store": "~12.8.1",
-    "react-native-encrypted-storage": "^4.0.3",
-    "react-native-biometrics": "^3.0.1",
+    "@supabase/supabase-js": "^2.38.5",
+    "expo-secure-store": "~12.8.0",
     
     // Navigation
     "@react-navigation/native": "^6.1.9",
-    "@react-navigation/native-stack": "^6.9.17",
+    "@react-navigation/stack": "^6.3.20",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     
     // UI Components & Animation
-    "react-native-paper": "^5.11.4",
-    "lottie-react-native": "^6.4.1",
-    "react-native-vector-icons": "^10.0.3",
+    "@expo/vector-icons": "^14.0.0",
     "react-native-reanimated": "~3.6.2",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-svg": "14.1.0",
-    "react-native-modal": "^13.0.1",
-    "react-native-progress": "^5.0.1",
+    "expo-linear-gradient": "~12.7.0",
     
     // State Management & Storage
     "zustand": "^4.4.7",
-    "react-native-mmkv": "^2.11.0",
     
     // Utilities
-    "react-native-dotenv": "^3.4.9",
-    "react-native-url-polyfill": "^2.0.0",
-    "react-native-uuid": "^2.0.1",
-    "react-native-device-info": "^10.12.0",
-    "expo-file-system": "~16.0.5",
-    "expo-notifications": "~0.27.6",
-    "expo-linking": "~6.2.2",
-    "expo-localization": "~14.8.3",
-    "expo-haptics": "~12.8.1",
-    "i18n-js": "^4.3.2",
-    "date-fns": "^3.0.6",
-    
-    // Content & Sharing
-    "react-native-markdown-display": "^7.0.2",
-    "react-native-webview": "13.6.3",
-    "react-native-share": "^10.0.2",
-    "react-native-pdf": "^6.7.4",
-    "react-native-fast-image": "^8.6.3",
-    
-    // User Experience
-    "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-rate": "^1.2.12",
-    "react-native-in-app-review": "^4.3.3"
+    "expo-constants": "~15.4.0",
+    "expo-device": "~5.9.0",
+    "expo-file-system": "~16.0.0",
+    "expo-font": "~11.10.0",
+    "expo-notifications": "~0.27.0"
   },
   "devDependencies": {
     // Build & Compilation
-    "@babel/core": "^7.20.0",
-    "typescript": "^5.3.0",
+    "@babel/core": "^7.23.6",
+    "typescript": "^5.3.3",
     "@types/react": "~18.2.45",
+    "@types/react-native": "~0.73.0",
     
     // Testing
     "jest": "^29.7.0",
-    "jest-expo": "~50.0.1",
-    "@testing-library/react-native": "^12.4.1",
-    "@testing-library/jest-native": "^5.4.3",
-    "react-test-renderer": "18.2.0",
-    "msw": "^2.0.11",
     
     // Code Quality
     "eslint": "^8.56.0",
-    "eslint-config-universe": "^12.0.0",
-    "prettier": "^3.1.1",
+    "eslint-config-expo": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-native": "^4.1.0",
-    
-    // Git Hooks
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0"
+    "@typescript-eslint/parser": "^6.15.0"
   }
 }
 ```
@@ -258,34 +206,35 @@ The development dependencies ensure code quality, testing capabilities, and stre
 ### 2.3. Key Dependencies by Functionality
 
 #### 🤖 AI & Voice Integration
-- **@elevenlabs/react-native-text-to-speech**: Official ElevenLabs SDK for cross-platform voice synthesis
-- **@google/genai**: Latest Google GenAI SDK (Gemini 2.0) for multimodal AI processing
+- **@google/genai**: Latest Google GenAI SDK v1.6.0 (Gemini 2.0) for multimodal AI processing
+- **elevenlabs**: Official ElevenLabs SDK for advanced voice synthesis
 - **expo-av**: Audio recording and playback with microphone permissions
-- **react-native-track-player**: Advanced audio playback with background support
-- **expo-dom-components**: For cross-platform ElevenLabs Conversational AI integration (2024 approach)
-
-#### 📱 Multimodal Input Support
-- **expo-camera**: Camera access for visual input analysis
-- **expo-image-picker**: Image selection for multimodal conversations
-- **expo-document-picker**: Document analysis capabilities
-- **react-native-vision-camera**: Advanced camera features for real-time processing
+- **expo-speech**: Built-in text-to-speech capabilities
 
 #### 🔐 Backend & Authentication
-- **@supabase/supabase-js**: Comprehensive backend client
-- **expo-secure-store**: Secure token storage
-- **react-native-encrypted-storage**: Encrypted data persistence
-- **react-native-biometrics**: Biometric authentication support
+- **@supabase/supabase-js**: Comprehensive backend client with real-time capabilities
+- **expo-secure-store**: Secure token storage for authentication
 
 #### 🎨 UI Components & Animation
-- **react-native-paper**: Material Design component library
-- **lottie-react-native**: Agent animation support (Udine, Alex, Maya, Dr. Chen)
+- **@expo/vector-icons**: Comprehensive icon library for Expo
 - **react-native-reanimated**: High-performance animations
-- **react-native-vector-icons**: Comprehensive icon library
+- **react-native-gesture-handler**: Advanced gesture recognition
+- **react-native-svg**: SVG support for custom graphics
+- **expo-linear-gradient**: Gradient backgrounds and effects
 
 #### 🧭 Navigation & State
 - **@react-navigation/native**: Navigation framework
+- **@react-navigation/stack**: Stack navigation for screen transitions
+- **@react-navigation/bottom-tabs**: Tab-based navigation
 - **zustand**: Lightweight state management
-- **react-native-mmkv**: High-performance storage solution
+- **react-native-safe-area-context**: Safe area handling across devices
+
+#### 🛠️ Development & Utilities
+- **expo-constants**: Access to app constants and configuration
+- **expo-device**: Device information and capabilities
+- **expo-file-system**: File system access and management
+- **expo-font**: Custom font loading
+- **expo-notifications**: Push notification handling
 
 ## 3. Environment Configuration
 
