@@ -79,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-���������������������������������������������   │   └── mediation/          # Mediation workflow utilities
+�����������������������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -92,7 +92,7 @@ understand-me/
 │   │   ├── profile/            # User profile screens
 │   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
-│   │   ��─�� auth/               # Authentication service
+│   ��   ��─�� auth/               # Authentication service
 ���   ���   ���─��� conversation/       # Conversation processing service
 │   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
@@ -106,7 +106,7 @@ understand-me/
 │   ├── types/                  # TypeScript type definitions
 ��   ��   ��─�� api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
-│   │   ├── session.ts          # Session types
+│   │   ├─��� session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
 │   ���   ���─��� index.ts            # Type exports
 │   └── utils/                  # Utility functions
@@ -147,7 +147,7 @@ The boilerplate includes carefully curated dependencies organized by functionali
     
     // AI & Voice Integration
     "@elevenlabs/react-native-text-to-speech": "^1.0.0",
-    "@google/genai": "^0.3.0",
+    "@google/genai": "^1.6.0",
     "expo-av": "~13.10.0",
     "expo-speech": "~11.7.0",
     "expo-dom-components": "~0.7.0",
