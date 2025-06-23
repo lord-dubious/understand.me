@@ -1,0 +1,85 @@
+{
+  "name": "understand.me",
+  "version": "1.0.0",
+  "main": "expo/AppEntry.js",
+  "description": "AI-mediated communication platform with multi-agent voice synthesis",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo build",
+    "test": "jest",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billyjeanrae/understand.me.git"
+  },
+  "keywords": [
+    "ai",
+    "communication",
+    "voice-synthesis",
+    "react-native",
+    "expo",
+    "mediation",
+    "multi-agent"
+  ],
+  "author": "understand.me team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/billyjeanrae/understand.me/issues"
+  },
+  "homepage": "https://github.com/billyjeanrae/understand.me#readme",
+  "dependencies": {
+    "@expo/vector-icons": "^14.0.0",
+    "@google/genai": "^1.6.0",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
+    "@supabase/supabase-js": "^2.38.5",
+    "@elevenlabs/react-sdk": "^0.3.0",
+    "@upstash/redis": "^1.25.1",
+    "expo": "~50.0.0",
+    "expo-av": "~14.0.0",
+    "expo-constants": "~15.4.0",
+    "expo-device": "~5.9.0",
+    "expo-dom-components": "~0.7.0",
+    "expo-file-system": "~16.0.0",
+    "expo-font": "~11.10.0",
+    "expo-linear-gradient": "~12.7.0",
+    "expo-notifications": "~0.27.0",
+    "expo-secure-store": "~12.8.0",
+    "expo-speech": "~11.7.0",
+    "expo-status-bar": "~1.11.0",
+    "react": "18.2.0",
+    "react-native": "0.73.2",
+    "react-native-gesture-handler": "~2.14.0",
+    "react-native-reanimated": "~3.6.2",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    "react-native-svg": "14.1.0",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.6",
+    "@types/react": "~18.2.45",
+    "@types/react-native": "~0.73.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "eslint-config-expo": "^7.0.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "expo": {
+    "install": {
+      "exclude": ["react-native-safe-area-context"]
+    }
+  }
+}
