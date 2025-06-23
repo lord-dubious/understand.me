@@ -79,7 +79,7 @@ understand-me/
 │   │   ├��─ audio/              # Audio processing utilities
 │   │   ├── storage/            # Local storage utilities
 │   │   ├── emotion/            # Emotion detection and processing
-�����������������������������������������������   │   └── mediation/          # Mediation workflow utilities
+���������������������������������������������������������   │   └── mediation/          # Mediation workflow utilities
 │   ├── navigation/             # React Navigation setup
 │   │   ├── stacks/             # Stack navigators
 │   │   ├── tabs/               # Tab navigators
@@ -92,7 +92,7 @@ understand-me/
 │   │   ├── profile/            # User profile screens
 │   │   └── assessment/         # Personality assessment screens
 │   ├── services/               # Business logic services
-│   ��   ��─�� auth/               # Authentication service
+��   ��   ��─�� auth/               # Authentication service
 ���   ���   ���─��� conversation/       # Conversation processing service
 │   ��   ├── mediation/          # Mediation logic service
 │   │   ├── voice/              # Voice processing service
@@ -106,7 +106,7 @@ understand-me/
 │   ├── types/                  # TypeScript type definitions
 ��   ��   ��─�� api.ts              # API response and request types
 │   │   ├── auth.ts             # Authentication types
-│   │   ├─��� session.ts          # Session types
+���   │   ├─��� session.ts          # Session types
 │   │   ���── voice.ts            # Voice types
 │   ���   ���─��� index.ts            # Type exports
 │   └── utils/                  # Utility functions
@@ -121,7 +121,7 @@ understand-me/
 ├── metro.config.js             # Metro bundler configuration
 ├── package.json                # NPM dependencies
 ├── tsconfig.json               # TypeScript configuration
-├── .env.example                # Example environment variables
+├─�� .env.example                # Example environment variables
 └���─ README.md                   # Project documentation
 ```
 
@@ -2080,18 +2080,16 @@ export interface FileData {
 }
 
 /**
- * Generate content configuration helper
+ * Generate content configuration helper (v1.6.0 API)
  */
 const getGenerationConfig = (modelType: ModelType = ModelType.TEXT, options = {}) => {
   return {
     model: getModelName(modelType),
-    config: {
-      generationConfig: {
-        ...defaultGenerationConfig,
-        ...options,
-      },
-      safetySettings,
-    }
+    generationConfig: {
+      ...defaultGenerationConfig,
+      ...options,
+    },
+    safetySettings,
   };
 };
 
@@ -2121,7 +2119,7 @@ const fileToGenerativePart = async (file: FileData): Promise<Part> => {
 };
 
 /**
- * Generate text response using Google GenAI (new SDK)
+ * Generate text response using Google GenAI (v1.6.0 API)
  */
 export const generateText = async (
   prompt: string,
@@ -2131,10 +2129,12 @@ export const generateText = async (
     // Get generation configuration
     const config = getGenerationConfig(ModelType.TEXT, options);
 
-    // Generate content using new SDK
+    // Generate content using v1.6.0 API pattern
     const response = await ai.models.generateContent({
-      ...config,
+      model: config.model,
       contents: prompt,
+      generationConfig: config.generationConfig,
+      safetySettings: config.safetySettings,
     });
     
     return { data: response.text, error: null };
@@ -2148,7 +2148,7 @@ export const generateText = async (
 };
 
 /**
- * Generate multimodal response using Google GenAI (new SDK)
+ * Generate multimodal response using Google GenAI (v1.6.0 API)
  */
 export const generateMultimodalResponse = async (
   textPrompt: string,
@@ -2170,10 +2170,12 @@ export const generateMultimodalResponse = async (
       ...fileParts,
     ];
     
-    // Generate content using new SDK
+    // Generate content using v1.6.0 API pattern
     const response = await ai.models.generateContent({
-      ...config,
+      model: config.model,
       contents: parts,
+      generationConfig: config.generationConfig,
+      safetySettings: config.safetySettings,
     });
     
     return { data: response.text, error: null };
@@ -2187,7 +2189,7 @@ export const generateMultimodalResponse = async (
 };
 
 /**
- * Generate streaming text response using Google GenAI (new SDK)
+ * Generate streaming text response using Google GenAI (v1.6.0 API)
  */
 export const generateTextStream = async function* (
   prompt: string,
@@ -2197,10 +2199,12 @@ export const generateTextStream = async function* (
     // Get generation configuration
     const config = getGenerationConfig(ModelType.TEXT, options);
 
-    // Generate content stream using new SDK
+    // Generate content stream using v1.6.0 API pattern
     const response = await ai.models.generateContentStream({
-      ...config,
+      model: config.model,
       contents: prompt,
+      generationConfig: config.generationConfig,
+      safetySettings: config.safetySettings,
     });
     
     // Yield chunks as they arrive
@@ -2216,7 +2220,7 @@ export const generateTextStream = async function* (
 };
 
 /**
- * Start a chat session with Google GenAI (new SDK)
+ * Start a chat session with Google GenAI (v1.6.0 API)
  */
 export const createChatSession = (
   history: ChatMessage[] = [],
@@ -2232,10 +2236,12 @@ export const createChatSession = (
       parts: typeof message.parts === 'string' ? [{ text: message.parts }] : message.parts,
     }));
 
-    // Create a chat session using new SDK
+    // Create a chat session using v1.6.0 API pattern
     const chat = ai.chats.create({
-      ...config,
+      model: config.model,
       history: formattedHistory,
+      generationConfig: config.generationConfig,
+      safetySettings: config.safetySettings,
     });
     
     return { data: chat, error: null };
