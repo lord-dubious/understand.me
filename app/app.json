@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "Understand.me",
+    "slug": "understand-me",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.understandme.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice interactions during conflict resolution sessions.",
+        "NSCameraUsageDescription": "This app needs access to camera for facial emotion analysis during sessions.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to upload context files for analysis."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.understandme.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow Understand.me to access your microphone for voice interactions."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Understand.me to access your camera for facial emotion analysis."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Understand.me to access your photos to upload context files."
+        }
+      ]
+    ],
+    "scheme": "understand-me",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}

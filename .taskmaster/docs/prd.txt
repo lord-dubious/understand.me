@@ -1,0 +1,185 @@
+# Understand.me: AI-Mediated Conflict Resolution Platform - Product Requirements Document
+
+## 1. Executive Summary
+
+Understand.me is a revolutionary AI-mediated conflict resolution platform that provides universal cross-platform support (iOS, Android, Web) for structured, intelligent conflict resolution. The platform leverages cutting-edge AI technologies including LangChain.js, Google GenAI, Hume AI emotional intelligence, and ElevenLabs turn-taking voice AI to facilitate meaningful dialogue and resolution between conflicting parties.
+
+## 2. Product Vision
+
+To democratize access to professional-grade conflict resolution by providing an AI-powered mediator that understands emotions, facilitates communication, and guides users through structured resolution processes across any device or platform.
+
+## 3. Core Value Proposition
+
+- **Universal Access**: Single codebase supporting iOS, Android, and Web platforms
+- **Emotional Intelligence**: Real-time emotion detection and analysis using Hume AI
+- **Natural Voice Interactions**: ElevenLabs turn-taking AI for seamless conversations
+- **Structured Mediation**: Five-phase mediation process (Prepare, Express, Understand, Resolve, Heal)
+- **Real-time Collaboration**: Live sessions with Socket.io for multiple participants
+- **Privacy-First**: Secure data handling with Supabase and end-to-end encryption
+
+## 4. Target Users
+
+### Primary Users
+- **Couples**: Relationship conflicts, communication issues, major decisions
+- **Workplace Teams**: Interpersonal conflicts, project disputes, performance issues
+- **Family Members**: Generational conflicts, inheritance disputes, caregiving decisions
+- **Friends**: Personal disagreements, boundary issues, group dynamics
+
+### Secondary Users
+- **Mediators/Counselors**: Professional tools for enhanced practice
+- **HR Departments**: Workplace conflict resolution support
+- **Educational Institutions**: Student conflict resolution programs
+
+## 5. Technical Architecture
+
+### Frontend (Universal App)
+- **Framework**: Expo SDK 50+ with TypeScript
+- **UI Library**: NativeBase for universal components
+- **State Management**: Zustand for lightweight, TypeScript-first state
+- **Navigation**: Expo Router with file-based routing
+- **Real-time**: Socket.io client for live sessions
+- **Voice**: Expo AV + ElevenLabs API integration
+- **Platforms**: iOS, Android, Web (universal codebase)
+
+### Backend (Express.js + Netlify)
+- **API Server**: Express.js with TypeScript
+- **Hosting**: Netlify Functions for serverless scaling
+- **Database**: Supabase PostgreSQL with real-time subscriptions
+- **Authentication**: Supabase Auth with JWT middleware
+- **File Storage**: Supabase Storage for session artifacts
+- **Real-time**: Socket.io for live communication
+
+### AI Services Integration
+- **LangChain.js**: AI workflow orchestration and prompt engineering
+- **Google GenAI**: Large language model for conflict analysis and response generation
+- **Hume AI**: Multi-modal emotion detection (text, voice, facial expressions)
+- **ElevenLabs**: Voice synthesis with emotional context and turn-taking AI
+
+## 6. Core Features
+
+### 6.1 Authentication & Onboarding
+- Universal sign-up/sign-in across all platforms
+- AI-powered personality assessment (15-20 questions)
+- Communication style profiling
+- Platform tutorial with voice interface demo
+- Secure profile management with Supabase Auth
+
+### 6.2 Session Management
+- **Session Types**:
+  - Joint Remote: Multiple participants from different locations
+  - Same-Device: Shared screen interface for intimate conflicts
+  - Individual: Personal reflection and skill development
+- **Session Creation**: Conflict description with multi-modal input (text, voice, files)
+- **AI Analysis**: Comprehensive conflict analysis with emotional insights
+- **Participant Management**: Invitation system with universal session links
+
+### 6.3 Five-Phase Mediation Process
+1. **Prepare Phase**: Goal setting, rule establishment, emotional climate assessment
+2. **Express Phase**: Structured sharing with AI moderation and emotion monitoring
+3. **Understand Phase**: AI-guided perspective exploration and empathy building
+4. **Resolve Phase**: Solution brainstorming, agreement building, action planning
+5. **Heal Phase**: Relationship repair, future planning, growth insights
+
+### 6.4 AI-Powered Features
+- **Real-time Emotion Detection**: Continuous monitoring of emotional climate
+- **Intelligent Interventions**: AI suggests de-escalation techniques
+- **Personalized Responses**: Adaptive communication based on personality profiles
+- **Conflict Analysis**: Multi-dimensional analysis of conflict dynamics
+- **Progress Tracking**: Session effectiveness and communication improvement metrics
+
+### 6.5 Voice Integration
+- **Turn-taking AI**: Natural conversation flow without push-to-talk
+- **Emotional Voice Synthesis**: Context-aware voice generation
+- **Multi-language Support**: Universal voice interface
+- **Accessibility**: Voice-first design for inclusive access
+
+### 6.6 Real-time Collaboration
+- **Live Sessions**: Real-time messaging and voice communication
+- **Shared Workspace**: Collaborative session notes and action items
+- **Participant Status**: Live indicators of emotional state and engagement
+- **Session Recording**: Optional recording with consent for review
+
+### 6.7 Growth & Analytics
+- **Personal Insights**: AI-generated communication pattern analysis
+- **Achievement System**: Milestone tracking and skill development badges
+- **Progress Dashboard**: Long-term growth metrics and trends
+- **Recommended Resources**: Personalized learning materials and exercises
+
+## 7. Technical Requirements
+
+### 7.1 Performance
+- **Response Time**: <2 seconds for AI analysis, <500ms for voice synthesis
+- **Scalability**: Support for 10,000+ concurrent sessions
+- **Availability**: 99.9% uptime with global CDN distribution
+- **Cross-platform**: Consistent performance across iOS, Android, Web
+
+### 7.2 Security
+- **Data Encryption**: End-to-end encryption for sensitive conversations
+- **Privacy Controls**: Granular privacy settings and data retention policies
+- **Compliance**: GDPR, CCPA, HIPAA-ready architecture
+- **Authentication**: Multi-factor authentication and secure session management
+
+### 7.3 Integration
+- **API-First**: RESTful APIs for third-party integrations
+- **Webhook Support**: Real-time notifications and external system integration
+- **Export Capabilities**: Session summaries, insights, and progress reports
+- **Calendar Integration**: Session scheduling with popular calendar apps
+
+## 8. Success Metrics
+
+### 8.1 User Engagement
+- **Session Completion Rate**: >80% of started sessions reach resolution phase
+- **User Retention**: >60% monthly active users after 3 months
+- **Session Frequency**: Average 2+ sessions per user per month
+- **Platform Usage**: Balanced usage across iOS, Android, Web
+
+### 8.2 AI Effectiveness
+- **Conflict Resolution Rate**: >70% of sessions result in mutual agreement
+- **Emotional Improvement**: Measurable reduction in negative emotions during sessions
+- **AI Accuracy**: >90% accuracy in emotion detection and conflict analysis
+- **User Satisfaction**: >4.5/5 rating for AI mediation quality
+
+### 8.3 Business Metrics
+- **User Growth**: 50% month-over-month growth in first year
+- **Revenue**: Freemium model with 10% conversion to premium features
+- **Market Penetration**: Top 3 conflict resolution app in app stores
+- **Enterprise Adoption**: 100+ organizations using platform for workplace conflicts
+
+## 9. Development Phases
+
+### Phase 1: Core Platform (Months 1-3)
+- Universal app foundation with Expo
+- Basic authentication and user management
+- Core AI services integration
+- Simple session creation and management
+- MVP voice integration
+
+### Phase 2: Advanced Features (Months 4-6)
+- Complete five-phase mediation process
+- Real-time collaboration features
+- Advanced emotion detection
+- Growth tracking and analytics
+- Enterprise features
+
+### Phase 3: Scale & Optimize (Months 7-9)
+- Performance optimization
+- Advanced AI features
+- Third-party integrations
+- Mobile app store optimization
+- Enterprise sales and support
+
+## 10. Risk Mitigation
+
+### 10.1 Technical Risks
+- **AI Service Dependencies**: Multiple provider fallbacks and caching strategies
+- **Scalability**: Serverless architecture with auto-scaling capabilities
+- **Cross-platform Compatibility**: Extensive testing across all platforms
+- **Data Privacy**: Robust security measures and compliance frameworks
+
+### 10.2 Market Risks
+- **Competition**: Unique AI-powered approach and superior user experience
+- **User Adoption**: Comprehensive onboarding and proven value demonstration
+- **Regulatory Changes**: Flexible architecture for compliance adaptation
+- **Technology Evolution**: Modular design for easy AI service upgrades
+
+This PRD serves as the foundation for building a revolutionary conflict resolution platform that combines cutting-edge AI with human-centered design to create meaningful, lasting resolutions across any device or platform.

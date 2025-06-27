@@ -1,5 +1,55 @@
 {
+  "name": "understand-me",
+  "version": "1.0.0",
+  "description": "AI-mediated conflict resolution platform with universal cross-platform support",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:app\"",
+    "dev:app": "cd app && npm run start",
+    "dev:server": "cd server && npm run dev",
+    "build": "npm run build:server && npm run build:app",
+    "build:app": "cd app && npm run build",
+    "build:server": "cd server && npm run build",
+    "install:all": "npm install && cd app && npm install && cd ../server && npm install",
+    "clean": "rm -rf node_modules app/node_modules server/node_modules",
+    "lint": "npm run lint:app && npm run lint:server",
+    "lint:app": "cd app && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "test": "npm run test:server",
+    "test:server": "cd server && npm run test",
+    "deploy:app:web": "cd app && npm run build:web && netlify deploy --prod --dir dist",
+    "deploy:server": "cd server && npm run deploy"
+  },
+  "keywords": [
+    "ai",
+    "conflict-resolution",
+    "mediation",
+    "expo",
+    "react-native",
+    "express",
+    "supabase",
+    "elevenlabs",
+    "hume-ai"
+  ],
+  "author": "Understand.me Team",
+  "license": "MIT",
   "devDependencies": {
-    "supabase": "^2.26.9"
-  }
+    "concurrently": "^8.2.0"
+  },
+  "workspaces": [
+    "app",
+    "server"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/understand-me.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/understand-me/issues"
+  },
+  "homepage": "https://understand-me.netlify.app"
 }

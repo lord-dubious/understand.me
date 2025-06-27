@@ -1,0 +1,82 @@
+{
+  "name": "understand-me-server",
+  "version": "1.0.0",
+  "description": "Simple Express.js server for Understand.me AI conflict resolution platform",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "dev": "netlify dev",
+    "dev:local": "nodemon src/app.ts",
+    "build": "tsc && cp -r netlify dist/",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "typescript": "^5.0.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "@google/generative-ai": "^0.2.0",
+    "langchain": "^0.0.200",
+    "@langchain/google-genai": "^0.0.10",
+    "hume": "^0.9.0",
+    "elevenlabs-api": "^1.0.0",
+    "socket.io": "^4.7.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.0",
+    "multer": "^1.4.5",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.22.0",
+    "winston": "^3.11.0",
+    "express-rate-limit": "^7.1.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.0",
+    "joi": "^17.11.0",
+    "axios": "^1.6.0",
+    "form-data": "^4.0.0",
+    "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/cors": "^2.8.0",
+    "@types/multer": "^1.4.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/bcryptjs": "^2.4.0",
+    "@types/compression": "^1.7.0",
+    "@types/morgan": "^1.9.0",
+    "@types/uuid": "^9.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "nodemon": "^3.0.0",
+    "ts-node": "^10.9.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "supertest": "^6.3.0",
+    "@types/supertest": "^2.0.0",
+    "@netlify/functions": "^2.4.0",
+    "netlify-cli": "^17.0.0",
+    "prettier": "^3.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}
