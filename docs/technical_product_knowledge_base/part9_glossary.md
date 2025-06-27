@@ -12,7 +12,7 @@ This glossary defines key terms, technologies, platform-specific concepts, and a
 *   **AI Mediator (Alex):** The AI-powered voice agent in "Understand.me" that facilitates sessions, provides insights, and guides users. (See also: Alex).
 *   **Alex:** The persona name for the AI Mediator in "Understand.me."
 *   **API (Application Programming Interface):** A set of rules and protocols that allows different software applications to communicate with each other.
-*   **API Gateway:** A server that acts as a single entry point for client requests to multiple backend services. PicaOS often serves this role for AI-related services in "Understand.me."
+*   **API Gateway:** A server that acts as a single entry point for client requests to multiple backend services. AI Orchestration Layer often serves this role for AI-related services in "Understand.me."
 
 **B**
 
@@ -70,15 +70,15 @@ This glossary defines key terms, technologies, platform-specific concepts, and a
 
 **O**
 
-*   **OneTool (PicaOS Concept):** If PicaOS documentation refers to "OneTool," it likely implies a specific interface, capability, or design pattern within PicaOS for handling a particular type of AI orchestration task (e.g., a standardized way PicaOS processes a "describe conflict" request).
+*   **OneTool (AI Orchestration Layer Concept):** If AI Orchestration Layer documentation refers to "OneTool," it likely implies a specific interface, capability, or design pattern within AI Orchestration Layer for handling a particular type of AI orchestration task (e.g., a standardized way AI Orchestration Layer processes a "describe conflict" request).
 *   **OTA (Over-The-Air) Updates:** A mechanism (e.g., EAS Update) to deploy updates to the JavaScript bundle and assets of a mobile app directly to users' devices without requiring a new app store submission.
 
 **P**
 
 *   **Participant Path:** The user flow and set of features designed for a Participant joining and engaging in an "Understand.me" session.
-*   **Passthrough API (PicaOS Concept):** If PicaOS documentation refers to a "Passthrough API," it might mean an endpoint on PicaOS that largely forwards requests and responses to an underlying service (like Google GenAI or ElevenLabs) with minimal added logic, possibly for simple tasks or when the client needs more direct control but still benefits from PicaOS's unified interface/authentication.
+*   **Passthrough API (AI Orchestration Layer Concept):** If AI Orchestration Layer documentation refers to a "Passthrough API," it might mean an endpoint on the AI Orchestration Layer that largely forwards requests and responses to an underlying service (like Google GenAI or ElevenLabs) with minimal added logic, possibly for simple tasks or when the client needs more direct control but still benefits from the AI Orchestration Layer's unified interface/authentication.
 *   **Personal Growth Insights:** AI-generated feedback and data provided to users about their communication patterns, emotional expression, and progress in the Growth Hub.
-*   **PicaOS:** The conceptual AI Orchestration layer in "Understand.me." It manages interactions between the Expo app and various AI/backend services (Google GenAI, ElevenLabs, Dappier, Nodely, Supabase, Upstash Redis), handles AI-related state, and contains core logic for AI-mediated features.
+*   **AI Orchestration Layer:** The conceptual AI Orchestration layer in "Understand.me." It manages interactions between the Expo app and various AI/backend services (Google GenAI, ElevenLabs, Dappier, Nodely, Supabase, Upstash Redis), handles AI-related state, and contains core logic for AI-mediated features.
 *   **PostgreSQL (Postgres):** A powerful, open-source object-relational database system. Supabase uses PostgreSQL as its core database.
 
 **R**
@@ -94,7 +94,7 @@ This glossary defines key terms, technologies, platform-specific concepts, and a
 *   **Sentry:** An application monitoring platform used for real-time error tracking, performance monitoring, and issue diagnostics.
 *   **Serverless:** An architecture model where cloud providers manage the server infrastructure, and applications are run as functions or in managed containers that scale on demand. "Understand.me" employs a serverless-first philosophy.
 *   **Session Summary:** An AI-generated document summarizing the key discussions, decisions, and action items from an "Understand.me" session.
-*   **STT (Speech-to-Text):** Technology that converts spoken audio into written text. Provided by Google GenAI or potentially ElevenLabs via PicaOS.
+*   **STT (Speech-to-Text):** Technology that converts spoken audio into written text. Provided by Google GenAI or potentially ElevenLabs via AI Orchestration Layer.
 *   **StyleSheet API (React Native):** The primary way to define styles for React Native components using JavaScript objects.
 *   **Supabase:** The Backend as a Service (BaaS) platform used by "Understand.me," providing:
     *   **Supabase Auth:** User authentication and management.
@@ -112,7 +112,7 @@ This glossary defines key terms, technologies, platform-specific concepts, and a
 **U**
 
 *   **UI Development Guide:** A separate set of documents detailing the UI/UX principles, screen flows, and component designs for the "Understand.me" mobile application.
-*   **Upstash Redis:** A serverless Redis provider used as a high-performance caching layer for "Understand.me" to reduce latency and database load, typically accessed by PicaOS or Supabase Edge Functions.
+*   **Upstash Redis:** A serverless Redis provider used as a high-performance caching layer for "Understand.me" to reduce latency and database load, typically accessed by AI Orchestration Layer or Supabase Edge Functions.
 
 **W**
 

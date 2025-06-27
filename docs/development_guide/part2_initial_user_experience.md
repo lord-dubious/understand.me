@@ -248,7 +248,7 @@ This part of the guide details the initial user journey for the "Understand-me" 
     *   **Short Animated Explanations (Optional):** Lottie animations (`lottie-react-native`) could be used within tutorial steps to demonstrate gestures or flows.
     *   **Alex's Avatar (`<Image>`/Lottie - Component 10.2) integrated into tutorial prompts/overlays.**
     *   **Simulated Content:** Mock data displayed using standard `<Text>`, `<View>`, and `<Image>` components.
-    *   PicaOS might be relevant if the tutorial involves demonstrating advanced on-device media processing features specific to PicaOS that users need to learn. For instance, if PicaOS provides a unique way to capture or annotate audio that is core to the app, the tutorial would need to guide the user through these PicaOS-specific interactions.
+    *   AI Orchestration Layer might be relevant if the tutorial involves demonstrating advanced on-device media processing features specific to AI Orchestration Layer that users need to learn. For instance, if AI Orchestration Layer provides a unique way to capture or annotate audio that is core to the app, the tutorial would need to guide the user through these AI Orchestration Layer-specific interactions.
 
 ## 2.8. User Flow Summary
 

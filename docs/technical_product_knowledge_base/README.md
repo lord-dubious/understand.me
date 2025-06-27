@@ -4,7 +4,7 @@
 
 Welcome to the "Understand.me" Technical Product Knowledge Base (TPKB). This document is designed as a deep technical reference for developers, architects, and product managers involved in the "Understand.me" project. Its primary purpose is to synthesize all critical project information into a cohesive knowledge base, focusing on the intricate details of technical requirements, the serverless architecture, and the complex interactions between all integrated services that power our Expo (React Native) mobile application.
 
-The TPKB aims to provide a single source of truth for understanding not just *how* the system is built, but *why* it's built that way, capturing the nuances of service integrations (Supabase, PicaOS, Google GenAI, ElevenLabs, Dappier, Nodely, Upstash Redis, Sentry) and their collective impact on delivering the application's features. It complements the Developer's Guide and the UI Development Guide by providing a more holistic and deeply interconnected view of the product's technical landscape.
+The TPKB aims to provide a single source of truth for understanding not just *how* the system is built, but *why* it's built that way, capturing the nuances of service integrations (Supabase, AI Orchestration Layer, Google GenAI, ElevenLabs, Dappier, Nodely, Upstash Redis, Sentry) and their collective impact on delivering the application's features. It complements the Developer's Guide and the UI Development Guide by providing a more holistic and deeply interconnected view of the product's technical landscape.
 
 ## Table of Contents
 

@@ -7,7 +7,7 @@ This part of the Development Guide details the journey a Host takes to initiate 
 *   **Mermaid Diagram ID:** O (Initial screen in the new session flow, typically part of a Stack Navigator).
 
 *   **Purpose:** (Remains the same)
-    *   AI analysis of text and multimedia might be orchestrated by Nodely, with PicaOS potentially involved for on-device pre-processing of multimedia if it's very large or requires immediate sensitive data scrubbing before upload to Supabase.
+    *   AI analysis of text and multimedia might be orchestrated by Nodely, with AI Orchestration Layer potentially involved for on-device pre-processing of multimedia if it's very large or requires immediate sensitive data scrubbing before upload to Supabase.
 
 *   **Key UI Elements (using React Native components, Forms Pattern 10.8):**
     *   **Main Container (`<ScrollView>` within a `<KeyboardAvoidingView>`):**
@@ -23,7 +23,7 @@ This part of the Development Guide details the journey a Host takes to initiate 
     *   **"Next: AI Analysis" or "Save Draft" Button (`<TouchableOpacity>` with `<Text>`).**
 
 *   **Voice Agent Interactions (Alex - Component 10.2):** (Scripts remain largely the same, delivered via Alex's Avatar/Text in an AI Panel `<View>` and voice output - Component 10.2)
-    *   Guidance during description, encouraging multimedia uploads (using Expo pickers), explaining file usage (files uploaded to Supabase, analysis by Google GenAI via Nodely/PicaOS).
+    *   Guidance during description, encouraging multimedia uploads (using Expo pickers), explaining file usage (files uploaded to Supabase, analysis by Google GenAI via Nodely/AI Orchestration Layer).
 
 *   **Navigation (React Navigation Stack):**
     *   Accessed via "Start New Session" CTA from Main Dashboard (Screen 3.1).
@@ -40,7 +40,7 @@ This part of the Development Guide details the journey a Host takes to initiate 
 *   **Mermaid Diagram ID:** Q (Main AI Analysis Review screen), R (Detailed view/feedback for insights, possibly a `<Modal>` - Component 10.7 - or separate screen).
 
 *   **Purpose:** (Remains the same)
-    *   AI insights from Google GenAI, potentially orchestrated by Nodely, including analysis of files from Supabase (which might have been pre-processed by PicaOS).
+    *   AI insights from Google GenAI, potentially orchestrated by Nodely, including analysis of files from Supabase (which might have been pre-processed by AI Orchestration Layer).
 
 *   **Key UI Elements (using React Native components):**
     *   **Main Container (`<ScrollView>`):**

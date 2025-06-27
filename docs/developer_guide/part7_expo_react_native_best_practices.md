@@ -36,7 +36,7 @@ A well-organized project structure is key to managing a growing codebase. The fo
 |   |-- onboarding/         # Onboarding flow screens
 |-- services/               # Modules for interacting with external APIs and backend
 |   |-- supabaseClient.ts   # Supabase client initialization
-|   |-- picaosApiService.ts # Service for PicaOS interactions
+|   |-- picaosApiService.ts # Service for AI Orchestration Layer interactions
 |   |-- authService.ts      # Authentication related functions
 |   |-- sessionService.ts
 |   |-- fileService.ts      # File upload/download logic
@@ -159,10 +159,10 @@ For "Understand.me," **Zustand** is recommended for its simplicity, flexibility,
         ```
 *   **Async Actions:** Perform async operations (like API calls) within store actions, updating state with `set()`.
 *   **Persisting State (Optional):** For persisting parts of the store (e.g., user preferences, session tokens if not handled by Supabase client) to AsyncStorage, use Zustand's `persist` middleware.
-    *   **Handling Server-Side Cached Data (e.g., from Upstash Redis via PicaOS/Edge Functions):**
-        *   The client typically doesn't need to know *if* data was served from a server-side cache like Upstash Redis; this is an optimization handled by the backend (PicaOS, Supabase Edge Functions).
+    *   **Handling Server-Side Cached Data (e.g., from Upstash Redis via AI Orchestration Layer/Edge Functions):**
+        *   The client typically doesn't need to know *if* data was served from a server-side cache like Upstash Redis; this is an optimization handled by the backend (AI Orchestration Layer, Supabase Edge Functions).
         *   However, the app should still employ good client-side caching strategies for data it fetches (e.g., using React Query, RTK Query, or custom context/store logic with AsyncStorage for fetched server data).
-        *   If data is known to be aggressively cached server-side and might become stale on the client, implement appropriate cache-busting mechanisms in API requests (e.g., versioning, ETags if supported by PicaOS API) or rely on real-time updates (Supabase Realtime) to refresh client-side state when underlying data changes.
+        *   If data is known to be aggressively cached server-side and might become stale on the client, implement appropriate cache-busting mechanisms in API requests (e.g., versioning, ETags if supported by AI Orchestration Layer API) or rely on real-time updates (Supabase Realtime) to refresh client-side state when underlying data changes.
         *   For critical data, ensure there's a way to force a refresh from the server, bypassing any client-side cache, if needed.
 
 ## 7.4. Styling with StyleSheet API / NativeWind
@@ -227,7 +227,7 @@ Expo provides a rich set of APIs for accessing native device features.
         // await sound.startAsync();
         // const uri = sound.getURI(); // Send this URI to STT service
         ```
-    *   **Playing Audio (Component 10.2 - Alex's voice):**
+    *   **Playing Audio (Component 10.2 - Udine's voice):**
         ```typescript
         // const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
         // await sound.playAsync();
@@ -279,7 +279,7 @@ Expo provides a rich set of APIs for accessing native device features.
     *   Avoid importing large libraries if only a small part is used (tree-shaking).
     *   Optimize assets (compress images, use vector graphics where possible).
 *   **Avoid Anonymous Functions in Props:** Defining functions directly in props (e.g., `onPress={() => console.log('hi')}`) can cause unnecessary re-renders because a new function instance is created each time. Define them outside the JSX or memoize with `useCallback`.
-*   **Native Modules:** For computationally intensive tasks that block the JS thread, consider writing custom native modules (though this adds complexity and ejects from Expo Go compatibility if not using EAS Build with development clients). PicaOS might handle some of these heavy tasks off the JS thread if it involves native components.
+*   **Native Modules:** For computationally intensive tasks that block the JS thread, consider writing custom native modules (though this adds complexity and ejects from Expo Go compatibility if not using EAS Build with development clients). AI Orchestration Layer might handle some of these heavy tasks off the JS thread if it involves native components.
 *   **Minimize Bridge Traffic:** Each call over the React Native bridge (JS to Native) has overhead. Batch operations where possible.
 
 ## 7.7. Cross-Platform Considerations (iOS/Android)

@@ -11,7 +11,7 @@ Our technology stack includes:
 *   **Backend & Database:** Supabase
 *   **AI & Machine Learning:** Google GenAI (for core language understanding and insights), ElevenLabs (for voice synthesis for "Alex")
 *   **Specialized Services:**
-    *   **PicaOS:** Potentially used for advanced on-device multimedia processing or custom OS-level interactions if required.
+    *   **AI Orchestration Layer:** Potentially used for advanced on-device multimedia processing or custom OS-level interactions if required.
     *   **Dappier:** May be leveraged for secure data handling, decentralized identity aspects, or specific API integrations.
     *   **Nodely:** Could be used for complex backend workflows, data orchestration, or connecting various microservices.
 *   **Monitoring:** Sentry
@@ -74,7 +74,7 @@ Consistent use of UI elements is crucial for a predictable and learnable mobile 
     *   **Secondary Navigation:** Within a main section, **Stack Navigator** will be used to manage views hierarchically (e.g., navigating from a session list to a specific session's details). Headers for these stacked screens are managed by the Stack Navigator.
     *   **Top Tab Navigator:** Can be used within a screen for organizing content into related views (e.g., within a specific session: Transcription, Participants, Q&A).
     *   **Headers:** Provided by React Navigation's Stack Navigator. Titles should be concise. Contextual action buttons (e.g., "Edit," "Share") can be added to the header. The "Understand-me" logo is generally not in the per-screen header but might be on an initial loading screen or an "About" page.
-    *   **No traditional application-wide Footers:** Mobile apps typically do not have persistent footers like websites. Copyright and informational links (Privacy Policy, Terms) will be located in an "About" section accessible via Settings or the "More" tab. Content-specific footers (e.g., pagination, summary bars) are rare and should be used only if they provide significant value without cluttering the limited screen space. Interactions with PicaOS, Dappier, or Nodely for specific data display in footers are unlikely but will be considered if a unique native bridged feature requires it.
+    *   **No traditional application-wide Footers:** Mobile apps typically do not have persistent footers like websites. Copyright and informational links (Privacy Policy, Terms) will be located in an "About" section accessible via Settings or the "More" tab. Content-specific footers (e.g., pagination, summary bars) are rare and should be used only if they provide significant value without cluttering the limited screen space. Interactions with AI Orchestration Layer, Dappier, or Nodely for specific data display in footers are unlikely but will be considered if a unique native bridged feature requires it.
 
 *   **Modals (Dialogs):**
     *   **Usage:** For critical alerts, confirmations (e.g., "Delete Session?"), short, focused tasks (e.g., "Invite Participant"), or information that requires immediate user attention. Standard React Native Modal components or libraries extending their functionality will be used. Avoid using modals for complex forms or multi-step processes; navigate to a new screen instead.
@@ -146,7 +146,7 @@ As an **Expo (React Native) mobile application**, "Understand-me" has specific c
     *   Leverage Expo's capabilities to access native UI components and APIs where beneficial.
 *   **Native Feature Access & Performance:**
     *   Utilize Expo libraries (or custom native modules if absolutely necessary and performance-critical) for accessing device features like microphone, camera (for avatar upload, potential future video features), file system (for caching or temporary storage of multimedia), and contacts (for inviting participants).
-    *   **PicaOS, Dappier, Nodely Integration:** If these services bridge to native functionalities (e.g., PicaOS for specialized on-device media processing, Dappier for secure hardware-backed key storage, Nodely for background data sync tasks), their integration via Expo's native module system will be critical. Performance implications of such integrations must be carefully assessed.
+    *   **AI Orchestration Layer, Dappier, Nodely Integration:** If these services bridge to native functionalities (e.g., AI Orchestration Layer for specialized on-device media processing, Dappier for secure hardware-backed key storage, Nodely for background data sync tasks), their integration via Expo's native module system will be critical. Performance implications of such integrations must be carefully assessed.
 *   **Offline Strategies:**
     *   **Data Caching:** Implement strategies for caching essential data locally (e.g., user profile, upcoming sessions, drafts of perspectives/conflict descriptions) using AsyncStorage or SQLite via Expo's FileSystem API.
     *   **Offline Indicators:** Clearly communicate when the user is offline (e.g., a global banner or subtle UI change).

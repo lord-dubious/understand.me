@@ -92,7 +92,7 @@ This part of the Development Guide outlines the typical journey for a Participan
 *   **Mermaid Diagram ID:** AH (Screen for participant's pre-session input, in Stack Navigator).
 
 *   **Purpose:** (Remains the same)
-    *   Input (text & files) saved to Supabase via Nodely. PicaOS could be used for on-device analysis of participant's multimedia input if needed before upload.
+    *   Input (text & files) saved to Supabase via Nodely. AI Orchestration Layer could be used for on-device analysis of participant's multimedia input if needed before upload.
 
 *   **Key UI Elements (using React Native components, Forms Pattern 10.8):**
     *   **Main Container (`<KeyboardAvoidingView>` with `<ScrollView>`):**

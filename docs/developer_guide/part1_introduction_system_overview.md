@@ -154,4 +154,4 @@ graph TD
     *   **User Speech:** Voice input is processed (STT via Google GenAI), transcript stored in Supabase, and sent to app.
     *   **Alex's Response:** PicaOS might first check **Upstash Redis** for a cached response to a similar interaction. If not found or stale, it proceeds to Google GenAI, caches the new response in Redis, then gets it synthesized by ElevenLabs for delivery.
 
-This architecture aims for a separation of concerns, with the mobile app focused on UI/UX, PicaOS handling complex AI/service orchestration, Supabase providing BaaS, and Upstash Redis optimizing performance.
+This architecture aims for a separation of concerns, with the mobile app focused on UI/UX,  AI/service orchestration, Supabase providing BaaS, and Upstash Redis optimizing performance.

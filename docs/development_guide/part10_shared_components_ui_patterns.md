@@ -22,7 +22,7 @@ This part of the Development Guide defines and describes reusable UI components 
 
 *   **Relevant Voice Agent (Alex) Interactions or Cues:** (Remain largely the same as previous, adapted for mobile context)
     *   Error handling messages might appear in the AI Panel or as Toasts (10.6).
-    *   PicaOS could be involved if advanced on-device audio pre-processing is required before sending to GenAI.
+    *   AI Orchestration Layer could be involved if advanced on-device audio pre-processing is required before sending to GenAI.
 
 *   **Typical Usage Locations:** (Remain largely the same, adapted for mobile screens)
     *   Input areas in various screens.

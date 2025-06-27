@@ -36,7 +36,7 @@ Before you begin, ensure you have the following software installed on your devel
     git clone [URL_to_Understand.me_repository] understand-me-app
     cd understand-me-app
     ```
-2.  **Review Project Structure:** Familiarize yourself with the main directories (e.g., `/app` for Expo code, `/supabase` for Supabase migrations/functions, `/picaos_services` for PicaOS related microservices if separate).
+2.  **Review Project Structure:** Familiarize yourself with the main directories (e.g., `/app` for Expo code, `/supabase` for Supabase migrations/functions, `/picaos_services` for AI Orchestration Layer related microservices if separate).
 
 ## 2.3. Expo Environment
 
@@ -119,38 +119,38 @@ The application requires API keys and credentials for various services. These sh
         EXPO_PUBLIC_GOOGLE_GENAI_API_KEY=your_google_genai_api_key
         EXPO_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_api_key
         SENTRY_DSN=your_sentry_dsn
-        # Add other keys as needed for PicaOS, Dappier, Nodely if they are client-facing
+        # Add other keys as needed for AI Orchestration Layer, Dappier, Nodely if they are client-facing
         EXPO_PUBLIC_PICAOS_API_ENDPOINT=your_picaos_endpoint
         EXPO_PUBLIC_DAPPIER_API_KEY=your_dappier_key
         EXPO_PUBLIC_NODELY_GATEWAY_URL=your_nodely_ipfs_gateway_or_api
         # UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url (Primarily for backend services)
         # UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token (Primarily for backend services)
         ```
-    *   For server-side components (e.g., Supabase Edge Functions, PicaOS services, Nodely workflows), environment variables are typically set in the respective service's configuration panel or deployment environment. Refer to Supabase documentation for Edge Functions, and PicaOS/Nodely specific setup for their services. Supabase Edge Functions can also have a `.env` file locally when using `supabase functions serve` (e.g., to include `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). PicaOS would similarly manage its Upstash credentials.
+    *   For server-side components (e.g., Supabase Edge Functions, AI Orchestration Layer services, Nodely workflows), environment variables are typically set in the respective service's configuration panel or deployment environment. Refer to Supabase documentation for Edge Functions, and AI Orchestration Layer/Nodely specific setup for their services. Supabase Edge Functions can also have a `.env` file locally when using `supabase functions serve` (e.g., to include `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). AI Orchestration Layer would similarly manage its Upstash credentials.
 2.  **Obtain Keys:**
     *   **Supabase:** From your Supabase project dashboard (Settings > API).
     *   **Google GenAI SDK:** From Google AI Studio or Google Cloud Console.
     *   **ElevenLabs API:** From your ElevenLabs account dashboard.
     *   **Sentry DSN:** From your Sentry project settings.
     *   **Upstash Redis:** From your Upstash console ([console.upstash.com](https://console.upstash.com/)) after creating a database (REST URL and Read/Write tokens).
-    *   **PicaOS, Dappier, Nodely:** Refer to specific setup instructions for these services to obtain necessary API keys, endpoints, or credentials. These might involve authentication tokens or service account keys.
+    *   **AI Orchestration Layer, Dappier, Nodely:** Refer to specific setup instructions for these services to obtain necessary API keys, endpoints, or credentials. These might involve authentication tokens or service account keys.
 3.  **Secure Management:**
     *   Ensure `.env` files are listed in `.gitignore` to prevent committing them to version control.
     *   For Expo builds (EAS Build), use [Build Secrets](https://docs.expo.dev/build/secrets/) to securely provide these environment variables during the build process.
     *   For Supabase Edge Functions, set environment variables in the Supabase Dashboard or via the `supabase secrets set` CLI command for deployed functions.
 
-## 2.6. PicaOS Setup
+## 2.6. AI Orchestration Layer Setup
 
-PicaOS acts as the AI orchestration layer. Depending on its deployment model (self-hosted, managed service, or library integrated into another backend like Nodely/Supabase Functions):
+AI Orchestration Layer acts as the AI orchestration layer. Depending on its deployment model (self-hosted, managed service, or library integrated into another backend like Nodely/Supabase Functions):
 
-*   **If PicaOS is a separate service to run locally:**
-    1.  Navigate to the PicaOS service directory (e.g., `/picaos_service`).
+*   **If AI Orchestration Layer is a separate service to run locally:**
+    1.  Navigate to the AI Orchestration Layer service directory (e.g., `/picaos_service`).
     2.  Follow its specific `README.md` for installation (e.g., `npm install` or `pip install -r requirements.txt`) and running instructions (e.g., `npm start` or `python main.py`).
     3.  Ensure its local endpoint is correctly configured in the Expo app's `.env` file (`EXPO_PUBLIC_PICAOS_API_ENDPOINT`).
-*   **If PicaOS is a library/SDK used by other backend components:**
+*   **If AI Orchestration Layer is a library/SDK used by other backend components:**
     1.  Its dependencies will be part of the parent service (e.g., a Supabase Edge Function or Nodely workflow).
-    2.  Configuration (API keys for Google GenAI, ElevenLabs, etc., that PicaOS uses) will be managed within that parent service's environment variables.
-*   **Consult PicaOS Specific Documentation:** Detailed setup for PicaOS, including any necessary SDKs or tools for developers to interact with or test it, will be in its dedicated documentation.
+    2.  Configuration (API keys for Google GenAI, ElevenLabs, etc., that AI Orchestration Layer uses) will be managed within that parent service's environment variables.
+*   **Consult AI Orchestration Layer Specific Documentation:** Detailed setup for AI Orchestration Layer, including any necessary SDKs or tools for developers to interact with or test it, will be in its dedicated documentation.
 
 ## 2.7. Sentry Project Setup
 
@@ -183,4 +183,4 @@ Sentry is used for error monitoring and performance tracking.
     }
     ```
 
-With these steps completed, your development environment should be ready for building and testing the "Understand.me" application. Refer to individual service documentation (Supabase, Expo, PicaOS, etc.) for more advanced configurations.
+With these steps completed, your development environment should be ready for building and testing the "Understand.me" application. Refer to individual service documentation (Supabase, Expo, AI Orchestration Layer, etc.) for more advanced configurations.

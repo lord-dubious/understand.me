@@ -2,222 +2,247 @@
 
 ## System Overview
 
-**Understand.me** is a Progressive Web Application (PWA) built with a modern TypeScript stack, featuring AI-mediated conflict resolution through voice and text interactions. The system integrates ElevenLabs for voice synthesis/recognition and Google's Generative AI SDK for intelligent decision-making and natural language processing.
+The "Understand.me" application heavily leverages serverless design patterns to achieve its goals of scalability, resilience, maintainability, and cost-effectiveness. By using managed services and function-based logic, we can focus on delivering core application value rather than managing infrastructure. This section details key serverless patterns employed in our architecture and how they are implemented using our technology stack (Supabase, AI Orchestration Layer, Dappier, Nodely, Upstash Redis, Google GenAI, ElevenLabs).
 
-## Technology Stack
+Understanding these patterns is crucial for developers to build new features consistently and to reason about the system's behavior.
 
-### Frontend
-- **Framework**: Next.js 14+ with TypeScript
-- **UI Library**: React 18+ with Tailwind CSS
-- **State Management**: Zustand or Redux Toolkit
-- **PWA Features**: Workbox for service workers and caching
-- **Real-time**: Socket.io client for live sessions
-- **Voice**: Web Speech API + ElevenLabs integration
+---
 
-### Backend
-- **Runtime**: Node.js with TypeScript
-- **Framework**: Next.js API routes or Express.js
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js or Auth0
-- **Real-time**: Socket.io server
-- **File Storage**: AWS S3 or Cloudinary for audio files
+## 5.1. Event-Driven Architecture
 
-### AI & Voice Services
-- **LLM**: Google Generative AI SDK (@google/generative-ai)
-- **Voice Synthesis**: ElevenLabs API
-- **Speech-to-Text**: Web Speech API (primary) + Google Speech-to-Text (fallback)
-- **NLP**: Google Cloud Natural Language API (sentiment analysis)
+*   **Definition:** An architecture where system components react to the production, detection, and consumption of events. This promotes loose coupling and asynchronous operations.
+*   **Implementation & Benefits in Understand.me:**
+    *   **Supabase Database Triggers -> Supabase Edge Functions / AI Orchestration Layer:**
+        *   **Example:** When a new user signs up via Supabase Auth, a trigger on the `auth.users` table automatically inserts a corresponding record into the `public.profiles` table (as detailed in Dev Guide 3.2). This can also be extended: a trigger on `profiles` could invoke a Supabase Edge Function, which then calls AI Orchestration Layer to initiate a "Welcome Flow" (e.g., send a welcome email, schedule an initial tip notification via Nodely).
+        *   **Services Involved:** Supabase (PostgreSQL Triggers, Edge Functions), AI Orchestration Layer, Nodely (for notification dispatch).
+        *   **Benefits:** Decouples the sign-up process from subsequent actions, improves responsiveness of the initial sign-up, allows for extensible post-registration logic.
+        *   **Diagram (Conceptual Flow):**
+            ```mermaid
+graph TD
+                A[User Signs Up via Expo App] --> B{Supabase Auth};
+                B -- Creates user in auth.users --> C{DB Trigger on auth.users};
+                C -- Invokes --> D[Supabase Edge Function: Create Profile];
+                D -- Writes to --> E[Supabase DB: profiles table];
+                E -- (Optional) Another DB Trigger --> F[Supabase Edge Function: Notify AI Orchestration Layer];
+                F --> G[AI Orchestration Layer: Initiate Welcome Flow];
+                G --> H[Nodely: Dispatch Welcome Email/Notification];
+```
+    *   **Dappier Real-time Events -> AI Orchestration Layer:**
+        *   **Example:** If Dappier is configured to monitor external data streams relevant to an ongoing session (e.g., project status updates, breaking news for RAG), it can emit events. AI Orchestration Layer subscribes to these Dappier event streams. When a relevant event is received, AI Orchestration Layer updates its session context and may trigger Alex to provide a timely insight or adapt the conversation flow.
+        *   **Services Involved:** Dappier, AI Orchestration Layer, Supabase Realtime (for AI Orchestration Layer to push updates to Expo app).
+        *   **Benefits:** Allows the AI mediation to be responsive to real-world, real-time information, enhancing relevance. Decouples AI Orchestration Layer from needing to poll Dappier.
+        *   **Diagram (Conceptual Flow):**
+            ```mermaid
+graph TD
+                ExtSource[External Data Source] --> Dappier;
+                Dappier -- Event Stream --> AI Orchestration Layer;
+                AI Orchestration Layer -- Updates Context --> SessionState[(AI Orchestration Layer Session State)];
+                AI Orchestration Layer -- (If UI Update Needed) --> SupabaseRT[Supabase Realtime];
+                SupabaseRT --> ExpoApp;
+```
+    *   **Supabase Realtime for Client Updates:**
+        *   **Example:** When a new message is inserted into `session_messages` by AI Orchestration Layer (after STT and processing), Supabase Realtime broadcasts this change to all subscribed Expo app clients in the session, enabling live transcript updates.
+        *   **Services Involved:** Supabase (Database, Realtime), Expo App.
+        *   **Benefits:** Provides a reactive and responsive UI for multi-user interactions without manual polling from the client.
 
-## Core Architecture Components
+---
 
-### 1. AI Decision Engine
+## 5.2. Function Composition / Orchestration
 
-#### Google GenAI Integration
-```typescript
-// Core AI service structure
-interface AIDecisionEngine {
-  analyzeConflict(description: string, context: UserContext): Promise<ConflictAnalysis>
-  generateMediationStrategy(participants: Participant[], conflictType: string): Promise<MediationPlan>
-  adaptSessionFlow(currentPhase: SessionPhase, emotionalState: EmotionalContext): Promise<NextAction>
-  generateResponse(userInput: string, sessionContext: SessionContext): Promise<AIResponse>
-}
-
-// Session context for AI decision making
-interface SessionContext {
-  sessionId: string
-  currentPhase: 'prepare' | 'express' | 'understand' | 'resolve' | 'heal'
-  participants: Participant[]
-  conflictSummary: string
-  emotionalStates: EmotionalState[]
-  previousInteractions: Interaction[]
-  personalityProfiles: PersonalityProfile[]
-}
+*   **Definition:** Structuring a complex task as a sequence or workflow of smaller, independent functions or service calls. The orchestrator manages the flow, data passing, and error handling between these steps.
+*   **Implementation & Benefits in Understand.me:**
+    *   **AI Orchestration Layer Orchestrating AI Tasks (Primary Example):**
+        *   **Example:** The "Conversational Personality Assessment" (Dev Guide 6.X/6.1.4) or "Describe Conflict" analysis (Dev Guide 6.Y/6.2.A). AI Orchestration Layer receives a single request from the Expo app and then performs a sequence of operations:
+            1.  (Optional) Transcribe user voice input (Google GenAI STT).
+            2.  (Optional) Fetch related data from Supabase (e.g., conversation history, uploaded files).
+            3.  (Optional) Fetch RAG context from Dappier.
+            4.  Construct a detailed prompt for Google GenAI (LLM).
+            5.  Call Google GenAI LLM for analysis, script generation, or insight extraction.
+            6.  (Optional) Store results in Supabase or cache in Upstash Redis.
+            7.  (Optional) Send script to ElevenLabs for TTS.
+            8.  Format and return the final response to the Expo app.
+        *   **Services Involved:** AI Orchestration Layer (as orchestrator), Google GenAI (STT, LLM), ElevenLabs, Supabase, Upstash Redis, Dappier.
+        *   **Benefits:** Simplifies the client (Expo app) logic significantly. Centralizes complex AI interaction flows in AI Orchestration Layer, making them easier to manage, update, and debug. Allows for conditional logic and error handling within the flow. Promotes reuse of individual service calls within different orchestrations.
+        *   **Diagram (Conceptual - Simplified AI Orchestration Layer Orchestration):**
+    *   **Policy Example (INSERT):** (Allows participants to upload if they are part of the session, further restrictions might be in application logic via AI Orchestration Layer).
+        ```sql
+CREATE POLICY "Accepted participants can upload files to their sessions"
+        ON public.session_files FOR INSERT WITH CHECK (
+          EXISTS (
+            SELECT 1 FROM session_participants sp
+            WHERE sp.session_id = session_files.session_id
+              AND sp.profile_id = auth.uid()
+              AND sp.invitation_status = 'accepted'
+              AND auth.uid() = uploader_profile_id -- User can only claim to be themselves
+          )
+        );
 ```
 
-#### Decision Engine Logic
-- **Input Processing**: Analyze user text/voice input for intent and emotion
-- **Context Awareness**: Maintain session state and participant history
-- **Strategy Selection**: Choose mediation approach based on conflict type and personalities
-- **Response Generation**: Create contextually appropriate AI responses
-- **Adaptation Logic**: Modify approach based on session progress and emotional cues
+**7.1.2. AI Orchestration Layer API Endpoint Security:**
 
-### 2. Voice Integration (ElevenLabs)
+*   **Authentication:** All AI Orchestration Layer API endpoints (Dev Guide 4.3) must be protected.
+    *   **JWT Validation:** AI Orchestration Layer validates the Supabase JWT sent by the Expo app in the `Authorization: Bearer <token>` header. This can be done using Supabase's provided libraries or a standard JWT validation library with Supabase's JWT secret.
+    *   The `userId` from the validated JWT is then trusted for RLS-like checks within AI Orchestration Layer logic or for passing to Supabase.
+*   **Authorization (within AI Orchestration Layer):**
+    *   After authenticating the user, AI Orchestration Layer must perform authorization checks before executing sensitive operations. For example, before AI Orchestration Layer allows adding a participant to a session, it must verify that the authenticated user (`auth.uid()`) is indeed the `host_id` for that session (by querying Supabase `sessions` table).
+*   **API Key Management (for AI Orchestration Layer itself, if it acts as a client to other services):**
+    *   All API keys used by AI Orchestration Layer (for Google GenAI, ElevenLabs, Dappier, Nodely, Upstash Redis) must be stored as secure environment variables in AI Orchestration Layer's deployment environment (e.g., Google Cloud Run secrets, AWS Secrets Manager). They must not be hardcoded.
 
-#### Voice Service Architecture
-```typescript
-interface VoiceService {
-  synthesizeSpeech(text: string, voiceId: string): Promise<AudioBuffer>
-  transcribeSpeech(audioBlob: Blob): Promise<string>
-  getAvailableVoices(): Promise<Voice[]>
-  cloneVoice(audioSamples: Blob[]): Promise<string> // Future feature
-}
+**7.1.3. Service-to-Service Authentication:**
 
-// Voice configuration for AI mediator
-interface VoiceConfig {
-  voiceId: string // ElevenLabs voice ID
-  stability: number // 0-1, voice consistency
-  similarityBoost: number // 0-1, voice clarity
-  style: number // 0-1, emotional range
-  speakingRate: number // Words per minute
-}
+*   **AI Orchestration Layer to Google GenAI/ElevenLabs:** Use API keys, managed as secure environment variables in AI Orchestration Layer.
+*   **AI Orchestration Layer to Dappier/Nodely:** Use API keys or OAuth2 client credentials flows if supported by Dappier/Nodely, managed as secure environment variables in AI Orchestration Layer.
+*   **AI Orchestration Layer to Supabase:**
+    *   For user-context operations: AI Orchestration Layer can use the user's JWT to call Supabase Edge Functions (which respect RLS for that user).
+    *   For admin/broader operations: AI Orchestration Layer (if running in a secure backend environment) uses the Supabase `service_role_key` to bypass RLS for necessary tasks like creating initial session records or aggregating data. This key must be heavily protected.
+*   **AI Orchestration Layer/Supabase Edge Functions to Upstash Redis:** Use Upstash Redis REST URL and secure REST token, stored as environment variables.
+*   **Expo App to Supabase:** Uses the public `anon_key` and the user's JWT. RLS enforces data access.
+
+## 7.2. Data Security
+
+*   **Encryption at Rest:**
+    *   **Supabase PostgreSQL:** Data is encrypted at rest by default on AWS RDS, which Supabase uses. Supabase also offers column-level encryption capabilities for specific PII if needed, though this adds complexity to querying.
+    *   **Supabase Storage:** Files are stored in S3, which encrypts data at rest by default.
+    *   **Upstash Redis:** Offers encryption at rest. Ensure this is active for production databases.
+    *   **Nodely/IPFS:**
+        *   Data on public IPFS is generally not encrypted by default.
+        *   If sensitive files are pinned to IPFS via Nodely (e.g., session summaries intended only for participants), they **must be client-side encrypted (in Expo app or by AI Orchestration Layer/Supabase Function) before being sent to Nodely for pinning.**
+        *   Key management for this encryption becomes crucial. Options:
+            *   User-derived keys (complex for sharing).
+            *   Session-specific symmetric keys shared with participants via a secure channel (e.g., Supabase Realtime with RLS on key table).
+            *   For "Understand.me," IPFS is primarily for finalized, potentially less sensitive, or user-agreed public-after-consent artifacts. Highly sensitive raw data stays in Supabase.
+*   **Encryption in Transit:**
+    *   All communications between the Expo app, AI Orchestration Layer, Supabase, and all other external services (Google GenAI, ElevenLabs, Dappier, Nodely, Upstash Redis, Sentry) **must use TLS/SSL (HTTPS, WSS for Realtime, secure Redis connections).**
+    *   Ensure appropriate TLS versions and cipher suites are configured on any self-managed AI Orchestration Layer/Nodely components. Managed services generally handle this.
+*   **Securing Sensitive AI Data:**
+    *   **Prompts to Google GenAI:** AI Orchestration Layer must ensure that prompts sent to Google GenAI only contain the necessary context for the task and do not inadvertently include excessive PII unless explicitly required and consented to for that feature. Redact where possible.
+    *   **User Inputs:** Raw user voice/text inputs are processed by AI Orchestration Layer. Transcripts and AI analyses are stored in Supabase and protected by RLS.
+    *   **AI Responses (Alex's scripts/insights):** Stored in Supabase and protected by RLS. If cached in Upstash Redis by AI Orchestration Layer, Redis instance must be secured.
+*   **Data Masking or Anonymization:**
+    *   For analytics or logging (Sentry), if PII is captured, implement masking or anonymization routines within AI Orchestration Layer or Supabase Edge Functions before sending data to analytics platforms or less secure logging tiers.
+    *   Sentry SDKs have client-side data scrubbing options.
+
+## 7.3. Infrastructure & Network Security
+
+*   **Supabase Security Configurations:**
+    *   **Network Restrictions:** If possible (depending on Supabase plan and other service locations), restrict direct database access to only known IP addresses or VPCs (e.g., for AI Orchestration Layer or other backend services). Client access from Expo app uses the public API gateway.
+    *   **Database Roles & Permissions:** Use Supabase's PostgreSQL roles with least privilege for different backend processes if AI Orchestration Layer or Edge Functions connect with more than just the `service_role_key`.
+    *   **SSL Enforcement:** Ensure "Enforce SSL" is active for the database.
+    *   **Two-Factor Authentication (2FA):** Enforce 2FA for all Supabase project administrators.
+*   **AI Orchestration Layer Deployment Security (If self-managed components):**
+    *   If AI Orchestration Layer involves self-hosted Docker containers or VMs:
+        *   Regular OS patching and security hardening.
+        *   Firewall rules to restrict access to necessary ports.
+        *   Run AI Orchestration Layer services with least-privileged user accounts.
+        *   Securely manage deployment credentials and access to the hosting environment.
+    *   If AI Orchestration Layer is a managed cloud service (e.g., Cloud Run, Lambda), rely on the cloud provider's security features and configure IAM roles with least privilege.
+*   **Secure Access to Dappier, Nodely, Upstash Redis:**
+    *   **API Key Security:** Store API keys for these services securely in the environment of AI Orchestration Layer or Supabase Edge Functions, not in client-side code.
+    *   **IP Whitelisting:** If these services support IP whitelisting, configure them to only accept requests from the known outbound IP addresses or VPCs of your AI Orchestration Layer/Supabase Function infrastructure.
+    *   **VPC Peering/Private Endpoints:** If available and applicable (e.g., AI Orchestration Layer self-hosted in same cloud provider), use private network connections instead of public internet for service-to-service communication.
+
+## 7.4. Input Validation & Sanitization
+
+Preventing common web/mobile vulnerabilities through rigorous input validation.
+
+*   **Expo App (Client-Side Validation - Component 10.8):**
+    *   Perform initial validation of all user inputs (forms, text fields) for type, format, length, and presence before sending to backend services.
+    *   Use libraries like `zod` or `yup` for schema validation.
+    *   This provides immediate feedback to the user and reduces load on backend validation.
+*   **AI Orchestration Layer (Server-Side Validation):**
+    *   **Crucial:** AI Orchestration Layer MUST re-validate ALL data received from the Expo app or any other client, even if client-side validation was performed. Never trust client input.
+    *   Validate data types, formats, ranges, and business rules before processing or passing to other services (Google GenAI, Supabase).
+    *   Sanitize inputs to prevent injection attacks if data is used to construct queries or scripts for services that don't have strong built-in protection (though Supabase client and modern ORMs largely prevent SQLi for database interactions). For GenAI prompts, be mindful of prompt injection if user input is directly embedded in complex instruction sets.
+*   **Supabase Edge Functions:**
+    *   Similar to AI Orchestration Layer, any Edge Function receiving direct client input or input from other services must validate it rigorously before processing or database interaction.
+*   **Preventing Common Vulnerabilities:**
+    *   **XSS (Cross-Site Scripting):** While React Native is less susceptible than web apps, be cautious if rendering HTML content via `WebView`s (ensure it's from trusted sources or sanitized). User-generated content displayed as native `<Text>` is generally safe from XSS.
+    *   **SQL Injection:** Using the Supabase JS client with its query builder (or RLS) largely mitigates traditional SQLi risks. Avoid constructing raw SQL queries with user input.
+    *   **NoSQL Injection:** Not directly applicable to PostgreSQL, but if AI Orchestration Layer interacts with NoSQL databases via Dappier or Nodely, ensure those interactions use parameterized queries or appropriate SDKs that prevent injection.
+
+## 7.5. Sentry for Security Monitoring
+
+Sentry can be configured to help detect and alert on security-related events.
+
+*   **Content Security Policy (CSP) Violations (If using WebViews extensively):**
+    *   While primarily a mobile app, if any part uses `WebView` to display external or complex HTML content, CSP headers can be configured for those WebViews. Sentry can report CSP violations, indicating potential XSS attempts or misconfigurations.
+*   **Unusual Error Patterns:**
+    *   Configure Sentry alerts for sudden spikes in specific types of errors, especially:
+        *   Authentication errors (e.g., many failed login attempts - could indicate brute-forcing).
+        *   Authorization errors (RLS violations in Supabase, AI Orchestration Layer authz failures - could indicate probing or privilege escalation attempts).
+        *   Input validation errors on the backend (could indicate attempts to bypass client-side validation).
+*   **Security Headers Monitoring (If applicable to AI Orchestration Layer/Nodely/Dappier if they expose HTTP endpoints directly consumed by anything other than the app):**
+    *   Sentry can track other security-related headers if relevant.
+*   **Integrating with Alerting Systems:**
+    *   Route security-pertinent Sentry alerts to a dedicated security channel (e.g., specific Slack channel, email alias for security team/leads) for prompt investigation.
+*   **Audit Trail Review:** While Sentry is primarily for errors, its breadcrumbs (if capturing relevant events) can sometimes assist in reconstructing user activity leading up to a security incident, complementing audit logs from Supabase or AI Orchestration Layer.
+
+## 7.6. Compliance Considerations (Technical Aspects)
+
+Technical measures to support data privacy regulations (e.g., GDPR, CCPA).
+
+*   **Data Minimization:**
+    *   Services (AI Orchestration Layer, Expo app) should only request and process data essential for their immediate task.
+    *   Avoid over-fetching from Supabase. Use `select()` to specify only needed columns.
+*   **User Data Export:**
+    *   AI Orchestration Layer or a Supabase Edge Function should provide a mechanism to export a user's data upon request. This would involve querying all relevant tables (`profiles`, `sessions` they hosted/participated in, `session_messages` they authored, `growth_insights`, etc.) and compiling it into a machine-readable format (e.g., JSON).
+    *   Consider data relationships and how to present them comprehensibly.
+*   **User Data Deletion (Right to be Forgotten):**
+    *   Implement a robust data deletion process, typically orchestrated by AI Orchestration Layer or a Supabase Edge Function.
+    *   When a user requests deletion:
+        *   Use `supabase.auth.admin.deleteUser()` to remove the user from `auth.users`. This will cascade delete their `profiles` record due to the foreign key constraint.
+        *   Determine policy for associated data:
+            *   Should `session_messages` authored by the user be anonymized (e.g., `profile_id` set to NULL, content potentially scrubbed of PII if legally required) or deleted? Deletion might affect transcript coherence for other users. Anonymization is often preferred.
+            *   Should `sessions` hosted by the user be deleted or reassigned/anonymized?
+            *   `growth_insights`, `achievements` for the user should be deleted.
+        *   This requires careful schema design with appropriate `ON DELETE` cascade or set null behaviors, and potentially custom SQL scripts or Edge Functions for complex deletion/anonymization logic.
+*   **Consent Management:**
+    *   User consents (e.g., for data usage in Personal Growth Insights - UI Guide 5.5) must be stored explicitly in Supabase (`profiles` table or a dedicated `user_consents` table) with timestamps.
+    *   AI Orchestration Layer and other services must check these consent flags before processing data for optional features.
+    *   If Dappier is used for verifiable consent, this involves managing and verifying Dappier credentials.
+*   **Data Retention Policies:**
+    *   Implement automated data retention/archival policies if required by regulations or business needs (e.g., automatically delete raw session audio from temporary storage after STT and analysis by AI Orchestration Layer, or delete inactive user accounts after a certain period). This can be managed by Supabase scheduled functions or AI Orchestration Layer/Nodely workflows.
+
+    //     await element(by.id('createAccountButton')).tap();
+
+    //     // Expect to navigate to the next screen (e.g., Personality Assessment or Dashboard)
+    //     await expect(element(by.id('personalityAssessmentScreen'))).toBeVisible();
+    //   });
+    // });
 ```
+*   **Considerations:** E2E tests are powerful but can be slower and more brittle than unit or integration tests. Focus them on the most critical paths.
 
-#### Implementation Details
-- **Text-to-Speech**: ElevenLabs API for AI mediator voice
-- **Speech-to-Text**: Web Speech API for real-time transcription
-- **Audio Processing**: Web Audio API for recording and playback
-- **Fallback Strategy**: Text interface when voice fails
-- **Quality Control**: Audio quality monitoring and automatic fallback
+## 8.4. Testing AI Interactions
 
-### 3. Real-time Communication System
+Testing AI-driven features requires specific strategies due to the non-deterministic nature of some AI outputs.
 
-#### WebSocket Architecture
-```typescript
-// Socket event types for real-time sessions
-interface SocketEvents {
-  'session:join': (sessionId: string, userId: string) => void
-  'session:message': (message: SessionMessage) => void
-  'session:phase-change': (newPhase: SessionPhase) => void
-  'session:user-typing': (userId: string, isTyping: boolean) => void
-  'session:emotional-state': (userId: string, state: EmotionalState) => void
-  'session:ai-processing': (isProcessing: boolean) => void
-}
+*   **Mocking AI Service Responses:**
+    *   When testing components that rely on AI Orchestration Layer (which in turn calls Google GenAI, ElevenLabs, etc.), mock the AI Orchestration Layer API responses (as in 8.2) to return predictable, structured data.
+    *   This allows testing of how the UI handles various AI outputs (e.g., different generated scripts for Udine, different analysis results, empty results, errors).
+*   **Snapshot Testing for AI-Generated Content (Use with caution):**
+    *   For features where AI generates relatively stable textual content (e.g., a specific type of summary based on fixed input), Jest snapshot testing can be used. However, if prompts or models change frequently, snapshots can become brittle.
+*   **Testing Conversational Flow Branches:**
+    *   For features like the Conversational Personality Assessment (Screen 2.3) or Udine's in-session guidance (Part 7), design tests that provide specific inputs to trigger different conversational branches and verify that Udine's responses and the UI state change as expected according to the defined logic in AI Orchestration Layer.
+*   **Validating Structure of AI-Generated Data:**
+    *   Even if the exact content varies, the *structure* of data returned by AI Orchestration Layer (after processing GenAI output) should be consistent. Write tests to validate this schema.
+    *   For example, if AI Orchestration Layer is expected to return a list of themes, test that it's an array of strings, even if the strings themselves differ.
+*   **Fixed Inputs for Core Logic Testing:**
+    *   For testing the AI Orchestration Layer layer itself, use a set of fixed inputs (text, dummy file data) and verify that AI Orchestration Layer calls the correct downstream services (Google GenAI, etc.) with the expected parameters and handles their responses appropriately. This is more backend-focused testing for AI Orchestration Layer developers.
+*   **Human Review for Subjective Outputs:** For aspects like the quality of Udine's advice or the relevance of AI-generated insights, automated tests have limitations. Incorporate human review and feedback loops (e.g., during UAT or internal testing) for these subjective elements.
 
-// Session message structure
-interface SessionMessage {
-  id: string
-  sessionId: string
-  userId: string
-  type: 'text' | 'voice' | 'ai-response' | 'system'
-  content: string
-  audioUrl?: string
-  timestamp: Date
-  emotionalTone?: string
-  phase: SessionPhase
-}
-```
+## 8.5. Sentry for Debugging & Monitoring (Developer Focus)
 
-### 4. Database Schema (Prisma)
+Sentry (as set up in Part 5.4 and Dev Guide 2.7) is not just for production monitoring but also a valuable tool during development and debugging.
 
-#### Core Models
-```prisma
-model User {
-  id                String              @id @default(cuid())
-  email             String              @unique
-  username          String              @unique
-  name              String
-  personalityProfile PersonalityProfile?
-  hostedSessions    Session[]           @relation("HostedSessions")
-  participatedSessions SessionParticipant[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-}
-
-model PersonalityProfile {
-  id                    String   @id @default(cuid())
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id])
-  communicationStyle    String
-  conflictApproach      String
-  emotionalProcessing   String
-  values                Json
-  assessmentResponses   Json
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-}
-
-model Session {
-  id                String              @id @default(cuid())
-  hostId            String
-  host              User                @relation("HostedSessions", fields: [hostId], references: [id])
-  title             String
-  description       String
-  conflictSummary   String?
-  sessionType       SessionType
-  status            SessionStatus
-  currentPhase      SessionPhase?
-  participants      SessionParticipant[]
-  messages          SessionMessage[]
-  aiAnalysis        Json?
-  actionPlan        String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  completedAt       DateTime?
-}
-
-model SessionMessage {
-  id            String      @id @default(cuid())
-  sessionId     String
-  session       Session     @relation(fields: [sessionId], references: [id])
-  userId        String?
-  user          User?       @relation(fields: [userId], references: [id])
-  type          MessageType
-  content       String
-  audioUrl      String?
-  emotionalTone String?
-  phase         SessionPhase
-  aiGenerated   Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-}
-
-enum SessionType {
-  JOINT
-  SAME_DEVICE
-  INDIVIDUAL
-}
-
-enum SessionStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
-
-enum SessionPhase {
-  PREPARE
-  EXPRESS
-  UNDERSTAND
-  RESOLVE
-  HEAL
-}
-
-enum MessageType {
-  TEXT
-  VOICE
-  AI_RESPONSE
-  SYSTEM
-}
-```
-
-### 5. AI Processing Pipeline
-
-#### Conflict Analysis Flow
-1. **Input Processing**: Parse user conflict description
-2. **Sentiment Analysis**: Determine emotional state and urgency
-3. **Classification**: Categorize conflict type (relationship, workplace, family, etc.)
-4. **Participant Analysis**: Assess personality compatibility and communication styles
-5. **Strategy Generation**: Create personalized mediation approach
-6. **Session Planning**: Structure five-phase mediation plan
+*   **Development Cycle Debugging:**
+    *   Ensure `enableInExpoDevelopment: true` is set in Sentry init during development to capture errors in dev builds.
+    *   When an error occurs, the Sentry dashboard provides detailed stack traces (with source maps if configured), breadcrumbs (user actions leading to the error), and device/OS context. This can be much more informative than relying solely on console logs.
+*   **Tracking Issues Across Services:**
+    *   **Correlation ID:** If AI Orchestration Layer, Supabase Edge Functions, and Nodely also integrate with Sentry (ideally in the same Sentry organization but different projects), ensure a `correlationId` is passed along in API requests between the Expo app and these backend services. Log this `correlationId` with any Sentry events. This allows you to trace a single user interaction or data flow across multiple services in Sentry, making it easier to pinpoint the source of an issue.
+    *   **Example:** Expo app makes a call to AI Orchestration Layer. AI Orchestration Layer includes the received `correlationId` when it logs an error to Sentry related to that request.
+*   **Monitoring AI Service Interactions:**
+    *   AI Orchestration Layer should explicitly capture and report errors from Google GenAI, ElevenLabs, Dappier, etc., to Sentry, including relevant request parameters (excluding sensitive data) and the error response from the service. This helps identify if issues are due to our logic or the external AI service.
+*   **Performance Monitoring in Dev:** Use Sentry's performance monitoring tools during development to identify slow screen loads, unresponsive UI elements, or lengthy API calls to AI Orchestration Layer/Supabase.
 
 #### Real-time Decision Making
 ```typescript

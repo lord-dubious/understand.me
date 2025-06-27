@@ -89,7 +89,7 @@ This part of the Development Guide focuses on the central hub of the "Understand
         *   Tapping a card could navigate to a more detailed screen for that metric within the Growth stack.
     *   **"Alex's Coaching Corner" (`<View>` with Alex's Avatar and `<Text>` for tips - Component 10.2).**
     *   Links to relevant sessions (`<TouchableOpacity>` with `<Text>`).
-    *   PicaOS might be leveraged if some communication pattern data (e.g., tone, speaking speed) is processed locally on-device for privacy before aggregation, with results sent to Supabase via Nodely.
+    *   AI Orchestration Layer might be leveraged if some communication pattern data (e.g., tone, speaking speed) is processed locally on-device for privacy before aggregation, with results sent to Supabase via Nodely.
 
 *   **Voice Agent Interactions (Alex - Component 10.2):** (Remain largely the same, acting as data interpreter and coach)
     *   Alex's messages appear in the "Coaching Corner" or as voice output.

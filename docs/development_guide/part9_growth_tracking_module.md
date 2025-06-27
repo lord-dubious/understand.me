@@ -1,6 +1,6 @@
 # Part 9: Growth & Tracking Module
 
-This part of the Development Guide details the "Understand-me" Growth & Tracking Module for the **Expo (React Native) mobile application**. It focuses on personalized insights, progress tracking, and learning resources. UI styling uses **React Native StyleSheet API** (or NativeWind) and navigation is via **React Navigation**, likely within a dedicated "Growth" tab on the main Bottom Tab Navigator. PicaOS might be involved in orchestrating complex AI insight generation flows, while Dappier could source sensitive user data for insights if stored in a decentralized manner. Nodely would manage storage/retrieval of user progress data and learning material metadata from Supabase.
+This part of the Development Guide details the "Understand-me" Growth & Tracking Module for the **Expo (React Native) mobile application**. It focuses on personalized insights, progress tracking, and learning resources. UI styling uses **React Native StyleSheet API** (or NativeWind) and navigation is via **React Navigation**, likely within a dedicated "Growth" tab on the main Bottom Tab Navigator. AI Orchestration Layer might be involved in orchestrating complex AI insight generation flows, while Dappier could source sensitive user data for insights if stored in a decentralized manner. Nodely would manage storage/retrieval of user progress data and learning material metadata from Supabase.
 
 ## 9.1. Screen: Personal Growth Insights (Mermaid: CB, K, CF, CG)
 
@@ -27,7 +27,7 @@ This part of the Development Guide details the "Understand-me" Growth & Tracking
 
 *   **Voice Agent Interactions (Alex - Component 10.2):** (Scripts remain largely the same, delivered via Alex's standard presence in AI Panel or specific coaching cards)
     *   Alex explains insights displayed in `<Text>` and chart components.
-    *   PicaOS might be used for complex, on-device analysis of voice recordings (if user consented) to provide richer emotional or tonal insights, which Alex then presents.
+    *   AI Orchestration Layer might be used for complex, on-device analysis of voice recordings (if user consented) to provide richer emotional or tonal insights, which Alex then presents.
 
 *   **Navigation (React Navigation):**
     *   "Growth" tab on main Bottom Tab Navigator leads to K (Personal Growth Dashboard).
@@ -94,7 +94,7 @@ This part of the Development Guide details the "Understand-me" Growth & Tracking
 *   **Mermaid Diagram ID:** K (Growth Dashboard), CE (Conflict prevention insights display).
 
 *   **Purpose:** (Remains the same)
-    *   Complex pattern analysis from multiple sessions (data from Supabase, potentially involving Dappier for cross-user data if anonymized and consented) orchestrated by PicaOS or Nodely, results presented by Google GenAI.
+    *   Complex pattern analysis from multiple sessions (data from Supabase, potentially involving Dappier for cross-user data if anonymized and consented) orchestrated by AI Orchestration Layer or Nodely, results presented by Google GenAI.
 
 *   **Key UI Elements (within Growth Dashboard - K, using React Native components):**
     *   **View CE: Future Conflict Prevention Insights Display (`<View>` or separate screen in Stack):**

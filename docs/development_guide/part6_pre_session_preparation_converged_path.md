@@ -7,7 +7,7 @@ This part of the Development Guide focuses on the final steps before a session b
 *   **Mermaid Diagram ID:** AJ (Main screen for synthesized insights), AK (Dynamic adaptation/drill-down views, possibly Modals or separate screens in a Stack).
 
 *   **Purpose:** (Remains the same)
-    *   This process might be orchestrated by Nodely, which gathers all inputs (Host description from 4.1, Participant perspectives from 5.4, including file analyses from Supabase/Google GenAI, potentially pre-processed by PicaOS) and feeds them to Google GenAI for the synthesis. Dappier could be involved if any of this data is access-controlled or requires special handling.
+    *   This process might be orchestrated by Nodely, which gathers all inputs (Host description from 4.1, Participant perspectives from 5.4, including file analyses from Supabase/Google GenAI, potentially pre-processed by AI Orchestration Layer) and feeds them to Google GenAI for the synthesis. Dappier could be involved if any of this data is access-controlled or requires special handling.
 
 *   **Key UI Elements (View AJ - Primarily Host View, using React Native components):**
     *   **Main Container (`<ScrollView>`):**
@@ -72,7 +72,7 @@ This part of the Development Guide focuses on the final steps before a session b
 *   **Mermaid Diagram ID:** V (Intro), AN (User ID), AO (Mini-Assessment), AP (Tap-to-Talk Training) - sequence of screens in a Stack Navigator, or steps within a single screen.
 
 *   **Purpose:** (Remains the same)
-    *   PicaOS could potentially be used here for advanced on-device voice signature capture/training if "tap-to-talk" is augmented with voice recognition for speaker changes, though this is an advanced feature. For now, manual tap-to-talk is assumed.
+    *   AI Orchestration Layer could potentially be used here for advanced on-device voice signature capture/training if "tap-to-talk" is augmented with voice recognition for speaker changes, though this is an advanced feature. For now, manual tap-to-talk is assumed.
 
 *   **Key UI Elements (using React Native components):**
     *   **View V: Introduction**

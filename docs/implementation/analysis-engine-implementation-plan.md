@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-This document outlines the detailed implementation plan for the multimodal LLM analysis engine that powers the "Understand.me" service. The engine will process various forms of input (text, voice, images, documents) to provide sophisticated analysis of communication patterns, emotional states, and conflict dynamics, enabling the AI mediator "Alex" to facilitate effective communication and conflict resolution.
+This document outlines the detailed implementation plan for the multimodal LLM analysis engine that powers the "Understand.me" service. The engine will process various forms of input (text, voice, images, documents) to provide sophisticated analysis of communication patterns, emotional states, and conflict dynamics, enabling the AI mediator "Udine" to facilitate effective communication and conflict resolution.
 
 ### 1.1. Service-Oriented Architecture
 
@@ -36,117 +36,118 @@ The "Understand.me" service supports multiple use cases across different domains
    - Facilitate difficult conversations between parents and educators
    - Provide communication skills training for students
 
-4. **Legal Mediation**
-   - Support professional mediators with AI analysis
-   - Provide objective third-party insights during negotiations
-   - Document and analyze mediation sessions
-   - Generate comprehensive session summaries
+2.  **Review Project Structure:** Familiarize yourself with the main directories (e.g., `/app` for Expo code, `/supabase` for Supabase migrations/functions, `/ai-orchestration-layer_services` for AI Orchestration Layer related microservices if separate).
 
-5. **Personal Development**
-   - Analyze personal communication patterns
-   - Practice difficult conversations with AI simulation
-   - Receive personalized coaching on communication skills
-   - Track progress over time with quantitative metrics
+## 2.3. Expo Environment
 
-## 2. Architecture
+The mobile application is built using Expo (React Native).
 
-### 2.1. High-Level Service Architecture
-
+1.  **Navigate to the App Directory:**
+    ```bash
+cd app
 ```
-┌───────────────────────────────────────────────────────────────────────────┐
-│                           Client Applications                              │
-│                                                                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐   │
-│  │  Mobile App     │  │  Web Interface  │  │  Third-Party            │   │
-│  │  (Expo React    │  │  (Next.js)      │  │  Integrations           │   │
-│  │   Native)       │  │                 │  │  (API Consumers)        │   │
-│  └────────┬────────┘  └────────┬────────┘  └───────────┬─────────────┘   │
-└───────────┼────────────────────┼────────────────────────┼─────────────────┘
-            │                    │                        │
-            │                    ▼                        │
-            │     ┌─────────────────────────────┐         │
-            └────►│  API Gateway / CDN          │◄────────┘
-                  │  (Netlify Edge)             │
-                  └─────────────┬───────────────┘
-                                │
-                                ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                        Service Layer (Netlify Functions)                   │
-│                                                                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐           │
-│  │  Authentication │  │  Multi-tenant    │  │  Rate Limiting  │           │
-│  │  & Authorization│  │  Management      │  │  & Throttling   │           │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘           │
-│           │                    │                    │                     │
-│           └──────────┬─────────┴──────────┬─────────┘                     │
-│                      │                    │                               │
-│  ┌──────────────────▼─────────────────────▼───────────────────────────┐  │
-│  │                    Core Service Functions                           │  │
-│  │                                                                     │  │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐     │  │
-│  │  │  Session        │  │  User           │  │  Organization    │     │  │
-│  │  │  Management     │  │  Management     │  │  Management      │     │  │
-│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘     │  │
-│  │                                                                     │  │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐     │  │
-│  │  │  File Upload    │  │  Webhook        │  │  Analytics &     │     │  │
-│  │  │  & Processing   │  │  Management     │  │  Reporting       │     │  │
-│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘     │  │
-│  └─────────────────────────────────┬───────────────────────────────────┘  │
-│                                    │                                      │
-│  ┌──────────────────────────────────────────────────────────────────────┐ │
-│  │                    Analysis Engine Pipeline                           │ │
-│  │                                                                       │ │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐       │ │
-│  │  │  Input          │  │  Multimodal     │  │  Response       │       │ │
-│  │  │  Processing     │  │  Analysis       │  │  Generation     │       │ │
-│  │  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘       │ │
-│  │           │                    │                    │                 │ │
-│  │  ┌────────▼────────┐  ┌────────▼────────┐  ┌────────▼────────┐       │ │
-│  │  │  Text Analysis  │  │  Emotion        │  │  Voice          │       │ │
-│  │  │  & NLP          │  │  Mapping        │  │  Synthesis      │       │ │
-│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘       │ │
-│  │                                                                       │ │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐       │ │
-│  │  │  Image Analysis │  │  Audio Analysis │  │  Document       │       │ │
-│  │  │  & Vision       │  │  & Processing   │  │  Analysis       │       │ │
-│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘       │ │
-│  └──────────────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────┬───────────────────────────────────────┘
-                                    │
-                                    ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                           Data & Storage Layer                            │
-│                                                                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐           │
-│  │  Supabase       │  │  Upstash Redis  │  │  Supabase       │           │
-│  │  Database       │  │  Cache          │  │  Storage        │           │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘           │
-│                                                                           │
-└───────────────────────────────────┬───────────────────────────────────────┘
-                                    │
-                                    ▼
-┌───────────────────────────────────────────────────────────────────────────┐
-│                           External AI Services                            │
-│                                                                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐           │
-│  │  Google Gemini  │  │  ElevenLabs     │  │  Additional     │           │
-│  │  API            │  │  API            │  │  AI Services    │           │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘           │
-│                                                                           │
-└───────────────────────────────────────────────────────────────────────────┘
+    (Or the relevant directory name for the Expo project, e.g., `client`, `mobile-app`)
+2.  **Install Dependencies:**
+    ```bash
+yarn install
 ```
+    or
+    ```bash
+npm install
+```
+3.  **Running the Expo App:**
+    *   **Start the Metro Bundler:**
+        ```bash
+expo start
+```
+    *   This will open a command-line interface with options:
+        *   Press `a` to run on an Android emulator or connected device (requires Android Studio setup).
+        *   Press `i` to run on an iOS simulator or connected device (requires Xcode setup, macOS only).
+        *   Scan the QR code with the Expo Go app on your physical device.
+4.  **Expo Go App:** For testing on physical devices without building the native code, install the "Expo Go" app from the App Store (iOS) or Play Store (Android).
 
-This service-oriented architecture provides several key advantages:
+## 2.4. Supabase Setup
 
-1. **Separation of Concerns**: Each component has a specific responsibility, making the system easier to maintain and extend.
-2. **Scalability**: The serverless functions can scale independently based on demand.
-3. **Multi-tenant Support**: The architecture supports multiple organizations with isolated data and configurations.
-4. **Extensibility**: New analysis capabilities can be added without disrupting existing functionality.
-5. **Resilience**: The system can continue to function even if some components fail.
-6. **Security**: Authentication, authorization, and data isolation are built into the architecture.
+"Understand.me" uses Supabase for its backend database, authentication, storage, and serverless functions.
 
-### 2.2. Component Breakdown
+*   **Option 1: Cloud Hosted Supabase (Recommended for most developers):**
+    1.  Ensure you have access to the shared Supabase project on [supabase.com](https://supabase.com).
+    2.  Obtain the Project URL and `anon` key (public API key). These will be used in environment variables (see Section 2.5).
+*   **Option 2: Local Supabase Development (using Supabase CLI & Docker):**
+    1.  Ensure Docker Desktop is running.
+    2.  Navigate to the Supabase project directory (e.g., `/supabase` or the root if integrated):
+        ```bash
+# cd ../supabase # if you were in /app
+```
+    3.  Initialize Supabase (if not already done, only for the first time setting up the local project):
+        ```bash
+supabase init
+```
+        (This creates a `/supabase` directory if it doesn't exist).
+    4.  Start Supabase services:
+        ```bash
+supabase start
+```
+        This will output local Supabase Project URL, `anon` key, `service_role` key, and other relevant information.
+    5.  **Schema Migrations:**
+        *   The base database schema is defined in `supabase/migrations/[timestamp]_initial_schema.sql` (or similar).
+        *   When pulling new changes, or if the local database needs to be reset and updated with the latest schema:
+            ```bash
+supabase db reset
+```
+            (This will wipe your local Supabase DB and re-run all migrations).
+        *   To apply new unapplied migrations:
+            ```bash
+supabase migration up
+```
+        *   To create a new migration after making schema changes (e.g., via Supabase Studio or SQL):
+            ```bash
+supabase migration new your_migration_name
+```
+            Then edit the generated SQL file with your schema changes.
+
+## 2.5. API Keys & Service Credentials
+
+The application requires API keys and credentials for various services. These should **NEVER** be hardcoded directly into the application code. They are managed via environment variables.
+
+1.  **Create Environment File(s):**
+    *   For the Expo app (e.g., in `/app` directory), create a `.env` file (this should be in `.gitignore`).
+    *   Example `.env` content for Expo:
+        ```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
+        EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+        EXPO_PUBLIC_GOOGLE_GENAI_API_KEY=your_google_genai_api_key
+        EXPO_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_api_key
+        SENTRY_DSN=your_sentry_dsn
+        # Add other keys as needed for AI Orchestration Layer, Dappier, Nodely if they are client-facing
+        EXPO_PUBLIC_AI_ORCHESTRATION_LAYER_API_ENDPOINT=your_ai-orchestration-layer_endpoint
+        EXPO_PUBLIC_DAPPIER_API_KEY=your_dappier_key
+        EXPO_PUBLIC_NODELY_GATEWAY_URL=your_nodely_ipfs_gateway_or_api
+        # UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url (Primarily for backend services)
+        # UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token (Primarily for backend services)
+```
+    *   For server-side components (e.g., Supabase Edge Functions, AI Orchestration Layer services, Nodely workflows), environment variables are typically set in the respective service's configuration panel or deployment environment. Refer to Supabase documentation for Edge Functions, and AI Orchestration Layer/Nodely specific setup for their services. Supabase Edge Functions can also have a `.env` file locally when using `supabase functions serve` (e.g., to include `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`). AI Orchestration Layer would similarly manage its Upstash credentials.
+2.  **Obtain Keys:**
+    *   **Supabase:** From your Supabase project dashboard (Settings > API).
+    *   **Google GenAI SDK:** From Google AI Studio or Google Cloud Console.
+    *   **ElevenLabs API:** From your ElevenLabs account dashboard.
+    *   **Sentry DSN:** From your Sentry project settings.
+    *   **Upstash Redis:** From your Upstash console ([console.upstash.com](https://console.upstash.com/)) after creating a database (REST URL and Read/Write tokens).
+    *   **AI Orchestration Layer, Dappier, Nodely:** Refer to specific setup instructions for these services to obtain necessary API keys, endpoints, or credentials. These might involve authentication tokens or service account keys.
+3.  **Secure Management:**
+    *   Ensure `.env` files are listed in `.gitignore` to prevent committing them to version control.
+    *   For Expo builds (EAS Build), use [Build Secrets](https://docs.expo.dev/build/secrets/) to securely provide these environment variables during the build process.
+    *   For Supabase Edge Functions, set environment variables in the Supabase Dashboard or via the `supabase secrets set` CLI command for deployed functions.
+
+## 2.6. AI Orchestration Layer Setup
+
+AI Orchestration Layer acts as the AI orchestration layer. Depending on its deployment model (self-hosted, managed service, or library integrated into another backend like Nodely/Supabase Functions):
+
+*   **If AI Orchestration Layer is a separate service to run locally:**
+    1.  Navigate to the AI Orchestration Layer service directory (e.g., `/ai-orchestration-layer_service`).
+    2.  Follow its specific `README.md` for installation (e.g., `npm install` or `pip install -r requirements.txt`) and running instructions (e.g., `npm start` or `python main.py`).
+    3.  Ensure its local endpoint is correctly configured in the Expo app's `.env` file (`EXPO_PUBLIC_AI_ORCHESTRATION_LAYER_API_ENDPOINT`).
+
 
 #### 2.2.1. Client Applications
 
@@ -183,6 +184,58 @@ This service-oriented architecture provides several key advantages:
    - **Session Management**: Creates and manages mediation sessions
    - **User Management**: Handles user profiles, preferences, and permissions
    - **Organization Management**: Manages organization settings and billing
+
+## 5.5. Hume AI (Emotion Analysis & Timeline)
+
+Hume AI provides powerful emotion analysis for text and media, enabling real-time and batch inference of emotional state timelines.
+
+**Integration Overview:**
+
+*   **SDK:** Use the Hume TypeScript SDK. Install with `npm install @humeclient/core` in AI Orchestration Layer or backend service.
+*   **Environment Variables:**
+    *   `HUME_API_KEY`: Your Hume API key (set in AI Orchestration Layer environment variables).
+*   **Batch Text Analysis:**
+    ```typescript
+import { HumeClient } from '@humeclient/core';
+    const hume = new HumeClient({ apiKey: process.env.HUME_API_KEY });
+    const batchJob = await hume.expressionMeasurement.batch.startInferenceJob({
+      models: { language: {} },
+      text: ["Your text content here"]
+    });
+    const result = await hume.expressionMeasurement.batch.getInferenceJobResults(batchJob.job_id);
+    // Process result.timeline for sentiment and emotion metrics
+```
+*   **Real-Time Media Streaming:**
+    ```typescript
+import { HumeClient } from '@humeclient/core';
+    const hume = new HumeClient({ apiKey: process.env.HUME_API_KEY });
+    const socket = hume.expressionMeasurement.connect();
+    socket.on('open', () => console.log('Hume socket opened'));
+    socket.on('data', (frame) => {
+      console.log(frame); // Emotion frame data with timestamps
+    });
+    // Send audio chunks (base64 encoded)
+    socket.send({ payload: audioChunkBase64 });
+```
+*   **Fusion Layer Integration:** AI Orchestration Layer should consume `result.timeline` to merge emotion data with sentiment and content analysis from Google GenAI.
+*   **Storage:** Store key emotions or timeline summaries in Supabase for post-session visualization.
+
+**Challenges & Considerations:**
+
+*   **Latency:** Streaming adds overhead; consider batching for some use cases.
+*   **Data Volume:** Emotion timelines can be large; use sampling or aggregation before persisting.
+*   **Privacy:** Handle sensitive emotional data securely; apply data retention policies as defined in privacy guidelines.
+
+---
+
+*   **Supabase Edge Functions:** Use the official Sentry Deno SDK or a compatible logging mechanism that forwards errors to Sentry. Configure the DSN and environment as environment variables for the function.
+*   **AI Orchestration Layer/Nodely (if Node.js based):** Use the Sentry Node.js SDK. Initialize Sentry with the appropriate DSN.
+    *   Capture exceptions within AI Orchestration Layer/Nodely logic.
+    *   Pass `traceId` or error IDs between services (e.g., Expo app -> AI Orchestration Layer -> Google GenAI) to correlate issues across the stack in Sentry. AI Orchestration Layer can generate a `correlationId` for each orchestrated flow and log it with every step.
+*   **Best Practices:**
+    *   Use distinct Sentry projects or environments (e.g., `understand-me-mobile`, `understand-me-ai-orchestration-layer`, `understand-me-supabase-fns`) for different parts of the system for better organization.
+    *   Filter out noise (e.g., known benign errors) in Sentry settings.
+    *   Set up alerts in Sentry for new or high-frequency issues.
    - **File Upload & Processing**: Handles multimedia file uploads and processing
    - **Webhook Management**: Manages outgoing webhooks for event notifications
    - **Analytics & Reporting**: Generates insights and reports on usage and outcomes
@@ -2372,7 +2425,7 @@ function determineResponseStrategy(analysis: any): string {
 
 function createClarifyingQuestionPrompt(analysis: any, context: SessionContext): string {
   return `
-    You are Alex, an AI mediator helping with a conversation.
+    You are Udine, an AI mediator helping with a conversation.
     
     Based on the following analysis of the conversation:
     ${JSON.stringify(analysis, null, 2)}
@@ -2388,7 +2441,7 @@ function createClarifyingQuestionPrompt(analysis: any, context: SessionContext):
     3. Ask an open-ended question that encourages elaboration
     4. Use a warm, non-judgmental tone
     
-    Respond in first person as Alex, with ONLY the response text (no explanations or JSON).
+    Respond in first person as Udine, with ONLY the response text (no explanations or JSON).
   `;
 }
 
@@ -2396,7 +2449,7 @@ function createClarifyingQuestionPrompt(analysis: any, context: SessionContext):
 
 function createGenericResponsePrompt(analysis: any, context: SessionContext): string {
   return `
-    You are Alex, an AI mediator helping with a conversation.
+    You are Udine, an AI mediator helping with a conversation.
     
     Based on the following analysis of the conversation:
     ${JSON.stringify(analysis, null, 2)}
@@ -2412,7 +2465,7 @@ function createGenericResponsePrompt(analysis: any, context: SessionContext): st
     3. Offer a gentle prompt to continue the conversation
     4. Use a warm, supportive tone
     
-    Respond in first person as Alex, with ONLY the response text (no explanations or JSON).
+    Respond in first person as Udine, with ONLY the response text (no explanations or JSON).
   `;
 }
 ```
@@ -2582,6 +2635,88 @@ CREATE TABLE session_summaries (
 -- RLS Policies
 -- (These would be implemented in Supabase)
 ```
+
+### 3.6. Hume AI Integration
+
+This section describes how to integrate Hume AI's Expression Measurement for both streaming media and static document analysis into the analysis engine.
+
+#### 3.6.1. File Structure
+Add two new modules under `src/lib/analysis`:
+```text
+src/lib/analysis/humeExpressionWS.ts
+src/lib/analysis/humeBatchAnalysis.ts
+```
+
+#### 3.6.2. Streaming Media Analysis
+Create `humeExpressionWS.ts`:
+```typescript
+import { HumeClient } from 'hume';
+import * as fs from 'fs';
+
+const hume = new HumeClient({ apiKey: process.env.HUME_API_KEY! });
+
+export interface EmotionFrame {
+	timestamp: number;
+	emotions: Record<string, number>;
+}
+
+export async function measureExpressions(filePath: string): Promise<EmotionFrame[]> {
+	const socket = hume.expressionMeasurement.connect();
+	await socket.tillSocketOpen();
+
+	const data = await fs.promises.readFile(filePath);
+	const chunkSize = 64 * 1024; // 64KB
+	for (let i = 0; i < data.length; i += chunkSize) {
+		const chunk = data.slice(i, i + chunkSize);
+		socket.send({ payload: chunk.toString('base64') });
+	}
+	// signal end
+	socket.send({ endOfStream: true });
+
+	const frames: EmotionFrame[] = [];
+	for await (const msg of socket) {
+		if (msg.type === 'expression_frame') frames.push(msg.data as EmotionFrame);
+	}
+	return frames;
+}
+```
+
+#### 3.6.3. Static Document Analysis
+Create `humeBatchAnalysis.ts`:
+```typescript
+import { HumeClient } from 'hume';
+
+const hume = new HumeClient({ apiKey: process.env.HUME_API_KEY! });
+
+export async function analyzeDocumentText(text: string) {
+	const job = await hume.expressionMeasurement.batch.startInferenceJob({
+		models: { language: {} },
+		text: [text],
+	});
+	await job.awaitCompletion();
+	return hume.expressionMeasurement.batch.getJobPredictions(job.jobId);
+}
+```
+
+#### 3.6.4. Engine Wiring
+In `src/lib/analysis/analyze.ts` or equivalent, import and call:
+```typescript
+import { measureExpressions } from './humeExpressionWS';
+import { analyzeDocumentText } from './humeBatchAnalysis';
+
+async function performMultimodalAnalysis(input, context) {
+	const [,, humeVoice, humeDoc] = await Promise.all([
+		// ... existing
+		input.audioFile && measureExpressions(input.audioFile),
+		input.documentText && analyzeDocumentText(input.documentText),
+	]);
+	// pass these into fusion layer
+}
+```
+
+#### 3.6.5. Configuration
+* Ensure `HUME_API_KEY` in `.env`
+* Optionally set `HUME_SECRET_KEY` for private endpoints
 
 ## 4. Integration with Client Application
 

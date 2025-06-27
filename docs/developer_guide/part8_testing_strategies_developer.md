@@ -97,21 +97,21 @@ Unit tests focus on testing individual, isolated pieces of code, such as utility
 
 ## 8.2. Integration Testing
 
-Integration tests verify the interactions between different parts of the application, such as between the Expo app and backend services (Supabase, PicaOS).
+Integration tests verify the interactions between different parts of the application, such as between the Expo app and backend services (Supabase, AI Orchestration Layer).
 
 *   **Strategies:**
     *   **Expo App <-> Supabase:**
         *   **Mocking Supabase Client:** For testing components that directly interact with Supabase, you can mock the `@supabase/supabase-js` client. This allows you to simulate successful responses, errors, and different data scenarios without making actual network calls. Jest's mocking capabilities (`jest.mock`) are used here.
         *   **Test Database (Caution):** For more comprehensive tests, a dedicated test Supabase instance can be used. This is more complex to set up and manage but provides higher fidelity. Ensure proper data seeding and cleanup. This is usually reserved for specific E2E or critical integration tests rather than frequent developer tests.
-    *   **Expo App <-> PicaOS (or other custom backend services like Nodely/Dappier if they expose APIs):**
-        *   **Mocking API Service Modules:** If you have service modules (e.g., `picaosApiService.ts`) that encapsulate API calls (e.g., using `fetch` or `axios`), mock these modules in your tests. This allows you to control the responses from PicaOS and test how your app handles different scenarios (success, various errors, specific data payloads).
+    *   **Expo App <-> AI Orchestration Layer (or other custom backend services like Nodely/Dappier if they expose APIs):**
+        *   **Mocking API Service Modules:** If you have service modules (e.g., `picaosApiService.ts`) that encapsulate API calls (e.g., using `fetch` or `axios`), mock these modules in your tests. This allows you to control the responses from AI Orchestration Layer and test how your app handles different scenarios (success, various errors, specific data payloads).
 *   **What to Test:**
     *   Data fetching and display from Supabase.
     *   User authentication flows (sign-up, login) and their effect on app state and RLS.
-    *   Submitting data from forms to Supabase or PicaOS.
-    *   Correct handling of API responses (success and error states) from PicaOS.
-    *   Data flow between chained service calls (e.g., app calls PicaOS, PicaOS calls Google GenAI, PicaOS returns result to app).
-*   **Example: Mocking a PicaOS API Service Call (Jest):**
+    *   Submitting data from forms to Supabase or AI Orchestration Layer.
+    *   Correct handling of API responses (success and error states) from AI Orchestration Layer.
+    *   Data flow between chained service calls (e.g., app calls AI Orchestration Layer, AI Orchestration Layer calls Google GenAI, AI Orchestration Layer returns result to app).
+*   **Example: Mocking a AI Orchestration Layer API Service Call (Jest):**
     ```typescript
     // services/picaosApiService.ts (Simplified)
     // export const analyzeConflict = async (data: any): Promise<any> => {
@@ -128,7 +128,7 @@ Integration tests verify the interactions between different parts of the applica
 
     // jest.mock('../../../services/picaosApiService'); // Mock the entire module
 
-    // describe('DescribeConflictScreen - Integration with PicaOS', () => {
+    // describe('DescribeConflictScreen - Integration with AI Orchestration Layer', () => {
     //   it('should call analyzeConflict and navigate on successful submission', async () => {
     //     const mockAnalyzeConflict = picaosApiService.analyzeConflict as jest.Mock;
     //     mockAnalyzeConflict.mockResolvedValueOnce({ analysisId: '123', themes: ['budget'] });
@@ -194,18 +194,18 @@ E2E tests simulate real user scenarios by interacting with the application UI as
 Testing AI-driven features requires specific strategies due to the non-deterministic nature of some AI outputs.
 
 *   **Mocking AI Service Responses:**
-    *   When testing components that rely on PicaOS (which in turn calls Google GenAI, ElevenLabs, etc.), mock the PicaOS API responses (as in 8.2) to return predictable, structured data.
-    *   This allows testing of how the UI handles various AI outputs (e.g., different generated scripts for Alex, different analysis results, empty results, errors).
+    *   When testing components that rely on AI Orchestration Layer (which in turn calls Google GenAI, ElevenLabs, etc.), mock the AI Orchestration Layer API responses (as in 8.2) to return predictable, structured data.
+    *   This allows testing of how the UI handles various AI outputs (e.g., different generated scripts for Udine, different analysis results, empty results, errors).
 *   **Snapshot Testing for AI-Generated Content (Use with caution):**
     *   For features where AI generates relatively stable textual content (e.g., a specific type of summary based on fixed input), Jest snapshot testing can be used. However, if prompts or models change frequently, snapshots can become brittle.
 *   **Testing Conversational Flow Branches:**
-    *   For features like the Conversational Personality Assessment (Screen 2.3) or Alex's in-session guidance (Part 7), design tests that provide specific inputs to trigger different conversational branches and verify that Alex's responses and the UI state change as expected according to the defined logic in PicaOS.
+    *   For features like the Conversational Personality Assessment (Screen 2.3) or Udine's in-session guidance (Part 7), design tests that provide specific inputs to trigger different conversational branches and verify that Udine's responses and the UI state change as expected according to the defined logic in AI Orchestration Layer.
 *   **Validating Structure of AI-Generated Data:**
-    *   Even if the exact content varies, the *structure* of data returned by PicaOS (after processing GenAI output) should be consistent. Write tests to validate this schema.
-    *   For example, if PicaOS is expected to return a list of themes, test that it's an array of strings, even if the strings themselves differ.
+    *   Even if the exact content varies, the *structure* of data returned by AI Orchestration Layer (after processing GenAI output) should be consistent. Write tests to validate this schema.
+    *   For example, if AI Orchestration Layer is expected to return a list of themes, test that it's an array of strings, even if the strings themselves differ.
 *   **Fixed Inputs for Core Logic Testing:**
-    *   For testing the PicaOS layer itself, use a set of fixed inputs (text, dummy file data) and verify that PicaOS calls the correct downstream services (Google GenAI, etc.) with the expected parameters and handles their responses appropriately. This is more backend-focused testing for PicaOS developers.
-*   **Human Review for Subjective Outputs:** For aspects like the quality of Alex's advice or the relevance of AI-generated insights, automated tests have limitations. Incorporate human review and feedback loops (e.g., during UAT or internal testing) for these subjective elements.
+    *   For testing the AI Orchestration Layer layer itself, use a set of fixed inputs (text, dummy file data) and verify that AI Orchestration Layer calls the correct downstream services (Google GenAI, etc.) with the expected parameters and handles their responses appropriately. This is more backend-focused testing for AI Orchestration Layer developers.
+*   **Human Review for Subjective Outputs:** For aspects like the quality of Udine's advice or the relevance of AI-generated insights, automated tests have limitations. Incorporate human review and feedback loops (e.g., during UAT or internal testing) for these subjective elements.
 
 ## 8.5. Sentry for Debugging & Monitoring (Developer Focus)
 
@@ -215,10 +215,10 @@ Sentry (as set up in Part 5.4 and Dev Guide 2.7) is not just for production moni
     *   Ensure `enableInExpoDevelopment: true` is set in Sentry init during development to capture errors in dev builds.
     *   When an error occurs, the Sentry dashboard provides detailed stack traces (with source maps if configured), breadcrumbs (user actions leading to the error), and device/OS context. This can be much more informative than relying solely on console logs.
 *   **Tracking Issues Across Services:**
-    *   **Correlation ID:** If PicaOS, Supabase Edge Functions, and Nodely also integrate with Sentry (ideally in the same Sentry organization but different projects), ensure a `correlationId` is passed along in API requests between the Expo app and these backend services. Log this `correlationId` with any Sentry events. This allows you to trace a single user interaction or data flow across multiple services in Sentry, making it easier to pinpoint the source of an issue.
-    *   **Example:** Expo app makes a call to PicaOS. PicaOS includes the received `correlationId` when it logs an error to Sentry related to that request.
+    *   **Correlation ID:** If AI Orchestration Layer, Supabase Edge Functions, and Nodely also integrate with Sentry (ideally in the same Sentry organization but different projects), ensure a `correlationId` is passed along in API requests between the Expo app and these backend services. Log this `correlationId` with any Sentry events. This allows you to trace a single user interaction or data flow across multiple services in Sentry, making it easier to pinpoint the source of an issue.
+    *   **Example:** Expo app makes a call to AI Orchestration Layer. AI Orchestration Layer includes the received `correlationId` when it logs an error to Sentry related to that request.
 *   **Monitoring AI Service Interactions:**
-    *   PicaOS should explicitly capture and report errors from Google GenAI, ElevenLabs, Dappier, etc., to Sentry, including relevant request parameters (excluding sensitive data) and the error response from the service. This helps identify if issues are due to our logic or the external AI service.
-*   **Performance Monitoring in Dev:** Use Sentry's performance monitoring tools during development to identify slow screen loads, unresponsive UI elements, or lengthy API calls to PicaOS/Supabase.
+    *   AI Orchestration Layer should explicitly capture and report errors from Google GenAI, ElevenLabs, Dappier, etc., to Sentry, including relevant request parameters (excluding sensitive data) and the error response from the service. This helps identify if issues are due to our logic or the external AI service.
+*   **Performance Monitoring in Dev:** Use Sentry's performance monitoring tools during development to identify slow screen loads, unresponsive UI elements, or lengthy API calls to AI Orchestration Layer/Supabase.
 *   **User Feedback Reports:** If Sentry's User Feedback feature is integrated, review feedback submitted during testing phases directly in Sentry, linked to any related errors or traces.
 *   **Preparing for Production:** Familiarity with Sentry during development makes it easier to interpret and act on production alerts once the app is live. Test alert configurations in a staging environment.

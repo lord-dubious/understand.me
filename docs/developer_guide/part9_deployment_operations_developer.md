@@ -35,7 +35,7 @@ The "Understand.me" mobile application, built with Expo (React Native), is deplo
               // ... submit profiles
             }
             ```
-        *   **Environment Variables & Secrets:** Use EAS Build Secrets (via `eas secrets:create`) for sensitive keys (Supabase URL/anon key, Sentry DSN, API keys for PicaOS, Dappier, Nodely, ElevenLabs, Google GenAI if client-side interaction is unavoidable for some part) as per Dev Guide 2.5. These are injected during the build process based on the profile.
+        *   **Environment Variables & Secrets:** Use EAS Build Secrets (via `eas secrets:create`) for sensitive keys (Supabase URL/anon key, Sentry DSN, API keys for AI Orchestration Layer, Dappier, Nodely, ElevenLabs, Google GenAI if client-side interaction is unavoidable for some part) as per Dev Guide 2.5. These are injected during the build process based on the profile.
     *   **Triggering Builds:**
         ```bash
         eas build -p android --profile production
@@ -86,38 +86,38 @@ Developers should be aware of how different Supabase environments are managed.
     *   Understand the project's backup policy and how to request a restore from Supabase support if necessary.
 *   **Seeding Data:** Use seed scripts (`supabase/seed.sql` or custom scripts) for populating development and staging databases with necessary initial data.
 
-## 9.3. PicaOS Deployment/Configuration
+## 9.3. AI Orchestration Layer Deployment/Configuration
 
-PicaOS deployment and configuration will depend on its final architecture (e.g., self-hosted service, managed cloud service, or integrated within serverless functions).
+AI Orchestration Layer deployment and configuration will depend on its final architecture (e.g., self-hosted service, managed cloud service, or integrated within serverless functions).
 
-*   **If PicaOS is a Separate Deployed Service:**
-    *   **Environments:** Maintain separate PicaOS instances for dev, staging, and production.
+*   **If AI Orchestration Layer is a Separate Deployed Service:**
+    *   **Environments:** Maintain separate AI Orchestration Layer instances for dev, staging, and production.
     *   **Configuration:** Each instance will require its own environment variables for:
         *   API keys for Google GenAI, ElevenLabs, Dappier, Nodely.
         *   Connection details for Supabase (e.g., service role key for backend access).
-        *   Internal PicaOS settings (e.g., logging levels, default models).
-    *   **Deployment:** Follow PicaOS-specific deployment procedures (e.g., Docker container deployment to a cloud platform like Google Cloud Run, AWS Fargate, or a managed Kubernetes service). This might be automated via CI/CD.
+        *   Internal AI Orchestration Layer settings (e.g., logging levels, default models).
+    *   **Deployment:** Follow AI Orchestration Layer-specific deployment procedures (e.g., Docker container deployment to a cloud platform like Google Cloud Run, AWS Fargate, or a managed Kubernetes service). This might be automated via CI/CD.
     *   **Scaling:** Configure auto-scaling rules based on CPU, memory, or request load if applicable to the hosting platform.
-*   **If PicaOS is a Library/Embedded Logic (e.g., in Supabase Edge Functions or Nodely Workflows):**
+*   **If AI Orchestration Layer is a Library/Embedded Logic (e.g., in Supabase Edge Functions or Nodely Workflows):**
     *   Configuration is managed within the host service's environment variables.
     *   Deployment and scaling are handled as part of the host service's lifecycle.
-*   **Developer Interaction:** Developers typically won't deploy PicaOS directly to production but need to know how to:
-    *   Access different PicaOS endpoints (dev/staging/prod) from their Expo app by configuring `EXPO_PUBLIC_PICAOS_API_ENDPOINT`.
-    *   Understand PicaOS logs (if accessible via a logging platform integrated with Sentry or directly) for debugging interactions.
+*   **Developer Interaction:** Developers typically won't deploy AI Orchestration Layer directly to production but need to know how to:
+    *   Access different AI Orchestration Layer endpoints (dev/staging/prod) from their Expo app by configuring `EXPO_PUBLIC_PICAOS_API_ENDPOINT`.
+    *   Understand AI Orchestration Layer logs (if accessible via a logging platform integrated with Sentry or directly) for debugging interactions.
 
 ## 9.4. Dappier & Nodely Production Considerations
 
-Similar to PicaOS, the production setup for Dappier and Nodely depends on their service models.
+Similar to AI Orchestration Layer, the production setup for Dappier and Nodely depends on their service models.
 
 *   **Dappier:**
-    *   **API Keys/Access Tokens:** Ensure production API keys are securely managed and used by PicaOS or other backend services that interact with Dappier.
+    *   **API Keys/Access Tokens:** Ensure production API keys are securely managed and used by AI Orchestration Layer or other backend services that interact with Dappier.
     *   **Service Quotas & Limits:** Be aware of any API rate limits or data processing quotas for the Dappier services being used. Monitor usage.
     *   **Data Source Configuration:** Ensure Dappier is configured to access the correct production data sources for RAG or real-time feeds.
 *   **Nodely:**
     *   **IPFS Pinning Services:** If Nodely uses a third-party pinning service (e.g., Pinata) for IPFS, ensure the production account and API keys are correctly configured in the Nodely service or the backend function calling Nodely.
     *   **Gateway Access:** If using a Nodely-provided IPFS gateway for retrieving files, ensure it's configured for production load and availability. The Expo app will use this gateway URL.
     *   **Storage Management:** Understand how data retention and pinning duration are managed on IPFS via Nodely.
-*   **Environment Variables:** All sensitive credentials for Dappier and Nodely must be managed as environment variables in the services that interact with them (e.g., PicaOS, Supabase Edge Functions).
+*   **Environment Variables:** All sensitive credentials for Dappier and Nodely must be managed as environment variables in the services that interact with them (e.g., AI Orchestration Layer, Supabase Edge Functions).
 
 ## 9.5. Monitoring Production with Sentry
 
@@ -140,7 +140,7 @@ Sentry is crucial for monitoring the health of the production application and ba
 *   **Triaging Production Issues:**
     *   When an alert is received or an issue is reported:
         1.  Examine the Sentry issue details: stack trace, breadcrumbs, tags (user ID, session ID, correlation ID), device context.
-        2.  Use the `correlationId` to trace issues across services (Expo app, PicaOS, Supabase Functions, etc.) if this pattern is implemented.
+        2.  Use the `correlationId` to trace issues across services (Expo app, AI Orchestration Layer, Supabase Functions, etc.) if this pattern is implemented.
         3.  Check for related issues or patterns.
         4.  Assign ownership for investigation and resolution.
     *   Prioritize issues based on user impact and frequency.
@@ -160,7 +160,7 @@ A Continuous Integration/Continuous Deployment (CI/CD) pipeline automates the bu
     2.  **Setup Node.js, Yarn/npm, Expo CLI:** `actions/setup-node@v3`
     3.  **Install Dependencies:** `yarn install --frozen-lockfile` (or `npm ci`) for Expo app and any backend services if in the same monorepo.
     4.  **Linting & Static Analysis:** `eslint .`
-    5.  **Unit & Integration Tests:** `yarn test` (or `npm test`) for Expo app. Run tests for backend components (PicaOS, Edge Functions) if applicable. Report test coverage.
+    5.  **Unit & Integration Tests:** `yarn test` (or `npm test`) for Expo app. Run tests for backend components (AI Orchestration Layer, Edge Functions) if applicable. Report test coverage.
     6.  **EAS Build (Conditional):**
         *   For PRs to `develop` or pushes to `develop`/`staging`:
             ```bash
@@ -194,16 +194,16 @@ A Continuous Integration/Continuous Deployment (CI/CD) pipeline automates the bu
             ```bash
             supabase functions deploy --project-ref <project-ref> <function-name>
             ```
-    10. **Deploy PicaOS / Nodely / Dappier (If applicable):**
+    10. **Deploy AI Orchestration Layer / Nodely / Dappier (If applicable):**
         *   Use their respective CLIs or deployment scripts if they are self-managed services. This might involve building Docker images and pushing to a container registry, then updating a cloud service (e.g., Cloud Run, Kubernetes).
     11. **Sentry Source Map Upload:** Integrate `sentry-expo/upload-sourcemaps` (or Sentry CLI) into the EAS Build process or as a separate step after building to upload source maps for each release.
     12. **Notifications:** Notify the team (e.g., via Slack) of successful deployments or failures.
 
-*   **Secrets Management in CI/CD:** Use encrypted secrets in GitHub Actions (or your CI/CD provider) for `EXPO_TOKEN`, `SUPABASE_ACCESS_TOKEN`, Sentry auth tokens, PicaOS/Dappier/Nodely deployment keys, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, etc.
+*   **Secrets Management in CI/CD:** Use encrypted secrets in GitHub Actions (or your CI/CD provider) for `EXPO_TOKEN`, `SUPABASE_ACCESS_TOKEN`, Sentry auth tokens, AI Orchestration Layer/Dappier/Nodely deployment keys, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, etc.
 
 ## 9.7. Upstash Redis Production Considerations
 
-Upstash Redis is used as a serverless caching layer, primarily accessed by backend services like PicaOS or Supabase Edge Functions.
+Upstash Redis is used as a serverless caching layer, primarily accessed by backend services like AI Orchestration Layer or Supabase Edge Functions.
 
 *   **Database Setup & Configuration:**
     *   Ensure you have separate Upstash Redis databases for different environments (e.g., `dev`, `staging`, `production`) or use a single database with namespaced keys if appropriate for your plan and isolation needs.
@@ -226,10 +226,10 @@ Upstash Redis is used as a serverless caching layer, primarily accessed by backe
         *   Cache only what provides significant performance benefits.
         *   Use efficient data structures in Redis if applicable (e.g., hashes for objects instead of multiple individual keys).
 *   **Security:**
-    *   Use strong, unique REST tokens for accessing your Redis databases from PicaOS or Supabase Edge Functions. Store these securely as environment variables in those backend services.
+    *   Use strong, unique REST tokens for accessing your Redis databases from AI Orchestration Layer or Supabase Edge Functions. Store these securely as environment variables in those backend services.
     *   Restrict access to the Upstash console and API keys.
 *   **Backup & Recovery:**
     *   Upstash provides persistence options. Understand how your data is backed up and what the recovery process entails for your chosen plan. While cache data is often transient, some use cases might require more durable caching.
 *   **Developer Access:**
     *   Developers typically won't interact directly with production Upstash Redis databases. Access for debugging or manual cache inspection should be limited and controlled.
-    *   Backend services (PicaOS, Supabase Edge Functions) should encapsulate all Redis interactions.
+    *   Backend services (AI Orchestration Layer, Supabase Edge Functions) should encapsulate all Redis interactions.
