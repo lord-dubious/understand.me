@@ -72,9 +72,104 @@ PORT=3000
 NODE_ENV=development
 ```
 
-## 3. Udine Voice Agent Integration (ElevenLabs)
+## 3. Project Structure (5-Phase Mediation Optimized)
 
-### 3.1. Udine Conversation Service
+```
+understand-me/
+├── src/                           # Frontend (Expo)
+│   ├── components/
+│   │   ├── voice/                 # ElevenLabs Udine integration
+│   │   │   ├── UdineConversation.tsx
+│   │   │   ├── TurnTakingIndicator.tsx
+│   │   │   └── VoiceControls.tsx
+│   │   ├── mediation/             # 5-phase workflow UI
+│   │   │   ├── PreparePhase.tsx   # Phase 1: Set context
+│   │   │   ├── ExpressPhase.tsx   # Phase 2: Share perspectives
+│   │   │   ├── UnderstandPhase.tsx # Phase 3: Clarify positions
+│   │   │   ├── ResolvePhase.tsx   # Phase 4: Find solutions
+│   │   │   ├── HealPhase.tsx      # Phase 5: Repair relationships
+│   │   │   └── PhaseNavigator.tsx
+│   │   ├── emotions/              # Hume AI visualization
+│   │   │   ├── EmotionIndicator.tsx
+│   │   │   ├── EmotionHistory.tsx
+│   │   │   └── EmotionInsights.tsx
+│   │   └── common/                # Shared UI components
+│   ├── screens/
+│   │   ├── onboarding/            # AI-powered onboarding (A-C)
+│   │   ├── host/                  # Host path (F1-F10)
+│   │   ├── participant/           # Participant path (G1-G8)
+│   │   ├── session/               # 5-phase mediation (I1-I5)
+│   │   ├── completion/            # Post-session (J1-J5)
+│   │   └── growth/                # Growth tracking (K1-K5)
+│   ├── services/
+│   │   ├── elevenlabs.ts          # Udine voice service
+│   │   ├── hume.ts                # Emotional analysis
+│   │   ├── api.ts                 # Backend API client
+│   │   └── storage.ts             # Local state management
+│   ├── stores/                    # Zustand stores
+│   │   ├── conversationStore.ts   # Session state
+│   │   ├── userStore.ts           # User profile
+│   │   ├── emotionStore.ts        # Emotional data
+│   │   └── mediationStore.ts      # 5-phase workflow state
+│   ├── hooks/                     # Custom React hooks
+│   │   ├── useUdineConversation.ts
+│   │   ├── useEmotionAnalysis.ts
+│   │   └── useMediationPhase.ts
+│   ├── types/                     # TypeScript definitions
+│   │   ├── mediation.ts           # 5-phase workflow types
+│   │   ├── voice.ts               # ElevenLabs types
+│   │   ├── emotions.ts            # Hume AI types
+│   │   └── api.ts                 # API response types
+│   └── constants/                 # App constants
+├── server/                        # Backend (Express.js)
+│   ├── routes/
+│   │   ├── auth.js                # Authentication
+│   │   ├── sessions.js            # Session management
+│   │   ├── mediation.js           # 5-phase workflow API
+│   │   ├── emotions.js            # Hume AI integration
+│   │   └── ai.js                  # LangChain orchestration
+│   ├── services/
+│   │   ├── langchain/             # LangGraph workflows
+│   │   │   ├── mediationWorkflow.js # 5-phase state machine
+│   │   │   ├── analysisChains.js  # Conflict analysis
+│   │   │   ├── memoryManager.js   # Conversation memory
+│   │   │   └── toolDefinitions.js # Custom tools
+│   │   ├── googleGenAI.js         # Google GenAI service
+│   │   ├── humeAI.js              # Emotional intelligence
+│   │   ├── elevenlabs.js          # Voice integration
+│   │   └── database.js            # PostgreSQL operations
+│   ├── middleware/
+│   │   ├── auth.js                # JWT authentication
+│   │   ├── validation.js          # Request validation
+│   │   ├── errorHandler.js        # Error handling
+│   │   └── cors.js                # CORS configuration
+│   ├── models/                    # Database models
+│   │   ├── User.js                # User model
+│   │   ├── Session.js             # Mediation session
+│   │   ├── Participant.js         # Session participants
+│   │   ├── Message.js             # Conversation messages
+│   │   └── ActionItem.js          # Resolution action items
+│   └── utils/                     # Server utilities
+├── docs/                          # Unified documentation
+│   ├── unified_architecture_specification.md
+│   ├── bolt-development-rules.md
+│   ├── prd.md
+│   ├── development_guide/         # UI guides (parts 1-10)
+│   │   ├── README.md
+│   │   ├── boilerplate_setup_guide.md
+│   │   ├── part1_global_design.md
+│   │   └── part2-10_*.md          # Need updates
+│   ├── integration_guides/        # LangChain & Hume AI
+│   │   ├── langchain_mediation_workflow.md
+│   │   └── hume_ai_emotional_intelligence.md
+│   └── documentation_validation_checklist.md
+├── package.json                   # Unified dependencies
+└── README.md                      # Project overview
+```
+
+## 4. Udine Voice Agent Integration (ElevenLabs)
+
+### 4.1. Udine Conversation Service
 
 Create `src/services/elevenlabs.ts`:
 
@@ -368,13 +463,11 @@ const styles = StyleSheet.create({
   },
 });
 ```
-
 ## 4. Backend Setup (Express.js + LangChain)
 
 ### 4.1. Basic Express Server
 
 Create `server/index.js`:
-
 ```javascript
 const express = require('express');
 const cors = require('cors');
@@ -443,11 +536,9 @@ startServer().catch(console.error);
 // Export for testing
 module.exports = { app, mediationWorkflow };
 ```
-
 ### 4.2. Database Setup
 
 Create `server/services/database.js`:
-
 ```javascript
 const { Pool } = require('pg');
 
@@ -536,11 +627,9 @@ module.exports = {
   query: (text, params) => pool.query(text, params)
 };
 ```
-
 ### 3.3. Prebuild Configuration
 
 Add to your `app.json` or `app.config.js`:
-
 ```json
 {
   "expo": {
@@ -562,7 +651,6 @@ Add to your `app.json` or `app.config.js`:
   }
 }
 ```
-
 ## 4. Agent Persona System
 
 The understand.me platform uses a single unified agent with multiple personas that users can switch between. All personas have the same underlying capabilities but different communication styles and specializations.
@@ -570,7 +658,6 @@ The understand.me platform uses a single unified agent with multiple personas th
 ### 4.1. Agent Persona Configuration
 
 Create `src/utils/agentPersonas.ts`:
-
 ```typescript
 export interface AgentPersona {
   id: string;
@@ -644,11 +731,9 @@ export const getAllPersonas = (): AgentPersona[] => {
   return Object.values(AGENT_PERSONAS);
 };
 ```
-
 ### 4.2. Updated ConvAI Component with Persona Switching
 
 Update `src/components/ConvAI.tsx`:
-
 ```typescript
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
@@ -801,11 +886,9 @@ const styles = StyleSheet.create({
   },
 });
 ```
-
 ### 4.3. Persona Selector Component
 
 Create `src/components/PersonaSelector.tsx`:
-
 ```typescript
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
@@ -892,7 +975,6 @@ const styles = StyleSheet.create({
   },
 });
 ```
-
 ### 4.4. ElevenLabs Agent Configuration
 
 In your ElevenLabs dashboard, create **one agent** with dynamic persona switching:
@@ -905,7 +987,6 @@ In your ElevenLabs dashboard, create **one agent** with dynamic persona switchin
 ```
 You are a versatile AI assistant for the understand.me conflict resolution platform. You adapt your communication style and expertise based on the selected persona while maintaining access to all platform features including client tools for device control.
 ```
-
 3. **Client Tools Configuration**:
    - `setBrightness`: For adjusting device brightness
    - `setVolume`: For adjusting device volume
@@ -917,7 +998,6 @@ The analysis engine processes conversations, extracts insights, and provides con
 ### 5.1. Analysis Engine Setup
 
 Create `src/api/analysis/analysisEngine.js`:
-
 ```javascript
 const express = require('express');
 const cors = require('cors');
@@ -1209,11 +1289,9 @@ app.listen(PORT, () => {
 
 module.exports = app;
 ```
-
 ### 5.2. Analysis Engine Client
 
 Create `src/api/analysis/analysisClient.ts`:
-
 ```typescript
 interface AnalysisResult {
   conversationId: string;
@@ -1322,11 +1400,9 @@ class AnalysisClient {
 export const analysisClient = new AnalysisClient();
 export type { AnalysisResult, ConversationMessage };
 ```
-
 ### 5.3. Analysis Engine Dependencies
 
 Add to your `package.json`:
-
 ```json
 {
   "dependencies": {
@@ -1344,11 +1420,9 @@ Add to your `package.json`:
   }
 }
 ```
-
 ### 5.4. Analysis Dashboard Component
 
 Create `src/components/AnalysisDashboard.tsx`:
-
 ```typescript
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
@@ -1611,13 +1685,11 @@ const styles = StyleSheet.create({
   },
 });
 ```
-
 ## 6. Supabase Integration
 
 ### 5.1. Supabase Client Setup
 
 Set up a comprehensive Supabase client with authentication, storage, and database access in `src/api/supabase/supabaseClient.ts`:
-
 ```typescript
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { env } from '@utils/env';
@@ -1721,11 +1793,9 @@ export const getCurrentUser = async () => {
   return user;
 };
 ```
-
 ### 5.2. Database Schema
 
 Create the following tables in your Supabase database:
-
 ```sql
 -- Users table (extends auth.users)
 CREATE TABLE public.profiles (
@@ -1800,11 +1870,9 @@ CREATE POLICY "Users can view their own conversation analyses" ON public.convers
 CREATE POLICY "Users can insert their own conversation analyses" ON public.conversation_analyses
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
-
 ## 7. Usage Examples
 
 ### 7.1. Complete Implementation with Persona Switching and Analysis
-
 ```typescript
 import React, { useState, useEffect } from 'react';
 import { View, Text, Platform, StyleSheet, TouchableOpacity } from 'react-native';
@@ -2019,11 +2087,9 @@ const styles = StyleSheet.create({
   },
 });
 ```
-
 ### 7.2. Running the Analysis Engine
 
 Start the Node.js analysis engine alongside your React Native app:
-
 ```bash
 # Terminal 1: Start the analysis engine
 npm run analysis-engine
@@ -2031,9 +2097,7 @@ npm run analysis-engine
 # Terminal 2: Start your React Native app
 npm start
 ```
-
 For development with auto-reload:
-
 ```bash
 # Terminal 1: Start analysis engine with nodemon
 npm run dev:analysis
@@ -2041,7 +2105,6 @@ npm run dev:analysis
 # Terminal 2: Start React Native with Expo
 expo start
 ```
-
 ## 8. Development Tips
 
 ### 8.1. Testing on Different Platforms
@@ -2078,7 +2141,6 @@ expo start
 ### 9.1. Build Configuration
 
 Update your `app.json` for production:
-
 ```json
 {
   "expo": {
@@ -2113,7 +2175,6 @@ Update your `app.json` for production:
   }
 }
 ```
-
 ### 9.2. Environment Variables
 
 Set up environment variables for production:
@@ -2127,23 +2188,10 @@ Set up environment variables for production:
 ### 9.3. Analysis Engine Deployment
 
 Deploy the Node.js analysis engine to a cloud service:
-
 ```bash
-# For Heroku
-heroku create your-app-analysis-engine
-git subtree push --prefix=src/api/analysis heroku main
 
-# For Railway
-railway login
-railway init
-railway up
-
-# For Vercel (with serverless functions)
-vercel --prod
 ```
-
 ### 9.4. Build Commands
-
 ```bash
 # Build for iOS
 expo build:ios

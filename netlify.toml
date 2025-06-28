@@ -1,0 +1,111 @@
+# Netlify configuration for Understand.me
+# Supports both the Express server and Expo web build
+
+[build]
+  # Build command for the full-stack application
+  command = "npm run build"
+  # Directory containing the built web app
+  publish = "dist/web"
+  # Functions directory for serverless functions (if needed)
+  functions = "netlify/functions"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  # NPM version
+  NPM_VERSION = "9"
+  # Build environment
+  NODE_ENV = "production"
+
+# Server-side configuration for Express app
+[[redirects]]
+  # API routes go to the Express server
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+
+[[redirects]]
+  # Health check
+  from = "/health"
+  to = "/.netlify/functions/server/health"
+  status = 200
+
+[[redirects]]
+  # SPA fallback for client-side routing
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # CORS headers for API
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    # API-specific headers
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    # JavaScript caching
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    # CSS caching
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    # Image caching
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    # Image caching
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Environment variables (reference only - set in Netlify dashboard)
+# GOOGLE_GENAI_API_KEY
+# ELEVENLABS_API_KEY
+# HUME_API_KEY
+# DATABASE_URL
+# JWT_SECRET
+
+# Build plugins
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
+# Development settings
+[dev]
+  # Local development server
+  command = "npm run dev"
+  port = 3000
+  publish = "dist/web"
+  autoLaunch = false
+
+# Form handling (if needed for contact forms)
+[forms]
+  # Enable Netlify Forms
+  enabled = true
+
+# Large Media (for handling large assets)
+[large_media]
+  # Enable if you have large audio/video files
+  enabled = false

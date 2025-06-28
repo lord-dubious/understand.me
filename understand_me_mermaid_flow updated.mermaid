@@ -3,10 +3,10 @@ flowchart TD
     A[User Discovers Platform] --> B[Sign Up/Login]
     B --> C{New User?}
     
-    %% New User Onboarding
-    C -->|Yes| D[AI-Powered Onboarding]
-    D --> E[Enhanced Personality Assessment<br/>15-20 Questions<br/>Communication Style<br/>Values & Behaviors]
-    E --> F[Platform Tutorial]
+    %% New User Onboarding with Udine
+    C -->|Yes| D[Udine AI Onboarding<br/>🎤 Voice-guided setup]
+    D --> E[Personality Assessment<br/>🧠 5-7 Key Questions<br/>📊 Hume AI Emotion Analysis]
+    E --> F[Platform Tutorial<br/>🎯 ElevenLabs Voice Demo]
     F --> G[Main Dashboard]
     
     %% Returning User
@@ -14,7 +14,7 @@ flowchart TD
     H --> I{Choose Action}
     I -->|New Session| G
     I -->|View Previous Sessions| J[Session History]
-    I -->|Growth Tab| K[Personal Growth Dashboard]
+    I -->|Growth Insights| K[Personal Growth Dashboard<br/>📈 Hume AI Emotional Insights]
     %% Session History Access
     J --> L{Action Choice}
     L -->|View Only| LA[View Summaries & History]
@@ -28,11 +28,11 @@ flowchart TD
     
     %% Main Path Selection
     G --> N{Choose Path}
-    N -->|Start Session| O[HOST: Describe Conflict]
+    N -->|Start Session| O[HOST: Describe Situation<br/>🎤 Voice + Text Input<br/>📊 Hume AI Emotion Detection]
     N -->|Join Session| P[PARTICIPANT: Enter Session Code]
-    
-    %% Host Flow
-    O --> Q[AI Problem Analysis]
+
+    %% Host Flow with Simplified AI Stack
+    O --> Q[LangChain JS Analysis<br/>🤖 Google GenAI Processing]
     Q --> R[Review AI Summary]
     R --> S[Configure Session Type]
     S --> T{Session Type}
@@ -82,20 +82,20 @@ flowchart TD
     AT --> AU[Personal Action Plan]
     AU --> AV[Private Summary & Sign-off]
     
-    %% Main Mediation Session
-    AM --> AW[Five-Phase AI Mediation<br/>+ Achievement Badges Visible]
-    AW --> AX[Phase 1: Prepare]
-    AX --> AY[Phase 2: Express]
+    %% Main Mediation Session with Udine
+    AM --> AW[Five-Phase Udine Mediation<br/>🎤 ElevenLabs Turn-Taking<br/>📊 Real-time Hume AI Analysis]
+    AW --> AX[Phase 1: Prepare<br/>🧠 Emotional State Assessment]
+    AX --> AY[Phase 2: Express<br/>🎤 Natural Voice Conversation]
     AY --> AZ{Same Device?}
-    AZ -->|Yes| BA[Tap-to-Talk Interface<br/>Turn-Based Input]
-    AZ -->|No| BB[Individual Input]
-    BA --> BC[Phase 3: Understand]
+    AZ -->|Yes| BA[Turn-Taking Interface<br/>🎤 ElevenLabs Voice Control]
+    AZ -->|No| BB[Individual Voice Input<br/>📱 Cross-platform Sync]
+    BA --> BC[Phase 3: Understand<br/>🤝 Empathy Building]
     BB --> BC
-    BC --> BD[Phase 4: Resolve]
-    BD --> BE[Phase 5: Heal]
-    
+    BC --> BD[Phase 4: Resolve<br/>💡 Solution Generation]
+    BD --> BE[Phase 5: Heal<br/>❤️ Relationship Repair]
+
     %% Session Completion
-    BE --> BF[AI Generates Summary<br/>& Action Plan]
+    BE --> BF[LangChain JS Summary<br/>📋 Google GenAI Action Plan]
     BF --> BG[Participants Review]
     BG --> BH{Same Device?}
     BH -->|Yes| BI[Sequential Sign-off<br/>Each User Approves]

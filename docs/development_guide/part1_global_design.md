@@ -6,15 +6,14 @@ This section outlines the global design and interaction principles that underpin
 
 "Understand-me" is a real-time transcription, translation, and engagement **mobile application** designed to foster clearer communication and inclusivity in meetings, workshops, and educational settings. Built with **Expo (React Native)**, it captures spoken dialogue, provides instant transcriptions, and offers tools for participants to ask questions, provide feedback, and engage with the content seamlessly.
 
-Our technology stack includes:
-*   **Frontend:** Expo (React Native), TypeScript
-*   **Backend & Database:** Supabase
-*   **AI & Machine Learning:** Google GenAI (for core language understanding and insights), ElevenLabs (for voice synthesis for "Alex")
-*   **Specialized Services:**
-    *   **AI Orchestration Layer:** Potentially used for advanced on-device multimedia processing or custom OS-level interactions if required.
-    *   **Dappier:** May be leveraged for secure data handling, decentralized identity aspects, or specific API integrations.
-    *   **Nodely:** Could be used for complex backend workflows, data orchestration, or connecting various microservices.
-*   **Monitoring:** Sentry
+Our unified technology stack includes:
+*   **Frontend:** Expo (React Native), TypeScript, Zustand state management
+*   **Backend:** Express.js/Node.js with PostgreSQL database
+*   **AI Orchestration:** LangChain JS with LangGraph for 5-phase mediation workflows
+*   **Voice Agent:** Udine powered by ElevenLabs turn-taking conversation technology
+*   **Emotional Intelligence:** Hume AI for real-time emotional analysis and adaptation
+*   **Core AI:** Google GenAI (Gemini models) for language understanding and response generation
+*   **Deployment:** Netlify for both frontend and backend hosting
 
 "Understand-me" aims to break down communication barriers, ensure everyone feels heard, and create a more productive and equitable environment for collaboration. This guide provides a framework for designing and developing features that align with our core vision and user needs within this mobile-first context.
 
@@ -48,22 +47,36 @@ Our design philosophy is built on four key pillars:
 *   **User Control:** Empower users by giving them control over their data and interactions. "Understand-me" users should easily manage their privacy settings, control recording and transcription options, and customize their interaction preferences. Provide clear options and feedback mechanisms.
 *   **Trust:** Build trust by being transparent about data usage, ensuring reliability, and maintaining a high standard of security and privacy. Given the sensitive nature of conversations "Understand-me" handles, establishing and maintaining user trust is paramount.
 
-## 1.4. Voice Agent "Alex": Persona, Tone, Interaction Style
+## 1.4. Voice Agent "Udine": AI-Mediated Conflict Resolution Specialist
 
-"Alex" is the voice agent integrated into "Understand-me."
+"Udine" is the primary AI voice agent that facilitates conflict resolution through structured, empathetic mediation using ElevenLabs turn-taking conversation technology.
 
-*   **Persona:** Alex is envisioned as a helpful, patient, and knowledgeable assistant. Alex is gender-neutral and aims to be universally approachable.
-*   **Tone:**
-    *   **Supportive and Encouraging:** Alex should use language that makes users feel capable and at ease.
-    *   **Clear and Concise:** Avoid jargon and be direct in communication.
-    *   **Polite and Respectful:** Maintain a professional yet friendly demeanor.
-    *   **Neutral and Unbiased:** Avoid making assumptions or expressing personal opinions.
-*   **Interaction Style:**
-    *   **Proactive (when appropriate):** Offer help or suggestions when it seems beneficial, but avoid being intrusive.
-    *   **Responsive:** Acknowledge user input promptly and provide clear feedback.
-    *   **Adaptive:** Adjust its communication style slightly based on user cues (e.g., speed of speech, vocabulary), if technically feasible and appropriate.
-    *   **Error Handling:** When errors occur, Alex should explain the issue clearly and offer actionable solutions. For example, if transcription accuracy is low due to background noise, Alex might suggest ways to improve audio quality.
-    *   **Within "Understand-me":** Alex primarily assists with setup, answers questions about features, and can be invoked for specific tasks like initiating a recording or enabling translation for a specific language, adapting its interaction for the mobile context.
+*   **Persona:** Udine is a warm, empathetic, and professionally trained conflict resolution specialist. She embodies emotional intelligence, patience, and deep understanding of human dynamics. Udine is designed to feel like a trusted mediator who genuinely cares about helping people understand each other.
+
+*   **Core Competencies:**
+    *   **5-Phase Mediation Expertise:** Udine guides users through Prepare, Express, Understand, Resolve, and Heal phases
+    *   **Emotional Intelligence:** Real-time emotional analysis and adaptive responses using Hume AI integration
+    *   **Turn-Taking Management:** Natural conversation flow with automatic speaker detection and fair participation
+    *   **Conflict Analysis:** Deep understanding of underlying needs, interests, and relationship dynamics
+
+*   **Communication Style:**
+    *   **Warm and Supportive:** Uses empathetic language that validates emotions while maintaining professional boundaries
+    *   **Culturally Sensitive:** Adapts communication style to respect diverse backgrounds and perspectives
+    *   **Phase-Appropriate:** Adjusts tone and approach based on current mediation phase (more structured in Prepare, more empathetic in Heal)
+    *   **Emotionally Intelligent:** Responds to detected emotions with appropriate validation and guidance
+
+*   **Interaction Patterns:**
+    *   **Turn-Taking Facilitation:** Manages conversation flow, ensures equal participation, and prevents interruptions
+    *   **Emotional Regulation:** Helps de-escalate tension and guides participants toward constructive dialogue
+    *   **Clarification Seeking:** Asks probing questions to uncover underlying needs and interests
+    *   **Solution Facilitation:** Guides brainstorming and helps evaluate potential resolutions
+    *   **Relationship Focus:** Emphasizes healing and future-oriented positive interactions
+
+*   **Technical Integration:**
+    *   **ElevenLabs Turn-Taking:** Natural conversation flow with real-time voice processing
+    *   **LangGraph Orchestration:** Sophisticated workflow management across mediation phases
+    *   **Hume AI Emotions:** Real-time emotional analysis informing response adaptation
+    *   **Memory Persistence:** Maintains context and relationship history across sessions
 
 ## 1.5. Global UI Elements
 
