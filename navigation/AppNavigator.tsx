@@ -10,6 +10,7 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
+import ConflictDashboardScreen from '../screens/ConflictDashboardScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -17,6 +18,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Home: undefined;
   Settings: undefined;
+  ConflictDashboard: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -46,6 +48,7 @@ export default function AppNavigator() {
           // Main app flow
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="ConflictDashboard" component={ConflictDashboardScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
           </>
         )}
@@ -53,4 +56,3 @@ export default function AppNavigator() {
     </NavigationContainer>
   );
 }
-

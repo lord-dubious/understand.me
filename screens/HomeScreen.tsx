@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Platform, Alert, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Brain, Settings } from 'lucide-react-native';
+import { Brain, Settings, Target } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 import { VoiceInteractionCore } from '../components/VoiceInteractionCore';
 import ChatUI from '../components/ChatUI';
@@ -14,7 +17,10 @@ import tools from '../utils/tools';
  * Main home screen that combines voice interaction and chat interface
  * This is where users interact with Udine for conflict resolution
  */
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
 export default function HomeScreen() {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
   const [lastVoiceInput, setLastVoiceInput] = useState<string>('');
   const [lastAIResponse, setLastAIResponse] = useState<string>('');
   const [currentEmotionAnalysis, setCurrentEmotionAnalysis] = useState<EmotionAnalysis | null>(null);
@@ -55,9 +61,17 @@ export default function HomeScreen() {
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Understand.me</Text>
-        <Pressable style={styles.headerButton} onPress={toggleEmotionInsights}>
-          <Brain size={20} color={showEmotionInsights ? "#3B82F6" : "#94A3B8"} strokeWidth={2} />
-        </Pressable>
+        <View style={styles.headerButtons}>
+          <Pressable 
+            style={styles.headerButton} 
+            onPress={() => navigation.navigate('ConflictDashboard')}
+          >
+            <Target size={20} color="#94A3B8" strokeWidth={2} />
+          </Pressable>
+          <Pressable style={styles.headerButton} onPress={toggleEmotionInsights}>
+            <Brain size={20} color={showEmotionInsights ? "#3B82F6" : "#94A3B8"} strokeWidth={2} />
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.topContent}>
@@ -129,6 +143,10 @@ const styles = StyleSheet.create({
     color: '#F1F5F9',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 8,
   },
   headerButton: {
     padding: 8,
