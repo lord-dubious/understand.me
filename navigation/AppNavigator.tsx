@@ -12,6 +12,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 import ConflictDashboardScreen from '../screens/ConflictDashboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import GroupConflictScreen from '../screens/GroupConflictScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Settings: undefined;
   ConflictDashboard: undefined;
   Profile: undefined;
+  GroupConflict: { conflictId?: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -52,6 +54,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="ConflictDashboard" component={ConflictDashboardScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="GroupConflict" component={GroupConflictScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
           </>
         )}
