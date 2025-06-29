@@ -7,6 +7,13 @@ import ConvAiDOMComponent from './components/ConvAiDOMComponent';
 import ChatUI from './components/ChatUI';
 import tools from './utils/tools';
 
+/**
+ * Renders the main application UI for a cross-platform conversational AI agent using Expo and ElevenLabs.
+ *
+ * Displays a gradient background, descriptive text, a list of available client tools with supported platforms, a conversational AI DOM component, and a chat interface.
+ *
+ * @returns The root React element for the application.
+ */
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
