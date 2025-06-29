@@ -12,9 +12,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { User, Lock, Mic, MessageCircle, Play } from 'lucide-react-native';
+import { User, Lock, Mic, MessageCircle, Play, Mail } from 'lucide-react-native';
 import { VoiceInteractionCore } from '../../components/VoiceInteractionCore';
 import { useOnboardingStore } from '../../stores/onboardingStore';
+import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 
 const PERSONALITY_QUESTIONS = [
@@ -27,12 +28,14 @@ const PERSONALITY_QUESTIONS = [
 
 export default function LoginScreen() {
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [currentVoiceInput, setCurrentVoiceInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  const [showInputs, setShowInputs] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  const { isLoading, isSignUp, setLoading, toggleAuthMode } = useAuthStore();
 
   const {
     name,
@@ -50,8 +53,14 @@ export default function LoginScreen() {
 
   useEffect(() => {
     // Start the voice interaction when component mounts
-    startVoiceGreeting();
-  }, []);
+    if (isSignUp) {
+      startVoiceGreeting();
+    } else {
+      // For returning users, show inputs immediately
+      setShowInputs(true);
+      setCurrentStep('email');
+    }
+  }, [isSignUp]);
 
   const startVoiceGreeting = async () => {
     setIsSpeaking(true);
@@ -92,7 +101,7 @@ export default function LoginScreen() {
       const mockEmail = 'john.doe@example.com';
       setEmail(mockEmail);
       setCurrentVoiceInput(mockEmail);
-      setShowPasswordInput(true);
+      setShowInputs(true);
       setCurrentStep('password');
       setTimeout(() => {
         setIsSpeaking(true);
@@ -124,11 +133,13 @@ export default function LoginScreen() {
 
   const handleSignUp = async () => {
     if (!name || !email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setAuthError('Please fill in all fields');
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
+    setAuthError('');
+    
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -143,17 +154,102 @@ export default function LoginScreen() {
       if (error) throw error;
 
       if (data.user) {
-        setCurrentStep('personality');
-        setIsSpeaking(true);
-        setTimeout(() => {
-          setIsSpeaking(false);
-          startListening();
-        }, 2000);
+        // Check if email confirmation is required
+        if (!data.session) {
+          Alert.alert(
+            'Check your email',
+            'We sent you a confirmation link. Please check your email and click the link to verify your account.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          // User is signed up and logged in, proceed to personality assessment
+          setCurrentStep('personality');
+          setIsSpeaking(true);
+          setTimeout(() => {
+            setIsSpeaking(false);
+            startListening();
+          }, 2000);
+        }
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      setAuthError(error.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      setAuthError('Please enter your email and password');
+      return;
+    }
+
+    setLoading(true);
+    setAuthError('');
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // User is signed in, redirect to main app
+        router.replace('/(main)');
+      }
+    } catch (error: any) {
+      setAuthError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setAuthError('');
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: Platform.OS === 'web' 
+            ? `${window.location.origin}/(main)` 
+            : 'understand-me:///(main)',
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      setAuthError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    if (Platform.OS !== 'ios') {
+      setAuthError('Apple Sign In is only available on iOS');
+      return;
+    }
+
+    setLoading(true);
+    setAuthError('');
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: 'understand-me:///(main)',
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      setAuthError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,6 +258,10 @@ export default function LoginScreen() {
   };
 
   const getStepText = () => {
+    if (!isSignUp) {
+      return "Welcome back!\n\nLet's continue your journey.";
+    }
+
     switch (currentStep) {
       case 'greeting':
         return "Hello, I am Udine\n\nLet us start by getting to know you better?";
@@ -187,6 +287,10 @@ export default function LoginScreen() {
     return '';
   };
 
+  const shouldShowVoiceOrb = () => {
+    return isSignUp && (isListening || isSpeaking || isThinking);
+  };
+
   return (
     <LinearGradient
       colors={['#4ECDC4', '#44A08D', '#45B7D1']}
@@ -202,27 +306,34 @@ export default function LoginScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.appName}>Understand{'\n'}.me</Text>
-            <TouchableOpacity style={styles.menuButton}>
-              <View style={styles.menuDot} />
+            <TouchableOpacity 
+              style={styles.menuButton}
+              onPress={toggleAuthMode}
+            >
+              <Text style={styles.menuText}>
+                {isSignUp ? 'Sign In' : 'Sign Up'}
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Main Content */}
           <View style={styles.mainContent}>
             <Text style={styles.subtitle}>
-              {currentStep === 'greeting' ? 'Welcome back' : 'Create Account'}
+              {isSignUp ? 'Create Account' : 'Welcome back'}
             </Text>
             
             <Text style={styles.mainText}>{getStepText()}</Text>
 
-            {/* Voice Interaction Orb */}
-            <View style={styles.orbContainer}>
-              <VoiceInteractionCore
-                isListening={isListening}
-                isSpeaking={isSpeaking}
-                isThinking={isThinking}
-              />
-            </View>
+            {/* Voice Interaction Orb - Only for sign up flow */}
+            {shouldShowVoiceOrb() && (
+              <View style={styles.orbContainer}>
+                <VoiceInteractionCore
+                  isListening={isListening}
+                  isSpeaking={isSpeaking}
+                  isThinking={isThinking}
+                />
+              </View>
+            )}
 
             {/* Progress Indicator */}
             {getProgressText() && (
@@ -235,54 +346,94 @@ export default function LoginScreen() {
 
             {/* Input Card */}
             <View style={styles.inputCard}>
-              {currentStep === 'name' && name && (
+              {/* Error Message */}
+              {authError ? (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{authError}</Text>
+                </View>
+              ) : null}
+
+              {/* Name Input - Only for sign up */}
+              {isSignUp && (currentStep === 'name' && name || showInputs) && (
                 <View style={styles.inputRow}>
                   <User size={20} color="#666" />
-                  <Text style={styles.inputText}>{name}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Full name"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="words"
+                    editable={!name || showInputs}
+                  />
                 </View>
               )}
 
-              {currentStep === 'email' && email && (
+              {/* Email Input */}
+              {(currentStep === 'email' && email || showInputs || !isSignUp) && (
                 <View style={styles.inputRow}>
-                  <Text style={styles.inputText}>{email}</Text>
+                  <Mail size={20} color="#666" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email address"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    editable={!email || showInputs || !isSignUp}
+                  />
                 </View>
               )}
 
-              {showPasswordInput && (
-                <>
-                  <View style={styles.inputRow}>
-                    <Lock size={20} color="#666" />
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder="Create password"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      autoCapitalize="none"
-                    />
-                  </View>
+              {/* Password Input */}
+              {(showInputs || !isSignUp) && (
+                <View style={styles.inputRow}>
+                  <Lock size={20} color="#666" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder={isSignUp ? "Create password" : "Password"}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                  />
+                </View>
+              )}
 
+              {/* Social Login Section */}
+              {(showInputs || !isSignUp) && (
+                <>
                   <Text style={styles.orText}>OR</Text>
 
-                  {/* Social Login Buttons */}
                   <View style={styles.socialButtons}>
-                    <TouchableOpacity style={styles.socialButton}>
+                    <TouchableOpacity 
+                      style={styles.socialButton}
+                      onPress={handleGoogleSignIn}
+                      disabled={isLoading}
+                    >
                       <Text style={styles.socialButtonText}>G</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.socialButton}>
-                      <Text style={styles.socialButtonText}>f</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.socialButton}>
-                      <Text style={styles.socialButtonText}>🍎</Text>
-                    </TouchableOpacity>
+                    
+                    {Platform.OS === 'ios' && (
+                      <TouchableOpacity 
+                        style={styles.socialButton}
+                        onPress={handleAppleSignIn}
+                        disabled={isLoading}
+                      >
+                        <Text style={styles.socialButtonText}>🍎</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </>
               )}
 
+              {/* Voice Input for Personality Questions */}
               {currentStep === 'personality' && (
                 <View style={styles.voiceInputContainer}>
                   <Text style={styles.voiceInputLabel}>Type response or use voice</Text>
-                  <TouchableOpacity style={styles.voiceButton}>
+                  <TouchableOpacity 
+                    style={styles.voiceButton}
+                    onPress={startListening}
+                  >
                     <Mic size={20} color="#666" />
                   </TouchableOpacity>
                 </View>
@@ -291,21 +442,30 @@ export default function LoginScreen() {
 
             {/* Action Buttons */}
             <View style={styles.actionButtons}>
-              {showPasswordInput && (
+              {(showInputs || !isSignUp) && (
                 <TouchableOpacity
-                  style={styles.continueButton}
-                  onPress={handleSignUp}
+                  style={[styles.continueButton, isLoading && styles.disabledButton]}
+                  onPress={isSignUp ? handleSignUp : handleSignIn}
                   disabled={isLoading}
                 >
                   <Text style={styles.continueButtonText}>
-                    {isLoading ? 'Creating Account...' : 'Continue the Journey'}
+                    {isLoading 
+                      ? (isSignUp ? 'Creating Account...' : 'Signing In...') 
+                      : (isSignUp ? 'Continue the Journey' : 'Welcome Back')
+                    }
                   </Text>
                 </TouchableOpacity>
               )}
 
-              <TouchableOpacity style={styles.newUserButton}>
+              {/* Mode Toggle Button */}
+              <TouchableOpacity 
+                style={styles.newUserButton}
+                onPress={toggleAuthMode}
+              >
                 <User size={20} color="#fff" />
-                <Text style={styles.newUserText}>+</Text>
+                <Text style={styles.newUserText}>
+                  {isSignUp ? 'Sign In' : 'Sign Up'}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -314,7 +474,10 @@ export default function LoginScreen() {
               <TouchableOpacity style={styles.controlButton}>
                 <MessageCircle size={24} color="#fff" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.controlButton}>
+              <TouchableOpacity 
+                style={styles.controlButton}
+                onPress={isSignUp ? startListening : undefined}
+              >
                 <Mic size={24} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.controlButton}>
@@ -352,20 +515,21 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#fff',
     lineHeight: 32,
+    fontFamily: 'Inter-Regular',
   },
   menuButton: {
-    width: 40,
-    height: 40,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  menuDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#fff',
+  menuText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
   mainContent: {
     flex: 1,
@@ -376,6 +540,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 20,
     textAlign: 'center',
+    fontFamily: 'Inter-Regular',
   },
   mainText: {
     fontSize: 24,
@@ -385,6 +550,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     lineHeight: 32,
     paddingHorizontal: 20,
+    fontFamily: 'Inter-SemiBold',
   },
   orbContainer: {
     marginBottom: 30,
@@ -406,6 +572,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
   inputCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -422,6 +589,19 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  errorContainer: {
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    borderLeftWidth: 4,
+    borderLeftColor: '#f44336',
+  },
+  errorText: {
+    color: '#c62828',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+  },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -429,24 +609,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  inputText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 10,
-    flex: 1,
-  },
-  passwordInput: {
+  input: {
     fontSize: 16,
     color: '#333',
     marginLeft: 10,
     flex: 1,
     paddingVertical: 0,
+    fontFamily: 'Inter-Regular',
   },
   orText: {
     textAlign: 'center',
     color: '#999',
     fontSize: 14,
     marginVertical: 20,
+    fontFamily: 'Inter-Regular',
   },
   socialButtons: {
     flexDirection: 'row',
@@ -483,6 +659,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
     flex: 1,
+    fontFamily: 'Inter-Regular',
   },
   voiceButton: {
     width: 40,
@@ -504,28 +681,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     width: '100%',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   continueButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
   newUserButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   newUserText: {
     color: '#fff',
-    fontSize: 20,
-    fontWeight: '300',
-    marginLeft: 5,
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 8,
+    fontFamily: 'Inter-Regular',
   },
   bottomControls: {
     flexDirection: 'row',
