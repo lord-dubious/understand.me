@@ -1,4 +1,4 @@
-# 🚦 Bolt.new Feature-by-Feature Roadmap – Understand.me
+o t# 🚦 Bolt.new Feature-by-Feature Roadmap – Understand.me
 
 A concise, logical progression of features. Each checkpoint forms a **single Bolt.new commit branch** and naturally leads into the next – from first launch → voice mediation.
 
