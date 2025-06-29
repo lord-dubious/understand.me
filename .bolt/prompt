@@ -1,8 +1,3 @@
-Only make the exact changes I request—do not modify, remove, or alter any other code, styling, or page elements unless explicitly instructed. If my request conflicts with existing code, styling, or functionality, or if you anticipate any issues, pause execution and notify me for confirmation before proceeding. Always follow this rule for every modification. If in doubt, ask before making any change
-
-stop running npm install or npm dev by your self after every edit
-
-
 ```
 understand.me/
 ├── App.tsx                     # Root – mounts navigation + providers
