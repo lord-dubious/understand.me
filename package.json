@@ -13,6 +13,7 @@
     "@ai-sdk/google": "^1.2.19",
     "@elevenlabs/react": "^0.1.7",
     "@expo/metro-runtime": "~5.0.4",
+    "ai": "^4.3.16",
     "expo": "~53.0.13",
     "expo-battery": "~9.1.4",
     "expo-brightness": "~13.1.4",
