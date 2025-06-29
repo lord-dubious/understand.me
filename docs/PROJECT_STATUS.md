@@ -4,7 +4,7 @@
 
 **understand.me** is an AI-powered conflict resolution platform that helps users navigate interpersonal disputes through empathetic conversation and emotional intelligence. The app features Udine, an AI specialist trained in mediation, coaching, and emotional support.
 
-## ✅ Completed Features (Steps 1-5)
+## ✅ Completed Features (Steps 1-6)
 
 ### Step 1: Project Foundation ✅
 - **React Native + Expo setup** with TypeScript
@@ -43,6 +43,17 @@
 - **Emotion-aware system prompts** for better AI responses
 - **Real-time emotion tracking** during conversations
 
+### Step 6: Advanced Conflict Resolution Tools ✅
+- **Comprehensive conflict resolution framework** based on proven methodologies
+- **Conflict assessment system** with validated questionnaires and scoring
+- **Structured mediation workflows** with guided step-by-step processes
+- **Communication templates library** with evidence-based scripts
+- **ConflictDashboard** with metrics, quick actions, and conflict management
+- **MediationWorkflow component** with interactive activities and progress tracking
+- **AI-powered mediation guidance** with real-time emotional monitoring
+- **Multiple workflow templates** for different conflict types and intensities
+- **Progress tracking and analytics** with visual insights and outcome measurement
+
 ## 🏗️ Technical Architecture
 
 ### Core Technologies
@@ -63,6 +74,10 @@ services/
 │   ├── emotion.ts       # Emotion detection and analysis
 │   ├── stt.ts          # Speech-to-text with multiple providers
 │   └── tts.ts          # Text-to-speech with voice options
+├── conflict/
+│   ├── assessment.ts    # Conflict assessment and scoring
+│   ├── mediation.ts     # Mediation workflows and guidance
+│   └── templates.ts     # Communication templates library
 ├── auth/
 │   └── auth.ts         # Authentication service
 └── storage/
@@ -75,6 +90,8 @@ components/
 ├── ChatUI.tsx              # Main chat interface
 ├── VoiceInteractionCore.tsx # Voice interaction with animations
 ├── EmotionInsights.tsx     # Emotion analysis visualization
+├── ConflictAssessment.tsx  # Interactive conflict assessment questionnaire
+├── MediationWorkflow.tsx   # Guided mediation process with activities
 ├── OnboardingFlow.tsx      # User onboarding experience
 └── ConvAiDOMComponent.tsx  # Legacy component (to be updated)
 ```
@@ -82,12 +99,13 @@ components/
 ### Screen Architecture
 ```
 screens/
-├── HomeScreen.tsx          # Main app interface
-├── LoginScreen.tsx         # User authentication
-├── RegisterScreen.tsx      # User registration
-├── ForgotPasswordScreen.tsx # Password recovery
-├── OnboardingScreen.tsx    # First-time user experience
-└── VoiceSettingsScreen.tsx # Voice customization
+├── HomeScreen.tsx              # Main app interface with navigation
+├── ConflictDashboardScreen.tsx # Conflict management and mediation hub
+├── LoginScreen.tsx             # User authentication
+├── RegisterScreen.tsx          # User registration
+├── ForgotPasswordScreen.tsx    # Password recovery
+├── OnboardingScreen.tsx        # First-time user experience
+└── VoiceSettingsScreen.tsx     # Voice customization
 ```
 
 ## 🎨 User Experience Features
@@ -112,6 +130,16 @@ screens/
 - **Context-aware responses** based on conversation history
 - **Multiple resolution modes** (mediation, coaching, support)
 - **Suggestion system** for better communication
+
+### Conflict Resolution Experience
+- **Comprehensive conflict assessment** with validated questionnaires
+- **Guided mediation workflows** with step-by-step processes
+- **Interactive activities** for story sharing, active listening, and solution generation
+- **Real-time progress tracking** with visual indicators and completion metrics
+- **AI-powered guidance** with emotion-aware suggestions and interventions
+- **Communication templates** for difficult conversations and specific scenarios
+- **Conflict dashboard** with metrics, analytics, and management tools
+- **Multiple workflow types** for different conflict categories and intensities
 
 ## 🔧 Configuration & Setup
 
@@ -155,13 +183,7 @@ SUPABASE_ANON_KEY=your_supabase_key
 - **Personalized recommendations** for de-escalation
 - **Real-time emotional tracking** throughout conversations
 
-## 🚀 Next Steps (Steps 6-10)
-
-### Step 6: Advanced Conflict Resolution Tools
-- **Structured mediation workflows** with guided processes
-- **Communication templates** for difficult conversations
-- **Conflict assessment tools** and progress tracking
-- **Resolution outcome tracking** and success metrics
+## 🚀 Next Steps (Steps 7-10)
 
 ### Step 7: User Profiles & Personalization
 - **User profile management** with preferences
@@ -224,4 +246,3 @@ SUPABASE_ANON_KEY=your_supabase_key
 
 *Last updated: December 29, 2024*
 *Current version: 1.0.0 (Steps 1-5 complete)*
-
