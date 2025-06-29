@@ -182,11 +182,18 @@ npx expo start
 # Run on specific platform
 npx expo start --ios
 npx expo start --android
+npx expo start --web
 ```
 
 ### Production Build
 ```bash
-# Build for production
+# Build for web (Netlify)
+npm run build
+
+# Preview build locally
+npm run preview
+
+# Build for mobile
 npx expo build:ios
 npx expo build:android
 
@@ -194,24 +201,37 @@ npx expo build:android
 eas build --platform all
 ```
 
-### Docker Deployment
-```bash
-# Build and deploy with Docker Compose
-cd deployment/docker
-docker-compose up -d
+### Netlify Deployment
 
-# Or use the deployment script
-./deployment/scripts/deploy.sh
+#### Option 1: Connect GitHub Repository
+1. Go to [Netlify](https://netlify.com) and sign up/login
+2. Click "New site from Git"
+3. Connect your GitHub account and select the `understand.me` repository
+4. Configure build settings:
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+5. Add environment variables in Netlify dashboard:
+   - `GOOGLE_GENAI_API_KEY`: Your Google AI API key
+6. Deploy!
+
+#### Option 2: Manual Deploy
+```bash
+# Build the project
+npm run build
+
+# Install Netlify CLI
+npm install -g netlify-cli
+
+# Login to Netlify
+netlify login
+
+# Deploy to Netlify
+netlify deploy --prod --dir=dist
 ```
 
-### Kubernetes Deployment
-```bash
-# Deploy to Kubernetes cluster
-kubectl apply -f deployment/kubernetes/
-
-# Or use the deployment script
-./deployment/scripts/deploy.sh deploy v1.0.0
-```
+#### Environment Variables
+Set these in your Netlify dashboard under Site Settings > Environment Variables:
+- `GOOGLE_GENAI_API_KEY`: Your Google Generative AI API key
 
 ## 📊 Analytics & Insights
 
