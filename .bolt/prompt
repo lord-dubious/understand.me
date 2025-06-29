@@ -1,0 +1,37 @@
+Only make the exact changes I request—do not modify, remove, or alter any other code, styling, or page elements unless explicitly instructed. If my request conflicts with existing code, styling, or functionality, or if you anticipate any issues, pause execution and notify me for confirmation before proceeding. Always follow this rule for every modification. If in doubt, ask before making any change
+
+
+
+```
+understand.me/
+├── App.tsx                     # Root – mounts navigation + providers
+├── app.json                    # Expo config (icons, mic permission, etc.)
+├── components/
+│   ├── ConvAiDOMComponent.tsx  # Udine mic button + turn-taking hook
+│   ├── ChatUI.tsx              # Auxiliary typed chat & image drop zone
+│   ├── EmotionBadge.tsx        # Small emotion dot component
+│   └── SimilarDocsPanel.tsx    # RAG drawer
+├── hooks/
+│   ├── useRecorder.ts          # Speech recorder (WAV)
+│   └── useEmotion.ts           # Stream Hume emotion state
+├── screens/
+│   ├── Home.tsx                # Combines ConvAiDOMComponent + ChatUI
+│   └── Settings.tsx            # Voice, theme, gap duration settings
+├── services/
+│   ├── ai/
+│   │   ├── chat.ts             # chatWithUdine (Gemini stream)
+│   │   ├── rag.ts              # ingestFile, ragRetrieve helpers
+│   │   ├── stt.ts              # speechToText wrapper
+│   │   └── tools.ts            # Battery, brightness, flash exec
+│   └── hume.ts                 # Hume SDK wrapper
+├── stores/
+│   └── useConversationStore.ts # Zustand store – message history
+├── utils/
+│   ├── chunker.ts              # Text chunk util (800/200)
+│   └── tools.ts                # Expo Battery/Brightness helpers
+├── docs/                       # Architecture & guides (markdown)
+│   ├── bolt-feature-roadmap.md
+│   ├── analysis-engine-orchestration.md
+│   └── … (other up-to-date docs)
+└── storage/                    # Runtime user corpora (IndexedDB / FS)
+```
