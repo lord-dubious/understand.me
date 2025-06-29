@@ -203,6 +203,16 @@ export function isTTSAvailable(): boolean {
 }
 
 /**
+ * Check if STT is available (for compatibility with VoiceSettingsScreen)
+ */
+export function isSTTAvailable(): boolean {
+  if (Platform.OS === 'web') {
+    return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+  }
+  return true; // Assume available on mobile with proper API keys
+}
+
+/**
  * Get available voices for TTS
  */
 export function getAvailableVoices(): Array<{ id: string; name: string; language: string }> {
@@ -233,4 +243,3 @@ export function stopTTS(): void {
   }
   // For other platforms, this would need to be implemented based on the audio system used
 }
-

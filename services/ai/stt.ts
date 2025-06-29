@@ -201,6 +201,31 @@ export function isSTTAvailable(): boolean {
  */
 export function getSupportedLanguages(): string[] {
   return [
+    'en-US', 'en-GB', 'en-AU', 'en-CA',
+    'es-ES', 'es-MX', 'es-AR',
+    'fr-FR', 'fr-CA',
+    'de-DE', 'de-AT',
+    'it-IT',
+    'pt-BR', 'pt-PT',
+    'ja-JP',
+    'ko-KR',
+    'zh-CN', 'zh-TW',
+    'ru-RU',
+    'ar-SA',
+    'hi-IN',
+    'nl-NL',
+    'sv-SE',
+    'da-DK',
+    'no-NO',
+    'fi-FI',
+  ];
+}
+
+/**
+ * Get supported languages for STT
+ */
+export function getSupportedLanguages(): string[] {
+  return [
     'en-US', // English (US)
     'en-GB', // English (UK)
     'es-ES', // Spanish (Spain)
@@ -215,4 +240,3 @@ export function getSupportedLanguages(): string[] {
     'zh-TW', // Chinese (Traditional)
   ];
 }
-
