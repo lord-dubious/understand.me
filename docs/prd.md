@@ -956,9 +956,8 @@ describe('VoiceInteractionComponent', () => {
 #### 3.4.2. Backend Testing
 
 ```typescript
-// API endpoint testing with Jest and Supertest
-import request from 'supertest';
-import { app } from '../src/app';
+// Netlify function testing with Jest
+import { handler } from '../netlify/functions/analysis';
 
 describe('POST /api/analysis/voice', () => {
   it('should analyze voice input and return emotional state', async () => {
