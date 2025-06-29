@@ -11,7 +11,7 @@ A concise, logical progression of features. Each checkpoint forms a **single Bol
 | 3 | **Turn-Taking Voice Core** | `ConvAiDOMComponent` (Udine mic button) | `@elevenlabs/react`, `expo-av`, `expo-linear-gradient` |
 | 4 | **Speech-to-Text Recorder** | – (logic layer only) | `expo-av`, `@ai-sdk/whisper` |
 | 5 | **LLM (chatWithUdine)** | – (service) | `ai`, `@ai-sdk/google` |
-| 6 | **Chat Interface** | `ChatUI` (bubbles, streaming cursor) | `react-native-gesture-handler`, `@elevenlabs/react` (audio) |
+| 6 | **Chat Interface (Auxiliary)** | `ChatUI` – typed clarifications, image drop-zone (voice remains primary) | `react-native-gesture-handler`, `expo-image-picker`, `@elevenlabs/react` (audio) |
 | 7 | **Emotion Overlay** | `EmotionBadge` next to bubbles | `hume` |
 | 8 | **Native Client Tools** | (invoked via voice; no new UI) | `expo-battery`, `expo-brightness` |
 | 9 | **Knowledge (RAG) Panel** | `SimilarDocsPanel` slide-drawer | `@ai-sdk/voyage` |

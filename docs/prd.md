@@ -189,47 +189,6 @@ app.use('/api/emotions', emotionRoutes);
 app.use('/api/ai', aiOrchestrationRoutes);
 ```
 
-**Database Schema (PostgreSQL):**
-```sql
--- Users and authentication
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email VARCHAR UNIQUE NOT NULL,
-  password_hash VARCHAR NOT NULL,
-  profile JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Conversation sessions
-CREATE TABLE sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  host_id UUID REFERENCES users(id),
-  title VARCHAR NOT NULL,
-  status VARCHAR DEFAULT 'pending',
-  config JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Session participants
-CREATE TABLE participants (
-  session_id UUID REFERENCES sessions(id),
-  user_id UUID REFERENCES users(id),
-  role VARCHAR DEFAULT 'participant',
-  status VARCHAR DEFAULT 'invited',
-  PRIMARY KEY (session_id, user_id)
-);
-
--- Conversation messages and analysis
-CREATE TABLE messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id UUID REFERENCES sessions(id),
-  user_id UUID REFERENCES users(id),
-  content TEXT,
-  emotion_data JSONB,
-  ai_analysis JSONB,
-  timestamp TIMESTAMP DEFAULT NOW()
-);
-```
 
 ### 4.3. AI Service Integration
 **LangChain JS Orchestration:**
