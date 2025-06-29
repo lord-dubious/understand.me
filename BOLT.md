@@ -47,10 +47,8 @@ graph TD
 ## 🛠️ Key Components
 
 ### 1. Voice Flow (`ConvAiDOMComponent`)
-ed tn s.speak(response);
   }}
 />
-```
 
 ### 2. Data Sync
 ```typescript
