@@ -85,11 +85,11 @@ This checklist ensures all documentation is consistent with the unified architec
 ## 📋 Validation Criteria
 
 ### **Technology Stack Consistency**
-- [x] All references use Express.js instead of Supabase
-- [x] All AI references use LangChain + Google GenAI
+- [x] All references use client-only Expo app instead of Supabase
+- [x] All AI references use ai-SDK (`ai`) with Google Gemini chat
 - [x] All voice references use ElevenLabs Udine agent
 - [x] All emotional intelligence references use Hume AI
-- [x] All state management uses Zustand + LangGraph
+- [x] All state management uses Zustand (client-side only)
 
 ### **Agent System Consistency**
 - [x] Primary agent is Udine (not Alex)
@@ -101,12 +101,12 @@ This checklist ensures all documentation is consistent with the unified architec
 ### **Package Dependencies Consistency**
 - [x] Uses `@google/genai` (not `@google/generative-ai`)
 - [x] Uses `@elevenlabs/react` (not `@11labs/client`)
-- [x] Includes complete LangChain stack
+- [ ] Includes LangChain adapter (`@ai-sdk/langchain`) only where needed
 - [x] Includes Hume AI integration
 - [x] No Supabase dependencies
 
 ### **Architecture Consistency**
-- [x] Express.js backend with PostgreSQL
+- [ ] Express.js backend with PostgreSQL (deprecated, removed; uses client-side and Edge Functions)
 - [x] Expo frontend with React Native
 - [x] Netlify deployment configuration
 - [x] bolt.new optimization patterns

@@ -7,17 +7,18 @@
 
 ### 1.2. Simplified Architecture
 **Development Environment**: bolt.new optimized
-**Deployment**: Netlify free tier
-**Frontend**: Expo (React Native) - Mobile + Web
-**Backend**: Express.js/Node.js (traditional server, not serverless)
-**Database**: PostgreSQL (via Netlify-compatible provider)
-**AI Orchestration**: LangChain JS with LangGraph agents
-**Voice Agent**: Udine (ElevenLabs turn-taking AI)
-**Emotional Intelligence**: Hume AI integration
+**Build & Run**: bolt.new (Expo dev server + Vercel preview)
+**Platform**: Expo React Native (web-first, works iOS / Android)
+**Data Store**: Local ⬆️ to browser / native storage (no server/db required initially)
+**AI Orchestration**: Vercel AI SDK (`ai`) + Google Gemini models via `@ai-sdk/google` (optional `@ai-sdk/langchain` adapter)
+**Voice Agent**: Udine — ElevenLabs turn-taking Conversational AI
+**Emotional Intelligence**: Hume AI SDK
+
+> **Authoritative stack**: Expo RN client only  |  Vercel AI SDK  |  ElevenLabs Udine  |  Hume AI
 
 ### 1.3. Core AI Stack
 - **Google GenAI 1.5.0**: Primary LLM for conversation analysis and response generation
-- **LangChain JS**: AI orchestration with community plugins for workflow management
+- **Vercel AI SDK**: Core LLM orchestration (`ai`) + Gemini models
 - **Hume AI**: Emotional intelligence analysis and real-time emotion detection
 - **ElevenLabs**: Turn-taking conversational AI with Udine voice personality
 
@@ -27,53 +28,43 @@
 - **Cross-platform compatibility** (mobile and web from single codebase)
 - **Simplified architecture** optimized for rapid development and deployment
 
-## 2. Technical Architecture
 
-### 2.1. System Overview
+
+# AI Orchestration stack
+# AI Orchestration & Embeddings
+npx expo install ai @ai-sdk/google @ai-sdk/voyage @ai-sdk/langchain
+
+
+
+
+# Voice & Emotional Intelligence
+npm install @elevenlabs/react@^0.8.0 @elevenlabs/client@^0.8.0
+npm install hume@^0.9.0
+
+# State management & utilities
+npm install zustand@^4.5.5 uuid@^10.0.0 zod@^3.23.8
+npm install @react-native-async-storage/async-storage@^1.23.1
+
+# Development dependencies
+npm install --save-dev @types/express@^4.17.21 @types/pg@^8.11.6
+npm install --save-dev @types/uuid@^10.0.0 typescript@~5.3.3
+npm install --save-dev concurrently@^8.2.2 nodemon@^3.1.0
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Client Applications                      │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
-│  │   Mobile App    │  │    Web App      │  │   Admin     │  │
-│  │   (Expo)        │  │   (Expo Web)    │  │   Panel     │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Express.js Backend                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
-│  │   API Routes    │  │   Auth Service  │  │  WebSocket  │  │
-│  │                 │  │                 │  │   Server    │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      AI Services                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐  │
-│  │   LangChain JS  │  │   Google GenAI  │  │   Hume AI   │  │
-│  │  (Orchestration)│  │     (LLM)       │  │ (Emotions)  │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────┘  │
-│  ┌─────────────────┐  ┌─────────────────┐                   │
-│  │   ElevenLabs    │  │   PostgreSQL    │                   │
-│  │ (Voice/Udine)   │  │   (Database)    │                   │
-│  └─────────────────┘  └─────────────────┘                   │
-└─────────────────────────────────────────────────────────────┘
+### 2.2. Environment Configuration
+
+Create environment files for both frontend and backend:
+
+#### **Frontend (.env)**
+```env
+EXPO_PUBLIC_API_URL=http://localhost:3000
+EXPO_PUBLIC_UDINE_AGENT_ID=your_elevenlabs_agent_id
+EXPO_PUBLIC_HUME_API_KEY=your_hume_api_key
+EXPO_PUBLIC_APP_ENV=development
 ```
+<!-- Backend .env deprecated: client-only Expo app -->
+```env
 
-### 2.2. ElevenLabs Integration
-Following the [Expo + ElevenLabs guide](https://expo.dev/blog/how-to-build-universal-app-voice-agents-with-expo-and-elevenlabs), the integration provides:
-
-**Turn-Taking Conversation:**
-- Natural conversation flow with automatic turn detection
-- Real-time voice processing and response generation
-- Seamless integration with Expo's audio capabilities
-
-**Udine Voice Agent:**
-- Single, consistent voice personality across all interactions
-- Emotional tone adaptation based on Hume AI analysis
-- Context-aware responses powered by LangChain JS orchestration
+aware responses powered by LangChain JS orchestration
 
 ### 2.3. Data Flow Architecture
 ```
@@ -157,10 +148,15 @@ PostgreSQL ← Session Storage → WebSocket → Client Update
 "@elevenlabs/react": "^0.8.0",        // Latest React SDK with turn-taking
 "@elevenlabs/client": "^0.8.0",       // Core ElevenLabs client
 "@google/genai": "^1.5.0",            // Google GenAI 1.5.0 (correct package)
-"@langchain/core": "^0.3.0",          // LangChain core abstractions
-"@langchain/community": "^0.3.0",     // Community integrations
-"@langchain/google-genai": "^0.1.0",  // Google GenAI LangChain integration
-"@langchain/langgraph": "^0.2.0",     // Agent orchestration and state
+"ai": "^1.0.0",                        // Core Vercel AI SDK
+"@ai-sdk/google": "^0.1.0",           // Gemini chat & embeddings
+"@ai-sdk/voyage": "^0.1.0",           // Voyage AI embedding provider
+# LangChain adapters retained where needed (optional)
+"@ai-sdk/langchain": "^0.3.0",          // LangChain core abstractions
+# "@langchain/community": "^0.3.0",     // (removed) use ai-SDK or adapter only if needed
+# Use Google Generative AI via ai-SDK
+"@ai-sdk/google": "^0.1.0",  // Google GenAI LangChain integration
+# "@langchain/langgraph": "^0.2.0",     // (removed) use ai-SDK orchestration via "ai" package
 "hume": "^0.9.0",                     // Hume AI emotional intelligence
 "zustand": "^4.5.5",                  // State management
 "zod": "^3.23.8"                      // Schema validation
@@ -169,7 +165,7 @@ PostgreSQL ← Session Storage → WebSocket → Client Update
 **Key Components:**
 - ElevenLabs turn-taking conversation components
 - Real-time emotional state visualization from Hume AI
-- LangGraph agent orchestration interface
+- Vercel AI SDK orchestration interface (via `ai` package)
 - Cross-platform navigation with Zustand state management
 - Voice interaction UI with conversation flow indicators
 

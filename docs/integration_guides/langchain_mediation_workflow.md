@@ -1,15 +1,15 @@
-# LangChain 5-Phase Mediation Workflow Integration Guide
+# Vercel AI SDK 5-Phase Mediation Workflow Integration Guide
 
 ## Overview
 
-This guide provides comprehensive implementation details for the LangGraph-based 5-phase mediation workflow that powers Udine's conflict resolution capabilities.
+This guide provides comprehensive implementation details for the Vercel AI SDK-based 5-phase mediation workflow that powers Udine's conflict resolution capabilities.
 
 ## Architecture Overview
 
 ```
-User Input → ElevenLabs → LangGraph State Machine → Google GenAI → Response
-     ↓           ↓              ↓                    ↓           ↓
-Hume AI ← Emotional Analysis ← Phase Context ← Memory ← Action Items
+User Input → ElevenLabs → Vercel AI SDK (Edge Function) → Google GenAI → Response
+     ↓           ↓                  ↓                    ↓           ↓
+Hume AI ← Emotional Analysis ← Context/Memory ← Action Items
 ```
 
 ## 1. Core Workflow Implementation
@@ -17,7 +17,7 @@ Hume AI ← Emotional Analysis ← Phase Context ← Memory ← Action Items
 ### 1.1. Mediation State Definition
 
 ```typescript
-// server/services/langchain/types.ts
+// server/services/vercelAi/types.ts
 export interface MediationState {
   // Session metadata
   sessionId: string;
@@ -82,16 +82,47 @@ export interface ActionItem {
 }
 ```
 
-### 1.2. LangGraph Workflow Implementation
+### 1.2. Client-Side Mediation Workflow
+> **Migration Note:** Instead of server-side handlers, call the `chatWithUdine` helper directly in your Expo React Native screens. For example:
+```tsx
+'use client';
+import { useState } from 'react';
+import { View, TextInput, Button, ScrollView, Text } from 'react-native';
+import { chatWithUdine } from '@/services/ai/chat';
 
-```javascript
-// server/services/langchain/mediationWorkflow.js
-const { StateGraph, MemorySaver } = require("@langchain/langgraph");
-const { ChatGoogleGenerativeAI } = require("@langchain/google-genai");
-const { HumeClient } = require("hume");
+export default function MediationScreen() {
+  const [history, setHistory] = useState<{role: 'user' | 'assistant'; content: string}[]>([]);
+  const [input, setInput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-class MediationWorkflow {
-  constructor() {
+  const handleSend = async () => {
+    if (!input) return;
+    setLoading(true);
+    const response = await chatWithUdine(history, input);
+    setHistory([...history, {role: 'user', content: input}, {role: 'assistant', content: response}]);
+    setInput('');
+    setLoading(false);
+  };
+
+  return (
+    <View style={{ flex: 1, padding: 16 }}>
+      <ScrollView style={{ flex: 1 }}>
+        {history.map((msg, idx) => (
+          <Text key={idx} style={{ marginVertical: 4, color: msg.role === 'assistant' ? 'blue' : 'black' }}>
+            {msg.role === 'assistant' ? 'Udine: ' : 'You: '}{msg.content}
+          </Text>
+        ))}
+      </ScrollView>
+      <TextInput
+        value={input}
+        onChangeText={setInput}
+        placeholder="Type your message..."
+        style={{ borderWidth: 1, padding: 8, marginBottom: 8 }}
+      />
+      <Button onPress={handleSend} title={loading ? 'Sending...' : 'Send'} disabled={loading} />
+    </View>
+  );
+}
     this.llm = new ChatGoogleGenerativeAI({
       modelName: "gemini-2.5-flash",
       apiKey: process.env.GOOGLE_GENAI_API_KEY,
@@ -581,4 +612,4 @@ async function testCompleteWorkflow() {
 testCompleteWorkflow().catch(console.error);
 ```
 
-This comprehensive guide provides the foundation for implementing the sophisticated 5-phase mediation workflow using LangChain and LangGraph.
+This comprehensive guide provides the foundation for implementing the sophisticated 5-phase mediation workflow using ai-sdk

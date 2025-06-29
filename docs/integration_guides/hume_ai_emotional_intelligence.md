@@ -11,7 +11,7 @@ Voice Input → ElevenLabs → Audio Processing → Hume AI Analysis
      ↓             ↓            ↓              ↓
 Text Input → NLP Processing → Emotion Detection → Adaptation Engine
      ↓             ↓            ↓              ↓
-Udine Response ← LangGraph ← Emotional Context ← Real-time Insights
+Udine Response ← Vercel AI SDK (`ai`) ← Emotional Context ← Real-time Insights
 ```
 
 ## 1. Core Hume AI Integration

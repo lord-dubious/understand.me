@@ -17,29 +17,19 @@ This document unifies all conflicting documentation and establishes the definiti
 }
 ```
 
-### **Backend (Express.js/Node.js)**
-```json
-{
-  "express": "^4.19.2",
-  "cors": "^2.8.5",
-  "dotenv": "^16.4.5",
-  "pg": "^8.11.5"
-}
-```
+
 
 ### **AI Orchestration Stack**
 ```json
 {
   "@google/genai": "^1.5.0",
-  "@langchain/core": "^0.3.0",
-  "@langchain/google-genai": "^0.1.0",
-  "@langchain/langgraph": "^0.2.0",
-  "@langchain/community": "^0.3.0",
-  "@langchain/textsplitters": "^0.1.0",
-  "langchain": "^0.3.0"
+  "ai": "^5.0.0-beta.2",
+  "@ai-sdk/rsc": "^5.0.0-beta.2",
+  "@ai-sdk/voyage": "^5.0.0-beta.2",
+  "@ai-sdk/google": "^5.0.0-beta.2",
+  "@ai-sdk/langchain": "^5.0.0-beta.2"
 }
 ```
-
 ### **Voice & Emotional Intelligence**
 ```json
 {
@@ -48,14 +38,13 @@ This document unifies all conflicting documentation and establishes the definiti
   "hume": "^0.9.0"
 }
 ```
-
 ## **2. Core Architecture Principles**
 
 ### **2.1. AI Agent System**
 - **Primary Agent**: Udine (warm, supportive conflict resolution specialist)
 - **Voice Integration**: ElevenLabs turn-taking conversations
 - **Emotional Intelligence**: Hume AI real-time analysis
-- **Orchestration**: LangGraph 5-phase mediation workflow
+- **Orchestration**: Vercel AI SDK-driven 5-phase mediation workflow (custom state machine)
 
 ### **2.2. 5-Phase Mediation Workflow**
 1. **Prepare** - Set context & framework (I1)
@@ -66,21 +55,19 @@ This document unifies all conflicting documentation and establishes the definiti
 
 ### **2.3. Data Flow Architecture**
 ```
-User Voice → ElevenLabs → LangGraph → Google GenAI
+User Voice → ElevenLabs → Vercel AI SDK → Google GenAI
      ↓           ↓           ↓           ↓
 Hume AI ← Emotional Analysis ← Context ← Response
      ↓           ↓           ↓           ↓
-PostgreSQL ← Session State ← Memory ← Action Items
+Local Storage / Edge Functions ← Session State ← Memory ← Action Items
 ```
-
 ## **3. Project Structure (bolt.new Optimized)**
-
 ```
 understand-me/
 ├── src/                           # Frontend (Expo)
 │   ├── components/
 │   │   ├── voice/                 # ElevenLabs integration
-│   │   ├── mediation/             # 5-phase UI components
+│   │   ├── mediation/             # 5-phase UI components (uses @ai-sdk/rsc)
 │   │   ├── emotions/              # Hume AI visualization
 │   │   └── common/                # Shared UI components
 │   ├── screens/
@@ -102,35 +89,13 @@ understand-me/
 │       ├── mediation.ts           # 5-phase workflow types
 │       ├── voice.ts               # ElevenLabs types
 │       └── emotions.ts            # Hume AI types
-├── server/                        # Backend (Express.js)
-│   ├── routes/
-│   │   ├── auth.js                # Authentication
-│   │   ├── sessions.js            # Session management
-│   │   ├── mediation.js           # 5-phase workflow API
-│   │   └── ai.js                  # LangChain orchestration
-│   ├── services/
-│   │   ├── langchain/             # LangGraph workflows
-│   │   │   ├── mediationWorkflow.js
-│   │   │   ├── analysisChains.js
-│   │   │   └── memoryManager.js
-│   │   ├── googleGenAI.js         # Google GenAI integration
-│   │   ├── humeAI.js              # Emotional intelligence
-│   │   └── database.js            # PostgreSQL operations
-│   ├── middleware/
-│   │   ├── auth.js                # JWT authentication
-│   │   ├── validation.js          # Request validation
-│   │   └── errorHandler.js        # Error handling
-│   └── models/
-│       ├── User.js                # User model
-│       ├── Session.js             # Session model
-│       └── Message.js             # Message model
+
 ├── docs/                          # Unified documentation
 │   ├── development_guide/         # Updated UI guides
-│   ├── integration_guides/        # LangChain & Hume AI
+│   │   ├── integration_guides/        # Vercel AI SDK & Hume AI
 │   └── api_documentation/         # Backend API docs
 └── package.json                   # Unified dependencies
 ```
-
 ## **4. Key Integration Patterns**
 
 ### **4.1. ElevenLabs Turn-Taking Integration**
@@ -149,20 +114,24 @@ export const useUdineConversation = () => {
   };
 };
 ```
+### **4.2. Vercel AI SDK Mediation Workflow**
+```tsx
+// src/services/ai/chat.ts
+import { generateText } from 'ai';
+import { google } from '@ai-sdk/google';
 
-### **4.2. LangGraph Mediation Workflow**
-```javascript
-// server/services/langchain/mediationWorkflow.js
-import { StateGraph, MemorySaver } from "@langchain/langgraph";
-
-const mediationWorkflow = new StateGraph({
-  currentPhase: "prepare",
-  participants: [],
-  conflictAnalysis: {},
-  emotionalStates: {},
-  sessionGoals: [],
-  actionItems: []
-});
+/**
+ * Generate Udine’s response in the 5-phase mediation workflow.
+ * Call this from your React Native components.
+ */
+export async function chatWithUdine(history: { role: 'user' | 'assistant'; content: string }[], message: string) {
+	const { text } = await generateText({
+		model: google.chat('gemini-2.5-flash'),
+		system: 'You are Udine, a conflict resolution specialist guiding a 5-phase workflow.',
+		prompt: [...history, { role: 'user', content: message }],
+	});
+	return text;
+}
 ```
 
 ### **4.3. Hume AI Emotional Analysis**
@@ -187,7 +156,7 @@ EXPO_PUBLIC_HUME_API_KEY=your_hume_api_key
 
 ### **5.2. Backend (.env)**
 ```bash
-DATABASE_URL=postgresql://user:pass@host:port/dbname
+
 GOOGLE_GENAI_API_KEY=your_google_genai_key
 ELEVENLABS_API_KEY=your_elevenlabs_key
 HUME_API_KEY=your_hume_api_key

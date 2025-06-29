@@ -7,13 +7,13 @@ This section outlines the global design and interaction principles that underpin
 "Understand-me" is a real-time transcription, translation, and engagement **mobile application** designed to foster clearer communication and inclusivity in meetings, workshops, and educational settings. Built with **Expo (React Native)**, it captures spoken dialogue, provides instant transcriptions, and offers tools for participants to ask questions, provide feedback, and engage with the content seamlessly.
 
 Our unified technology stack includes:
-*   **Frontend:** Expo (React Native), TypeScript, Zustand state management
-*   **Backend:** Express.js/Node.js with PostgreSQL database
-*   **AI Orchestration:** LangChain JS with LangGraph for 5-phase mediation workflows
-*   **Voice Agent:** Udine powered by ElevenLabs turn-taking conversation technology
-*   **Emotional Intelligence:** Hume AI for real-time emotional analysis and adaptation
-*   **Core AI:** Google GenAI (Gemini models) for language understanding and response generation
-*   **Deployment:** Netlify for both frontend and backend hosting
+*   **Frontend:** Expo (React Native) with TypeScript, Zustand state management
+*   **AI Orchestration:** Vercel AI SDK (`ai`) + Google Gemini chat via `@ai-sdk/google` 
+*   **Retrieval (RAG):** Voyage AI embeddings via `@ai-sdk/voyage` + cosine-similarity lookup (Edge config or local DB)
+*   **Voice Agent:** Udine – ElevenLabs turn-taking conversations
+*   **Emotional Intelligence:** Hume AI real-time emotion analysis
+*   **Optional LangChain Utilities:** `@ai-sdk/langchain` adapter where ai-SDK parity is missing
+*   **Deployment:** Expo EAS (mobile) & Vercel Edge Functions (optional serverless helpers)
 
 "Understand-me" aims to break down communication barriers, ensure everyone feels heard, and create a more productive and equitable environment for collaboration. This guide provides a framework for designing and developing features that align with our core vision and user needs within this mobile-first context.
 

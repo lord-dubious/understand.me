@@ -31,9 +31,9 @@ npm install pg@^8.11.5
 
 # AI Orchestration stack
 npm install @google/genai@^1.5.0
-npm install @langchain/core@^0.3.0 @langchain/google-genai@^0.1.0
-npm install @langchain/langgraph@^0.2.0 @langchain/community@^0.3.0
-npm install langchain@^0.3.0
+npx expo install ai @ai-sdk/google @ai-sdk/voyage @ai-sdk/langchain
+npx expo install @elevenlabs/react @elevenlabs/client hume
+npx expo install ai-sdk
 
 # Voice & Emotional Intelligence
 npm install @elevenlabs/react@^0.8.0 @elevenlabs/client@^0.8.0

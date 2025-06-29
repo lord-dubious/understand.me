@@ -26,14 +26,15 @@ npm install expo@~51.0.0 react@18.2.0 react-native@0.74.0
 npm install react-native-web@~0.19.10
 
 # Backend dependencies
-npm install express@^4.19.2 cors@^2.8.5 dotenv@^16.4.5
-npm install pg@^8.11.5
+
+
 
 # AI Orchestration stack
-npm install @google/genai@^1.5.0
-npm install @langchain/core@^0.3.0 @langchain/google-genai@^0.1.0
-npm install @langchain/langgraph@^0.2.0 @langchain/community@^0.3.0
-npm install langchain@^0.3.0
+# AI Orchestration & Embeddings
+npx expo install ai @ai-sdk/google @ai-sdk/voyage @ai-sdk/langchain
+
+
+
 
 # Voice & Emotional Intelligence
 npm install @elevenlabs/react@^0.8.0 @elevenlabs/client@^0.8.0
@@ -61,9 +62,9 @@ EXPO_PUBLIC_HUME_API_KEY=your_hume_api_key
 EXPO_PUBLIC_APP_ENV=development
 ```
 
-#### **Backend (.env)**
+<!-- Backend .env deprecated: client-only Expo app -->
 ```env
-DATABASE_URL=postgresql://user:pass@host:port/dbname
+
 GOOGLE_GENAI_API_KEY=your_google_genai_key
 ELEVENLABS_API_KEY=your_elevenlabs_key
 HUME_API_KEY=your_hume_api_key
