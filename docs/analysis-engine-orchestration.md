@@ -97,7 +97,7 @@ const response = await generateStream({
 });
 ```
 
-This keeps full streaming and tool-calling while giving Gemini clear, cite-able context blocks.
+This keeps full streaming and tool-calling while giving Gemini clear, citable context blocks.
 
 1. Split docs → chunks (`utils/chunker.ts`).
 2. `embedMany(chunks)` with Voyage.
