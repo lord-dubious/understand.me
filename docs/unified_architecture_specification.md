@@ -1,5 +1,10 @@
 # Understand.me - Unified Architecture Specification
 
+> **🚨 IMPORTANT**  
+> This project is now **client-only (Expo React Native)** using **Vercel AI SDK + Gemini + ElevenLabs**.  
+> Any mentions of Express servers, PostgreSQL, or full LangChain orchestration are historical and should be ignored.  
+> The only acceptable LangChain usage is via the optional `@ai-sdk/langchain` adapter when no ai-SDK equivalent exists.
+
 ## **Executive Summary**
 
 This document unifies all conflicting documentation and establishes the definitive architecture for Understand.me - an AI-mediated conflict resolution platform built for bolt.new development and Netlify deployment.

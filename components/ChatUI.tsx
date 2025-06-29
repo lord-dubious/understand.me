@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet } from 'react-native';
 import { chatWithUdine } from '../services/ai/chat';
 
+/**
+ * Displays a chat interface that allows users to interact with an AI assistant.
+ *
+ * Renders a scrollable conversation history and an input field for sending messages. User messages and AI responses are displayed with distinct styles.
+ *
+ * @returns The rendered chat UI component.
+ */
 export default function ChatUI() {
 	const [history, setHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
 	const [input, setInput] = useState<string>('');

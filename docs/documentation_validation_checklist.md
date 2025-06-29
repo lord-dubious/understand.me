@@ -1,5 +1,9 @@
 # Documentation Validation Checklist
 
+> **⚠️ NOTE**
+> This checklist still contains items mentioning **LangChain** and server-side Express flows. Our current stack is **client-only Expo + Vercel AI SDK**. Treat any LangChain-specific item as *optional / deprecated*. All new validation should follow the patterns described in `analysis-engine-orchestration.md`.
+
+
 ## Overview
 
 This checklist ensures all documentation is consistent with the unified architecture and ready for bolt.new development.

@@ -6,6 +6,11 @@ import { useCallback } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import tools from '../utils/tools';
 
+/**
+ * Requests permission to access the device's microphone.
+ *
+ * @returns `true` if microphone access is granted; otherwise, `false`.
+ */
 async function requestMicrophonePermission() {
 	try {
 		await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -16,6 +21,13 @@ async function requestMicrophonePermission() {
 	}
 }
 
+/**
+ * React Native component that manages a voice conversation session with microphone access and conversational AI integration.
+ *
+ * Renders a pressable microphone button that starts or stops a conversation session based on connection status. Requests microphone permission before starting a session and provides platform-specific tools for battery level, brightness, and screen flashing.
+ *
+ * @param platform - The platform identifier to be passed as a dynamic variable to the conversation session.
+ */
 export default function ConvAiDOMComponent({
 	dom,
 	platform,

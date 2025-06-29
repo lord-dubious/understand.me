@@ -3,2061 +3,1272 @@
 ## 1. Executive Summary
 
 ### 1.1. Product Vision
-"Understand.me" is an AI-mediated communication platform that helps users navigate difficult conversations and resolve conflicts through structured, emotionally intelligent dialogue. The platform features "Udine," an AI voice agent that facilitates understanding between participants using advanced emotional intelligence and natural turn-taking conversation.
+"Understand.me" is an AI-mediated communication platform that helps users navigate difficult conversations and resolve conflicts through structured, emotionally intelligent dialogue. The platform features "Udine," an AI voice agent that facilitates understanding between participants using advanced emotional intelligence and natural turn-taking conversation through a 5-phase mediation workflow.
 
-### 1.2. Simplified Architecture
-**Development Environment**: bolt.new optimized
-**Build & Run**: bolt.new (Expo dev server + Vercel preview)
-**Platform**: Expo React Native (web-first, works iOS / Android)
-**Data Store**: Local ⬆️ to browser / native storage (no server/db required initially)
-**AI Orchestration**: Vercel AI SDK (`ai`) + Google Gemini models via `@ai-sdk/google` (optional `@ai-sdk/langchain` adapter)
-**Voice Agent**: Udine — ElevenLabs turn-taking Conversational AI
-**Emotional Intelligence**: Hume AI SDK
+### 1.2. Unified Architecture
+**Development Environment**: bolt.new optimized for rapid development
+**Platform**: Expo React Native (universal - web, iOS, Android)
+**Data Storage**: Client-side local storage (AsyncStorage, browser storage)
+**AI Orchestration**: Vercel AI SDK with Google Gemini models
+**Voice Agent**: Udine via ElevenLabs React SDK with turn-taking conversations
+**Emotional Intelligence**: Hume AI for real-time emotional analysis and adaptation
+**Deployment**: Netlify static hosting for web builds
 
-> **Authoritative stack**: Expo RN client only  |  Vercel AI SDK  |  ElevenLabs Udine  |  Hume AI
+> **Definitive Technology Stack**: Expo React Native + Vercel AI SDK + Google Gemini + ElevenLabs React + Hume AI + Client-side Storage
 
-### 1.3. Core AI Stack
-- **Google GenAI 1.5.0**: Primary LLM for conversation analysis and response generation
-- **Vercel AI SDK**: Core LLM orchestration (`ai`) + Gemini models
-- **Hume AI**: Emotional intelligence analysis and real-time emotion detection
-- **ElevenLabs**: Turn-taking conversational AI with Udine voice personality
+### 1.3. Core AI Components
+- **Google Gemini (via @ai-sdk/google)**: Primary LLM for conversation analysis, response generation, and 5-phase mediation workflow
+- **Hume AI**: Real-time emotional intelligence analysis from voice and text inputs with mediation context adaptation
+- **ElevenLabs React SDK**: Turn-taking conversational AI with Udine voice personality and natural conversation flow
+- **Vercel AI SDK**: Unified client-side AI orchestration with streaming responses and state management
 
 ### 1.4. Key Differentiators
-- **Turn-taking AI conversations** that feel natural and responsive
-- **Real-time emotional intelligence** analysis and adaptation
-- **Cross-platform compatibility** (mobile and web from single codebase)
-- **Simplified architecture** optimized for rapid development and deployment
+- **5-Phase Mediation Workflow**: Structured conflict resolution (Prepare → Express → Understand → Resolve → Heal)
+- **Emotionally Adaptive AI**: Real-time emotional analysis that adapts conversation tone and approach
+- **Natural Voice Conversations**: Turn-taking AI with Udine's warm, supportive personality
+- **Universal Platform**: Single codebase for web, iOS, and Android with optimized UX
+- **bolt.new Optimized**: Simplified architecture for rapid development and deployment
 
 
+## 2. Technical Architecture
 
-# AI Orchestration stack
-# AI Orchestration & Embeddings
-npx expo install ai @ai-sdk/google @ai-sdk/voyage @ai-sdk/langchain
+### 2.1. Technology Stack
 
+#### **Core Dependencies (Current Implementation)**
+```json
+{
+  "expo": "~53.0.13",
+  "react": "19.0.0",
+  "react-native": "0.79.4",
+  "react-native-web": "^0.20.0",
+  "@ai-sdk/google": "^1.2.19",
+  "@elevenlabs/react": "^0.1.7",
+  "react-native-webview": "13.13.5"
+}
+```
 
-
+#### **AI & Voice Integration**
+```bash
+# AI Orchestration (Vercel AI SDK)
+npm install ai @ai-sdk/google
 
 # Voice & Emotional Intelligence
-npm install @elevenlabs/react@^0.8.0 @elevenlabs/client@^0.8.0
-npm install hume@^0.9.0
+npm install @elevenlabs/react hume
 
-# State management & utilities
-npm install zustand@^4.5.5 uuid@^10.0.0 zod@^3.23.8
-npm install @react-native-async-storage/async-storage@^1.23.1
+# State Management (if needed)
+npm install zustand
 
-# Development dependencies
-npm install --save-dev @types/express@^4.17.21 @types/pg@^8.11.6
-npm install --save-dev @types/uuid@^10.0.0 typescript@~5.3.3
-npm install --save-dev concurrently@^8.2.2 nodemon@^3.1.0
+# Development Tools
+npm install @types/react typescript
 ```
+
 ### 2.2. Environment Configuration
 
-Create environment files for both frontend and backend:
-
-#### **Frontend (.env)**
+#### **Client Environment (.env)**
 ```env
-EXPO_PUBLIC_API_URL=http://localhost:3000
+# AI Services
+EXPO_PUBLIC_GOOGLE_GENAI_API_KEY=your_google_genai_key
+EXPO_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_key
 EXPO_PUBLIC_UDINE_AGENT_ID=your_elevenlabs_agent_id
 EXPO_PUBLIC_HUME_API_KEY=your_hume_api_key
+
+# Application
 EXPO_PUBLIC_APP_ENV=development
 ```
-<!-- Backend .env deprecated: client-only Expo app -->
-```env
 
-aware responses powered by LangChain JS orchestration
+### 2.3. Unified Data Flow Architecture
+```mermaid
+graph TD
+    A[User Voice/Text Input] --> B[Expo React Native App]
+    B --> C[ElevenLabs React SDK]
+    B --> D[Hume AI Analysis]
+    B --> E[Vercel AI SDK + Google Gemini]
 
-### 2.3. Data Flow Architecture
-```
-User Voice Input → ElevenLabs → LangChain JS → Google GenAI
-                                     ↓
-Hume AI (Emotion) ← Express.js API ← Response Generation
-                                     ↓
-PostgreSQL ← Session Storage → WebSocket → Client Update
+    C --> F[Udine Voice Response]
+    D --> G[Emotional Context]
+    E --> H[AI-Generated Content]
+
+    F --> I[5-Phase Mediation Workflow]
+    G --> I
+    H --> I
+
+    I --> J[Adaptive Response]
+    J --> K[User Experience]
+
+    B --> L[Local Storage]
+    L --> B
 ```
 
 ## 3. Core Features & User Stories
 
-### 3.1. User Authentication & Profiles
+### 3.1. AI-Powered Onboarding & User Profiles
+**As a new user, I want to:**
+- Complete an AI-guided onboarding with Udine's voice
+- Provide personality assessment through conversational interface
+- Understand how emotional intelligence will enhance my experience
+- Set privacy preferences for voice and emotional data
+
+### 3.2. Udine Voice Agent (ElevenLabs Integration)
 **As a user, I want to:**
-- Sign up with email/password or social login
-- Create a personality profile through guided assessment
-- Manage my privacy settings and data preferences
-- Access my conversation history and insights
+- Engage in natural turn-taking conversations with Udine
+- Experience emotionally adaptive responses based on Hume AI analysis
+- Receive real-time guidance through the 5-phase mediation workflow
+- Feel supported by a warm, empathetic AI mediator
 
-### 3.2. AI Voice Agent (Udine)
-**As a user, I want to:**
-- Have natural turn-taking conversations with Udine
-- Receive emotionally appropriate responses based on my current state
-- Get real-time guidance during difficult conversations
-- Feel heard and understood by the AI mediator
+### 3.3. 5-Phase Mediation Workflow
+**Phase 1: Prepare (I1)**
+- Udine sets context and establishes session framework
+- Emotional baseline assessment via Hume AI
+- Goal setting and communication rules establishment
 
-### 3.3. Session Management
-**As a host, I want to:**
-- Create new conversation sessions with clear objectives
-- Invite participants via email or shareable links
-- Configure session settings (privacy, recording, etc.)
-- Monitor participant responses and session status
-
-**As a participant, I want to:**
-- Join sessions easily with invitation codes/links
-- Understand the session context before participating
-- Control my privacy settings within sessions
-- Provide feedback on the mediation process
-
-### 3.4. Five-Phase Conversation Flow
-**Phase 1: Prepare**
-- Udine helps participants articulate their perspectives
-- Emotional state assessment via Hume AI
-- Context gathering and goal setting
-
-**Phase 2: Express**
-- Structured sharing of viewpoints
-- Active listening facilitation by Udine
+**Phase 2: Express (I2)**
+- Guided turn-taking for perspective sharing
 - Real-time emotional monitoring and adaptation
+- Active listening facilitation by Udine
 
-**Phase 3: Understand**
-- Perspective-taking exercises guided by AI
-- Clarification of underlying needs and concerns
+**Phase 3: Understand (I3)**
+- AI-guided perspective clarification
+- Common ground identification
 - Empathy building through structured dialogue
 
-**Phase 4: Resolve**
-- Collaborative solution generation
-- Option evaluation with AI assistance
-- Agreement drafting and refinement
+**Phase 4: Resolve (I4)**
+- Collaborative solution brainstorming
+- AI-assisted option evaluation
+- Agreement drafting with emotional context
 
-**Phase 5: Heal**
-- Relationship repair and future planning
-- Commitment establishment
-- Follow-up scheduling and accountability
+**Phase 5: Heal (I5)**
+- Relationship repair focus
+- Future interaction planning
+- Commitment establishment and follow-up
 
-### 3.5. Emotional Intelligence Integration
-**Hume AI Integration:**
-- Real-time emotion detection from voice and text
-- Emotional state tracking throughout conversations
+### 3.4. Session Management (Host & Participant Paths)
+**Host Path (F1-F10):**
+- Describe conflict with AI analysis (F1-F2)
+- Configure session type and settings (F3-F7)
+- Invite participants with context sharing (F8-F9)
+- Monitor responses and session readiness (F10)
+
+**Participant Path (G1-G8):**
+- Receive detailed invitations with context (G1-G3)
+- Accept/decline with optional feedback (G4-G5)
+- Provide perspective and configure privacy (G6-G7)
+- Confirm readiness for mediation (G8)
+
+### 3.5. Emotional Intelligence & Growth Tracking
+**Hume AI Real-time Analysis:**
+- Voice and text emotion detection with confidence scores
+- Emotional trend tracking throughout conversations
 - Adaptive response generation based on emotional context
-- Emotional insights and patterns for personal growth
+- Intervention recommendations for emotional escalation
+
+**Personal Growth Module (K1-K5):**
+- AI-generated insights on communication patterns
+- Achievement badges for constructive participation
+- Personalized resource recommendations
+- Future conflict prevention strategies
 
 ## 4. Technical Implementation
 
-### 4.1. Frontend Development (Expo)
-**Mobile & Web Application:**
+### 4.1. Client-Side Architecture (Expo React Native)
+
+**Universal Application Structure:**
 ```typescript
-// Core dependencies for Understand.me
-"expo": "~51.0.0",
-"react-native": "0.74.0",
-"@elevenlabs/react": "^0.8.0",        // Latest React SDK with turn-taking
-"@elevenlabs/client": "^0.8.0",       // Core ElevenLabs client
-"@google/genai": "^1.5.0",            // Google GenAI 1.5.0 (correct package)
-"ai": "^1.0.0",                        // Core Vercel AI SDK
-"@ai-sdk/google": "^0.1.0",           // Gemini chat & embeddings
-"@ai-sdk/voyage": "^0.1.0",           // Voyage AI embedding provider
-# LangChain adapters retained where needed (optional)
-"@ai-sdk/langchain": "^0.3.0",          // LangChain core abstractions
-# "@langchain/community": "^0.3.0",     // (removed) use ai-SDK or adapter only if needed
-# Use Google Generative AI via ai-SDK
-"@ai-sdk/google": "^0.1.0",  // Google GenAI LangChain integration
-# "@langchain/langgraph": "^0.2.0",     // (removed) use ai-SDK orchestration via "ai" package
-"hume": "^0.9.0",                     // Hume AI emotional intelligence
-"zustand": "^4.5.5",                  // State management
-"zod": "^3.23.8"                      // Schema validation
+// services/ai/chat.ts - Vercel AI SDK Integration
+import { generateText } from 'ai';
+import { google } from '@ai-sdk/google';
+
+export async function chatWithUdine(
+  history: Array<{ role: 'user' | 'assistant'; content: string }>,
+  message: string,
+  emotionalContext?: EmotionalAnalysis
+) {
+  const { text } = await generateText({
+    model: google('gemini-2.0-flash-exp'),
+    system: `You are Udine, a warm and empathetic conflict resolution specialist.
+             Guide users through a 5-phase mediation workflow: Prepare → Express → Understand → Resolve → Heal.
+             ${emotionalContext ? `Current emotional state: ${emotionalContext.primary.emotion} (${emotionalContext.primary.intensity})` : ''}`,
+    messages: [...history, { role: 'user', content: message }],
+  });
+  return text;
+}
 ```
 
-**Key Components:**
-- ElevenLabs turn-taking conversation components
-- Real-time emotional state visualization from Hume AI
-- Vercel AI SDK orchestration interface (via `ai` package)
-- Cross-platform navigation with Zustand state management
-- Voice interaction UI with conversation flow indicators
+**Key Implementation Components:**
+- **Voice Integration**: ElevenLabs React SDK with turn-taking conversations
+- **Emotional Analysis**: Hume AI real-time emotion detection and adaptation
+- **AI Orchestration**: Vercel AI SDK with Google Gemini for response generation
+- **State Management**: Local storage with optional Zustand for complex state
+- **Cross-Platform UI**: Expo React Native components optimized for web, iOS, Android
 
-### 4.2. Backend Development (Express.js)
-**Server Architecture:**
-```javascript
-// Core Express.js setup with correct packages
-const express = require('express');
-const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/genai');
-const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
-const { createReactAgent } = require('@langchain/langgraph/prebuilt');
-const { MemorySaver } = require('@langchain/langgraph');
-const { HumeClient } = require('hume');
+### 4.2. ElevenLabs Voice Integration
+**Udine Voice Agent Implementation:**
+```typescript
+// services/elevenlabs.ts
+import { Conversation } from '@elevenlabs/react';
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/sessions', sessionRoutes);
-app.use('/api/conversations', conversationRoutes);
-app.use('/api/emotions', emotionRoutes);
-app.use('/api/ai', aiOrchestrationRoutes);
-```
-
-**Database Schema (PostgreSQL):**
-```sql
--- Users and authentication
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email VARCHAR UNIQUE NOT NULL,
-  password_hash VARCHAR NOT NULL,
-  profile JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Conversation sessions
-CREATE TABLE sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  host_id UUID REFERENCES users(id),
-  title VARCHAR NOT NULL,
-  status VARCHAR DEFAULT 'pending',
-  config JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Session participants
-CREATE TABLE participants (
-  session_id UUID REFERENCES sessions(id),
-  user_id UUID REFERENCES users(id),
-  role VARCHAR DEFAULT 'participant',
-  status VARCHAR DEFAULT 'invited',
-  PRIMARY KEY (session_id, user_id)
-);
-
--- Conversation messages and analysis
-CREATE TABLE messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id UUID REFERENCES sessions(id),
-  user_id UUID REFERENCES users(id),
-  content TEXT,
-  emotion_data JSONB,
-  ai_analysis JSONB,
-  timestamp TIMESTAMP DEFAULT NOW()
-);
-```
-
-### 4.3. AI Service Integration
-**LangChain JS Orchestration:**
-```javascript
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { HumeClient } from "hume";
-
-class ConversationOrchestrator {
-  constructor() {
-    this.llm = new ChatGoogleGenerativeAI({
-      modelName: "gemini-1.5-pro",
-      apiKey: process.env.GOOGLE_GENAI_API_KEY
+export const useUdineConversation = () => {
+  const startMediationSession = async (sessionConfig: SessionConfig) => {
+    return await Conversation.startSession({
+      agentId: process.env.EXPO_PUBLIC_UDINE_AGENT_ID,
+      onMessage: handleMediationMessage,
+      onTurnChange: handleTurnChange,
+      onEmotionDetected: handleEmotionChange,
+      conversationConfig: {
+        turnDetection: 'server_vad',
+        language: 'en',
+        voice: 'udine_warm_supportive'
+      }
     });
-    this.hume = new HumeClient({
-      apiKey: process.env.HUME_API_KEY
+  };
+};
+```
+
+### 4.3. Hume AI Emotional Intelligence
+**Real-time Emotional Analysis:**
+```typescript
+// services/hume.ts
+import { HumeClient } from 'hume';
+
+export class HumeEmotionalIntelligence {
+  async analyzeVoiceEmotion(audioBuffer: ArrayBuffer): Promise<EmotionalAnalysis> {
+    const response = await this.client.empathicVoice.analyze({
+      audio: audioBuffer,
+      models: ['prosody', 'language'],
+      transcription: true
     });
+
+    return this.processEmotionalResponse(response);
   }
 
-  async processConversationTurn(userInput, sessionContext) {
-    // 1. Analyze emotions with Hume AI
-    const emotions = await this.hume.expressionMeasurement
-      .batch.startInferenceJob({
-        text: [userInput]
-      });
-
-    // 2. Generate contextual response with Google GenAI
-    const response = await this.llm.invoke([
-      { role: "system", content: this.buildSystemPrompt(sessionContext, emotions) },
-      { role: "user", content: userInput }
-    ]);
-
-    // 3. Return structured response for ElevenLabs
+  generateMediationContext(emotions: any[]): MediationContext {
+    // Provides adaptive guidance for 5-phase workflow
     return {
-      text: response.content,
-      emotions: emotions,
-      voiceSettings: this.adaptVoiceToEmotion(emotions)
+      requiresIntervention: this.detectEscalation(emotions),
+      suggestedTone: this.suggestTone(emotions),
+      phaseRecommendation: this.recommendPhaseAction(emotions)
     };
   }
 }
 ```
 
-## 5. Development Workflow for bolt.new
+## 5. Development Workflow (bolt.new Optimized)
 
-### 5.1. Project Structure
+### 5.1. Project Structure (Unified Architecture)
 ```
-understand-me/
-├── src/
-│   ├── components/          # Reusable UI components
-│   ├── screens/            # Main application screens
-│   ├── services/           # API and external service integrations
-│   ├── hooks/              # Custom React hooks
-│   ├── utils/              # Utility functions
-│   └── types/              # TypeScript type definitions
-├── server/
-│   ├── routes/             # Express.js API routes
-│   ├── middleware/         # Custom middleware
-│   ├── services/           # Backend business logic
-│   └── database/           # Database schemas and migrations
-├── docs/                   # Documentation
-└── package.json
+understand.me/
+├── components/
+│   ├── voice/                 # ElevenLabs integration components
+│   ├── mediation/             # 5-phase workflow UI components
+│   ├── emotions/              # Hume AI visualization components
+│   └── common/                # Shared UI components
+├── screens/
+│   ├── onboarding/            # AI-powered onboarding flow
+│   ├── host/                  # Host path (F1-F10)
+│   ├── participant/           # Participant path (G1-G8)
+│   ├── session/               # 5-phase mediation (I1-I5)
+│   └── growth/                # Growth tracking (K1-K5)
+├── services/
+│   ├── ai/
+│   │   ├── chat.ts            # Vercel AI SDK + Google Gemini
+│   │   └── mediation.ts       # 5-phase workflow logic
+│   ├── elevenlabs.ts          # Udine voice agent
+│   ├── hume.ts                # Emotional intelligence
+│   └── storage.ts             # Local state management
+├── stores/                    # Zustand stores (optional)
+│   ├── conversationStore.ts   # Session state
+│   ├── userStore.ts           # User profile
+│   └── emotionStore.ts        # Emotional analysis data
+├── types/
+│   ├── mediation.ts           # 5-phase workflow types
+│   ├── voice.ts               # ElevenLabs types
+│   └── emotions.ts            # Hume AI types
+├── utils/
+│   ├── tools.ts               # Utility functions
+│   └── chunker.ts             # Data processing
+├── docs/                      # Unified documentation
+├── App.tsx                    # Main application entry
+└── package.json               # Dependencies
 ```
 
-### 5.2. Environment Variables
+### 5.2. Environment Configuration
 ```bash
-# AI Services
-GOOGLE_GENAI_API_KEY=your_google_genai_key
-ELEVENLABS_API_KEY=your_elevenlabs_key
-HUME_API_KEY=your_hume_api_key
-
-# Database
-DATABASE_URL=postgresql://user:pass@host:port/dbname
-
-# Authentication
-JWT_SECRET=your_jwt_secret
-SESSION_SECRET=your_session_secret
+# AI Services (Client-side)
+EXPO_PUBLIC_GOOGLE_GENAI_API_KEY=your_google_genai_key
+EXPO_PUBLIC_ELEVENLABS_API_KEY=your_elevenlabs_key
+EXPO_PUBLIC_UDINE_AGENT_ID=your_elevenlabs_agent_id
+EXPO_PUBLIC_HUME_API_KEY=your_hume_api_key
 
 # Application
-NODE_ENV=development
-PORT=3000
+EXPO_PUBLIC_APP_ENV=development
 ```
 
-### 5.3. Development Commands
+### 5.3. Development Commands (bolt.new)
 ```bash
 # Install dependencies
 npm install
 
-# Start development server (backend)
-npm run dev:server
+# Start Expo development server
+npm start
 
-# Start Expo development (frontend)
-npm run dev:expo
+# Platform-specific development
+npm run web      # Web development
+npm run ios      # iOS simulator
+npm run android  # Android emulator
 
-# Run both concurrently
-npm run dev
-
-# Build for production
-npm run build
-
-# Deploy to Netlify
-npm run deploy
+# Production build
+npm run build    # Web build for Netlify
 ```
 
-## 6. Deployment on Netlify
+## 6. Deployment Strategy (Netlify Static Hosting)
 
-### 6.1. Netlify Configuration
+### 6.1. Netlify Configuration for Expo Web
 **netlify.toml:**
 ```toml
 [build]
-  command = "npm run build"
+  command = "npx expo export -p web"
   publish = "dist"
 
-[functions]
-  directory = "server"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[build.environment]
+  NODE_VERSION = "18"
+  EXPO_PUBLIC_GOOGLE_GENAI_API_KEY = "your_google_genai_key"
+  EXPO_PUBLIC_ELEVENLABS_API_KEY = "your_elevenlabs_key"
+  EXPO_PUBLIC_UDINE_AGENT_ID = "your_elevenlabs_agent_id"
+  EXPO_PUBLIC_HUME_API_KEY = "your_hume_api_key"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
 ```
 
-### 6.2. Database Options for Netlify
-**Recommended: Neon PostgreSQL**
-- Free tier available
-- Serverless PostgreSQL
-- Easy integration with Netlify
-- Automatic scaling
+### 6.2. Client-Side Data Storage
+**Local Storage Strategy:**
+- **User Profiles**: AsyncStorage (mobile) / localStorage (web)
+- **Session Data**: In-memory state with optional persistence
+- **Conversation History**: Local storage with privacy controls
+- **Emotional Analysis**: Temporary storage, user-controlled retention
+- **No Backend Database**: Simplified architecture with client-side data management
 
-**Alternative: Supabase**
-- PostgreSQL with additional features
-- Built-in authentication
-- Real-time subscriptions
-- Free tier available
+### 6.3. Performance Optimization
+**Expo Web Build Optimization:**
+- Tree-shaking for minimal bundle size
+- Code splitting for faster initial load
+- Service worker for offline capability
+- CDN delivery via Netlify Edge
+- Optimized asset loading for voice and AI components
 
 ## 7. Success Metrics & KPIs
 
-### 7.1. User Engagement
-- Session completion rate (target: >80%)
-- User retention (7-day, 30-day)
-- Average session duration
-- Repeat usage frequency
+### 7.1. User Engagement & Experience
+- **5-Phase Completion Rate**: >85% of sessions complete all phases
+- **Voice Interaction Quality**: User satisfaction with Udine conversations >4.5/5
+- **Emotional Adaptation Effectiveness**: Users report feeling understood >90%
+- **User Retention**: 7-day (>60%), 30-day (>40%) retention rates
+- **Session Duration**: Average 15-25 minutes for complete mediation
+- **Repeat Usage**: >30% of users return for additional sessions
 
-### 7.2. AI Performance
-- Conversation quality ratings
-- Emotional accuracy (Hume AI)
-- Response relevance scores
-- Turn-taking effectiveness
+### 7.2. AI & Voice Performance
+- **Emotional Analysis Accuracy**: Hume AI confidence scores >0.7
+- **Voice Response Latency**: ElevenLabs turn-taking <2s response time
+- **AI Response Relevance**: User ratings >4.0/5 for Udine's guidance
+- **Conversation Flow**: Smooth phase transitions >95% of sessions
+- **Conflict Resolution Success**: Mutual agreement reached >70% of sessions
 
-### 7.3. Technical Performance
-- API response times (<500ms)
-- Voice processing latency (<2s)
-- System uptime (>99.5%)
-- Error rates (<1%)
+### 7.3. Technical Performance (Client-Side)
+- **App Load Time**: Initial load <3s on 3G networks
+- **Voice Processing**: Real-time audio analysis <1s latency
+- **Cross-Platform Consistency**: Feature parity >95% across web/mobile
+- **Offline Capability**: Core features available without connectivity
+- **Error Rates**: Client-side errors <2%, API failures <1%
+- **Memory Usage**: Efficient resource management on mobile devices
 
-## 8. Next Steps
+### 7.4. Emotional Intelligence Impact
+- **Emotional Escalation Prevention**: >80% reduction in conflict escalation
+- **Empathy Building**: Increased mutual understanding scores post-session
+- **Personal Growth**: Users report improved communication skills >60%
+- **Intervention Effectiveness**: AI interventions lead to de-escalation >85%
 
-### 8.1. Immediate Actions
-1. Set up bolt.new development environment
-2. Create basic Express.js server structure
-3. Implement ElevenLabs integration following Expo guide
-4. Set up PostgreSQL database schema
-5. Create basic Expo app with voice components
+## 8. Implementation Roadmap
 
-### 8.2. Development Phases
-**Phase 1 (Weeks 1-2): Foundation**
-- Basic authentication system
-- Database setup and migrations
-- ElevenLabs voice integration
-- Simple conversation flow
+### 8.1. Immediate Development Priorities
+1. **Enhance Udine Voice Integration**: Implement full turn-taking conversation flow
+2. **Complete Hume AI Integration**: Add real-time emotional analysis and adaptation
+3. **Implement 5-Phase Workflow**: Build structured mediation flow with AI guidance
+4. **Optimize Cross-Platform Experience**: Ensure consistent UX across web, iOS, Android
 
-**Phase 2 (Weeks 3-4): AI Integration**
-- Google GenAI integration
-- LangChain JS orchestration
-- Hume AI emotional analysis
-- Five-phase conversation logic
+### 8.2. Development Phases (bolt.new Optimized)
 
-**Phase 3 (Weeks 5-6): Polish & Deploy**
-- UI/UX refinements
-- Testing and optimization
-- Netlify deployment setup
-- Documentation completion
+**Phase 1 (Weeks 1-2): Core Voice & AI Foundation**
+- Complete ElevenLabs React SDK integration with Udine agent
+- Implement Vercel AI SDK with Google Gemini for conversation generation
+- Basic Hume AI emotional analysis integration
+- Set up 5-phase mediation workflow structure
 
-This PRD provides a clear, actionable roadmap for developing Understand.me with a simplified, maintainable architecture optimized for bolt.new development and Netlify deployment.
+**Phase 2 (Weeks 3-4): Mediation Workflow Implementation**
+- Build complete host path (F1-F10) with conflict analysis
+- Implement participant path (G1-G8) with perspective sharing
+- Create 5-phase session flow (I1-I5) with emotional adaptation
+- Add real-time emotional monitoring and intervention logic
 
-### 1.5. Application Architecture with ElevenLabs Integration
+**Phase 3 (Weeks 5-6): Growth & Optimization**
+- Implement personal growth module (K1-K5) with insights
+- Add achievement system and progress tracking
+- Optimize performance for mobile and web platforms
+- Complete Netlify deployment with environment configuration
 
-The "Understand.me" application is built on a modern, serverless architecture that leverages several key technologies to deliver a seamless, cross-platform experience. This section provides an overview of the complete application architecture with a focus on the ElevenLabs voice integration.
+**Phase 4 (Weeks 7-8): Polish & Launch**
+- Comprehensive testing across all platforms
+- UI/UX refinements based on user feedback
+- Performance optimization and error handling
+- Documentation completion and launch preparation
 
-#### 1.5.1. Architecture Overview
+### 8.3. Success Criteria
+- **Technical**: All core features functional across web, iOS, Android
+- **User Experience**: Smooth voice interactions with <2s response times
+- **AI Performance**: Emotional analysis accuracy >70%, conversation quality >4/5
+- **Deployment**: Successful Netlify deployment with proper environment configuration
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Client Application                          │
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │   Expo (React   │  │  State Management│  │  UI Components  │  │
-│  │     Native)     │  │    (Zustand)    │  │   (React Native)│  │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
-│           │                    │                    │           │
-│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
-│  │  Voice Services │  │  Session Manager│  │  Authentication │  │
-│  │  (ElevenLabs)   │  │                │  │    (Supabase)   │  │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
-└───────────┼────────────────────┼────────────────────┼───────────┘
-            │                    │                    │
-┌───────────┼────────────────────┼────────────────────┼───────────┐
-│           │                    │                    │           │
-│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
-│  │  PicaOS (AI     │  │  Supabase       │  │  Upstash Redis  │  │
-│  │  Orchestration) │  │  (Database/Auth)│  │    (Caching)    │  │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
-│           │                    │                    │           │
-│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
-│  │  Google GenAI   │  │  Supabase       │  │  Supabase       │  │
-│  │    (LLM)        │  │  Storage        │  │  Edge Functions │  │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
-│           │                    │                    │           │
-│  ┌────────┴────────┐  ┌────────┴────────┐  ┌────────┴────────┐  │
-│  │  ElevenLabs API │  │  Supabase       │  │  Dappier/Nodely │  │
-│  │  (Voice)        │  │  Realtime       │  │  (Optional)     │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-│                                                                  │
-│                      Backend Services                            │
-└─────────────────────────────────────────────────────────────────┘
-```
+This updated PRD provides a clear, technically accurate roadmap for developing Understand.me with the unified architecture optimized for bolt.new development and client-side AI integration.
 
-#### 1.5.2. Key Components
+---
 
-1. **Client Application:**
-   * **Expo (React Native):** Cross-platform mobile framework that allows the application to run on iOS, Android, and potentially web.
-   * **State Management:** Zustand for lightweight, flexible state management across the application.
-   * **UI Components:** Custom React Native components following the design system.
-   * **Voice Services:** Integration with ElevenLabs for voice synthesis and recognition.
-   * **Session Manager:** Handles the creation, configuration, and state management of mediation sessions.
-   * **Authentication:** Client-side authentication using Supabase Auth.
+## Appendix: Technical Reference
 
-2. **Backend Services:**
-   * **PicaOS:** AI orchestration layer that coordinates between different AI services.
-   * **Supabase:** Provides database, authentication, storage, and realtime capabilities.
-   * **Upstash Redis:** High-performance caching for frequently accessed data and voice responses.
-   * **Google GenAI:** Large language model for generating AI responses and analysis.
-   * **ElevenLabs API:** Voice synthesis for the AI agent "Alex".
-   * **Supabase Edge Functions:** Serverless functions for backend logic.
-   * **Dappier/Nodely:** Optional services for specialized data handling and workflows.
+### A.1. API Integration Patterns
 
-#### 1.5.3. ElevenLabs Integration Flow
+**Vercel AI SDK Integration:**
+```typescript
+// Example: Streaming AI responses with emotional context
+import { streamText } from 'ai';
+import { google } from '@ai-sdk/google';
 
-The following diagram illustrates the flow of data for voice interactions using ElevenLabs:
+export async function generateMediationResponse(
+  messages: Message[],
+  phase: MediationPhase,
+  emotionalContext: EmotionalAnalysis
+) {
+  const result = await streamText({
+    model: google('gemini-2.0-flash-exp'),
+    system: `You are Udine, guiding ${phase} phase of mediation.
+             Current emotional state: ${emotionalContext.primary.emotion}`,
+    messages,
+  });
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  User Input │     │ Expo App    │     │ PicaOS      │
-│  (Voice)    │────▶│ (React      │────▶│ (AI         │
-│             │     │  Native)    │     │ Orchestration)
-└─────────────┘     └─────────────┘     └──────┬──────┘
-                                                │
-                                                ▼
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  User       │     │ Expo App    │     │ ElevenLabs  │
-│  (Hears     │◀────│ (Audio      │◀────│ API         │
-│   Response) │     │  Playback)  │     │ (TTS)       │
-└─────────────┘     └─────────────┘     └──────▲──────┘
-                                                │
-                                                │
-                                         ┌──────┴──────┐
-                                         │ Google GenAI│
-                                         │ (Response   │
-                                         │  Generation)│
-                                         └─────────────┘
+  return result.textStream;
+}
 ```
 
-1. **User Voice Input:**
-   * User speaks into the device microphone.
-   * Expo app captures audio using `expo-av`.
-   * Audio is sent to PicaOS for processing.
-
-2. **Speech Processing:**
-   * PicaOS sends audio to Google GenAI for speech-to-text conversion.
-   * The transcribed text is analyzed for intent and context.
-   * Google GenAI generates an appropriate response script.
-
-3. **Voice Synthesis:**
-   * PicaOS sends the response script to ElevenLabs API.
-   * ElevenLabs synthesizes the text into natural-sounding speech.
-   * The audio response is returned to the Expo app.
-
-4. **Audio Playback:**
-   * Expo app plays the audio response using `expo-av`.
-   * User hears Alex's voice response.
-   * The conversation continues with the next user input.
-
-#### 1.5.4. Data Flow and Storage
-
-1. **User Data:**
-   * User profiles and authentication data stored in Supabase.
-   * User preferences and settings cached in Upstash Redis for quick access.
-
-2. **Session Data:**
-   * Session configurations and metadata stored in Supabase.
-   * Active session state maintained in Supabase Realtime for multi-participant synchronization.
-   * Session transcripts and summaries stored in Supabase for future reference.
-
-3. **Voice Data:**
-   * Temporary audio recordings processed in memory and not persisted unless explicitly required.
-   * Frequently used voice responses cached in Upstash Redis to reduce API calls.
-   * Voice configuration preferences stored in user profiles.
-
-4. **Multimedia Files:**
-   * User-uploaded files stored in Supabase Storage.
-   * File metadata and references stored in Supabase database.
-   * File analysis results cached for quick access during sessions.
-
-### 1.6. Application Development Roadmap
-
-The development of the "Understand.me" application will follow a structured approach to ensure all components are properly integrated and tested. This roadmap provides a high-level overview of the development process from initial setup to final deployment.
-
-#### 1.6.1. Phase 1: Project Setup and Infrastructure (Weeks 1-2)
-
-1. **Environment Setup:**
-   * Create Expo project with TypeScript template
-   * Configure development environments for iOS, Android, and web
-   * Set up version control and CI/CD pipelines
-   * Configure linting and code formatting tools
-
-2. **Backend Infrastructure:**
-   * Set up Supabase project and database schema
-   * Configure authentication services
-   * Set up storage buckets for multimedia files
-   * Implement basic API endpoints and test connectivity
-
-3. **AI Service Integration:**
-   * Set up Google GenAI integration
-   * Configure ElevenLabs API access
-   * Create initial AI orchestration layer with PicaOS
-   * Test basic AI functionality (text generation, voice synthesis)
-
-#### 1.6.2. Phase 2: Core Functionality Development (Weeks 3-6)
-
-1. **Authentication and User Management:**
-   * Implement sign-up and login flows
-   * Create user profile management
-   * Set up social login integrations
-   * Implement password reset and account recovery
-
-2. **Voice Agent Implementation:**
-   * Develop ElevenLabs integration using Expo DOM components
-   * Create voice input/output components
-   * Implement voice recording and playback functionality
-   * Set up voice caching and optimization
-
-3. **Session Management:**
-   * Create session creation and configuration screens
-   * Implement participant invitation system
-   * Develop session joining functionality
-   * Create session state management
-
-4. **AI Mediation Core:**
-   * Implement the five-phase mediation flow
-   * Create context analysis functionality
-   * Develop real-time transcription and analysis
-   * Implement AI guidance and intervention logic
-
-#### 1.6.3. Phase 3: Advanced Features and Refinement (Weeks 7-10)
-
-1. **Multimedia Handling:**
-   * Implement file upload and management
-   * Create document preview functionality
-   * Develop image and video handling
-   * Implement AI analysis of multimedia content
-
-2. **Real-time Communication:**
-   * Set up Supabase Realtime for live updates
-   * Implement notification system
-   * Create real-time session state synchronization
-   * Develop multi-participant interaction flows
-
-3. **Personal Growth Module:**
-   * Create insights generation and tracking
-   * Implement progress visualization
-   * Develop resource recommendation system
-   * Create goal setting and tracking functionality
-
-4. **Post-Session Workflows:**
-   * Implement summary generation
-   * Create review and approval flows
-   * Develop digital sign-off functionality
-   * Implement follow-up scheduling
-
-#### 1.6.4. Phase 4: Testing, Optimization, and Launch (Weeks 11-12)
-
-1. **Comprehensive Testing:**
-   * Conduct unit and integration testing
-   * Perform cross-platform compatibility testing
-   * Execute performance and load testing
-   * Conduct user acceptance testing
-
-2. **Optimization:**
-   * Optimize application performance
-   * Reduce API costs through caching and batching
-   * Improve voice quality and latency
-   * Enhance offline capabilities
-
-3. **Documentation and Training:**
-   * Complete developer documentation
-   * Create user guides and tutorials
-   * Prepare training materials for hosts/mediators
-   * Document API endpoints and integration points
-
-4. **Launch Preparation:**
-   * Finalize app store listings
-   * Prepare marketing materials
-   * Set up analytics and monitoring
-   * Configure production environment
-
-#### 1.6.5. Post-Launch Support and Iteration (Ongoing)
-
-1. **Monitoring and Maintenance:**
-   * Monitor application performance and usage
-   * Track API costs and optimize as needed
-   * Address bugs and issues
-   * Perform regular security updates
-
-2. **User Feedback and Iteration:**
-   * Collect and analyze user feedback
-   * Prioritize feature requests and enhancements
-   * Implement iterative improvements
-   * Conduct A/B testing for new features
-
-3. **Expansion and Enhancement:**
-   * Develop additional AI capabilities
-   * Expand language support
-   * Create enterprise integration options
-   * Develop advanced analytics and reporting
-
-## 2. User Personas & Roles (Functional Focus)
-
-This section summarizes the key user personas and their primary functional goals within the "Understand.me" application. Detailed persona descriptions are available in the Research & Strategy Report and TPKB Part 2.
-
-### 2.1. Harriet (The Host/Mediator/Facilitator)
-*   **FR-PER-HOS-001:** Must be able to create new sessions.
-*   **FR-PER-HOS-002:** Must be able to provide detailed context for a session, including text descriptions and multimedia file uploads (documents, images, audio, video).
-*   **FR-PER-HOS-003:** Must be able to review AI-generated analysis of the provided session context.
-*   **FR-PER-HOS-004:** Must be able to configure session types, choosing from templates or customizing settings (e.g., duration, features like Q&A, polls, anonymity, transcription, translation).
-*   **FR-PER-HOS-005:** Must be able to define specific goals and communication rules for a session.
-*   **FR-PER-HOS-006:** Must be able to invite participants to a session (e.g., via email, shareable link) and manage participant roles.
-*   **FR-PER-HOS-007:** Must be able to track participant invitation statuses (accepted, declined, pending).
-*   **FR-PER-HOS-008:** Must be able to initiate and lead an AI-mediated session through its five phases.
-*   **FR-PER-HOS-009:** Must be able to utilize in-session AI guidance and moderation tools provided by Alex.
-*   **FR-PER-HOS-010:** Must receive and review AI-generated post-session summaries and action plans.
-*   **FR-PER-HOS-011:** Must be able to manage the review and approval process for session summaries with participants.
-*   **FR-PER-HOS-012:** Must be able to digitally sign off on final session summaries.
-*   **FR-PER-HOS-013:** Must be able to schedule follow-up check-in sessions.
-*   **FR-PER-HOS-014:** Must be able to access personal growth insights and track communication skill development related to hosting.
-
-### 2.2. Paul (The Participant)
-*   **FR-PER-PAR-001:** Must be able to join a session using a unique session code or an invitation link.
-*   **FR-PER-PAR-002:** Must be able to view detailed invitation information, including context and files shared by the Host.
-*   **FR-PER-PAR-003:** Must be able to accept or decline session invitations, optionally providing a reason for declining.
-*   **FR-PER-PAR-004:** Must be able (if requested by the Host) to provide their perspective on the session topic before it begins, including text and multimedia file uploads.
-*   **FR-PER-PAR-005:** Must be able to configure personal privacy settings related to data usage and visibility in sessions.
-*   **FR-PER-PAR-006:** Must be able to actively participate in all five phases of an AI-mediated session, including expressing their views (via voice or text) and engaging in understanding and resolution activities.
-*   **FR-PER-PAR-007:** Must be able to understand and follow Alex's guidance and the established session rules.
-*   **FR-PER-PAR-008:** Must be able to review and (if required) approve or suggest changes to post-session summaries.
-*   **FR-PER-PAR-009:** Must be able to digitally sign off on final session summaries if required.
-*   **FR-PER-PAR-010:** Must be able to provide feedback on the session and AI mediation.
-*   **FR-PER-PAR-011:** Must be able to access personal growth insights related to their participation.
-
-### 2.3. Individual User (Self-Reflection/Personal Growth)
-*   **FR-PER-IND-001:** Must be able to use the application for personal, private use without necessarily inviting other participants (e.g., for voice journaling, practicing communication, self-reflection).
-*   **FR-PER-IND-002:** Must be able to get live transcription of their spoken input in this solo mode.
-*   **FR-PER-IND-003:** Must be able to receive AI-driven analysis and insights on their personal input (similar to conflict description analysis but for self-reflection).
-*   **FR-PER-IND-004:** Must be able to access all features of the Personal Growth & Tracking Module (insights, badges, resources, conflict prevention advice) based on their solo usage and any participated sessions.
-*   **FR-PER-IND-005:** Must have strong privacy assurances for their solo usage data.
-
-## 3. System-Wide Functional Requirements
-
-This section details functional requirements that apply across multiple features or define core system capabilities.
-
-### 3.0. AI Engine Technical Implementation
-
-This section outlines the technical implementation details for the core AI components of the "Understand.me" application, including the multimodal LLM analysis engine and the ElevenLabs voice integration.
-
-### 3.0.A. Multimodal LLM Analysis Engine
-
-The multimodal LLM analysis engine is the cognitive core of the "Understand.me" application, enabling sophisticated understanding and analysis of communication patterns, emotional states, and conflict dynamics. This section details the technical implementation of this engine.
-
-#### 3.0.A.1. Multimodal Input Processing Architecture
-
-*   **FR-SYS-AI-001:** The system must process and analyze multiple input modalities, including text, voice, images, and documents.
-    *   **Frontend Development Outline:**
-        *   Implement input capture components for each modality (text input, voice recording via `expo-av`, image capture via `expo-image-picker`, document upload via `expo-document-picker`).
-        *   Create preprocessing pipelines for each modality to optimize data before sending to the backend.
-        *   Implement UI components to display analysis results and insights.
-        *   Create visualization components for emotional analysis, communication patterns, and conflict dynamics.
-    *   **Backend/Serverless Development Outline:**
-        *   **PicaOS/Edge Function:** Orchestrates the processing of multimodal inputs, routing each to appropriate analysis services.
-        *   **Google GenAI:** Provides multimodal LLM capabilities for analyzing text, images, and transcribed audio.
-        *   **Specialized Services:** Integrate with specialized services for specific analysis tasks (e.g., voice tone analysis, facial expression recognition).
-        *   **Supabase Database:** Stores analysis results, patterns, and insights for future reference and learning.
-    *   **Key Technical Considerations/Challenges:**
-        *   Efficient handling of large multimedia files.
-        *   Synchronization of analysis across different modalities.
-        *   Latency management for real-time analysis.
-        *   Privacy and security considerations for sensitive data.
-
-#### 3.0.A.2. Emotional Intelligence and Sentiment Analysis
-
-*   **FR-SYS-AI-002:** The system must detect and analyze emotional states, sentiment, and underlying tensions from verbal and non-verbal cues.
-    *   **Frontend Development Outline:**
-        *   Create UI components to visualize emotional states and sentiment analysis.
-        *   Implement real-time feedback mechanisms for emotional insights.
-        *   Develop user interfaces for emotional trend visualization over time.
-    *   **Backend/Serverless Development Outline:**
-        *   **Text Analysis:** Use Google GenAI to analyze text for sentiment, emotional states, and communication patterns.
-        *   **Voice Analysis:** Process audio to detect emotional cues in voice tone, pace, and volume.
-        *   **Image Analysis:** Analyze facial expressions and body language in uploaded images or video frames.
-        *   **Multimodal Fusion:** Combine insights from different modalities to form a comprehensive emotional understanding.
-    *   **Key Technical Considerations/Challenges:**
-        *   Accuracy of emotional detection across different cultures and contexts.
-        *   Handling ambiguous or mixed emotional signals.
-        *   Adapting to individual baseline emotional expressions.
-        *   Ethical considerations in emotional analysis and feedback.
-
-#### 3.0.A.3. Conflict Pattern Recognition and Resolution Strategies
-
-*   **FR-SYS-AI-003:** The system must identify common conflict patterns, communication breakdowns, and potential resolution pathways.
-    *   **Frontend Development Outline:**
-        *   Create visualizations of identified conflict patterns.
-        *   Implement UI for suggested resolution strategies.
-        *   Develop interactive components for exploring different resolution approaches.
-    *   **Backend/Serverless Development Outline:**
-        *   **Pattern Recognition:** Use Google GenAI to identify common conflict patterns from conversation transcripts and context.
-        *   **Resolution Database:** Maintain a database of effective resolution strategies for different conflict types.
-        *   **Strategy Generation:** Generate personalized resolution strategies based on identified patterns and participant profiles.
-        *   **Effectiveness Tracking:** Monitor and learn from the effectiveness of suggested strategies over time.
-    *   **Key Technical Considerations/Challenges:**
-        *   Building a comprehensive database of conflict patterns and resolution strategies.
-        *   Personalizing strategies to specific contexts and relationships.
-        *   Balancing automated suggestions with human agency and creativity.
-        *   Ethical considerations in conflict intervention.
-
-#### 3.0.A.4. Lightweight Analysis Methods
-
-*   **FR-SYS-AI-004:** The system must implement lightweight analysis methods for real-time processing and offline capabilities.
-    *   **Frontend Development Outline:**
-        *   Implement client-side analysis for basic sentiment detection and keyword extraction.
-        *   Create efficient data structures for storing and processing conversation history on-device.
-        *   Develop UI components that can function with limited backend connectivity.
-    *   **Backend/Serverless Development Outline:**
-        *   **Edge Processing:** Deploy lightweight models to edge functions for faster processing.
-        *   **Progressive Analysis:** Implement tiered analysis approach, starting with lightweight methods and progressively applying more sophisticated analysis as needed.
-        *   **Caching Strategies:** Cache common patterns and responses to reduce processing requirements.
-        *   **Offline Mode:** Provide basic functionality when full backend services are unavailable.
-    *   **Key Technical Considerations/Challenges:**
-        *   Balancing accuracy with processing efficiency.
-        *   Managing model size for edge deployment.
-        *   Synchronizing offline analysis with cloud-based insights when connectivity is restored.
-        *   Providing meaningful value even with limited processing capabilities.
-
-#### 3.0.A.5. Implementation Architecture
-
-The multimodal LLM analysis engine is implemented using a layered architecture that combines specialized models with a central orchestration layer:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Multimodal Input Layer                      │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐  │
-│  │   Text   │   │  Voice   │   │  Image   │   │ Document │  │
-│  │  Input   │   │  Input   │   │  Input   │   │  Input   │  │
-│  └────┬─────┘   └────┬─────┘   └────┬─────┘   └────┬─────┘  │
-└───────┼───────────────┼───────────────┼───────────────┼─────┘
-         │               │               │               │
-┌────────┼───────────────┼───────────────┼───────────────┼────┐
-│        │               │               │               │    │
-│  ┌─────▼──────┐  ┌─────▼──────┐  ┌─────▼──────┐  ┌────▼───┐ │
-│  │    Text    │  │   Voice    │  │   Image    │  │Document│ │
-│  │  Analysis  │  │  Analysis  │  │  Analysis  │  │Analysis│ │
-│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └────┬───┘ │
-│        │               │               │               │    │
-│        └───────────────┼───────────────┼───────────────┘    │
-│                        │               │                    │
-│  ┌────────────────────▼───────────────▼──────────────────┐  │
-│  │                 Fusion Layer                          │  │
-│  │   (Combines insights from different modalities)       │  │
-│  └────────────────────────┬───────────────────────────────┘  │
-│                           │                                  │
-│  ┌────────────────────────▼───────────────────────────────┐  │
-│  │              Contextual Understanding                  │  │
-│  │  (Incorporates session history, participant profiles)  │  │
-│  └────────────────────────┬───────────────────────────────┘  │
-│                           │                                  │
-│  ┌────────────────────────▼───────────────────────────────┐  │
-│  │                 Strategy Generation                    │  │
-│  │   (Produces guidance, interventions, summaries)        │  │
-│  └────────────────────────┬───────────────────────────────┘  │
-│                           │                                  │
-│                 Analysis Engine Core                         │
-└────────────────────────────┬──────────────────────────────────┘
-                             │
-┌────────────────────────────▼──────────────────────────────────┐
-│                    Integration Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐│
-│  │   ElevenLabs    │  │    UI/UX        │  │   Database      ││
-│  │  Voice Synthesis│  │   Components    │  │   Storage       ││
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
+**ElevenLabs Turn-Taking Configuration:**
+```typescript
+// Udine voice agent configuration
+const conversationConfig = {
+  agentId: process.env.EXPO_PUBLIC_UDINE_AGENT_ID,
+  voice: {
+    stability: 0.8,
+    similarityBoost: 0.7,
+    style: 0.6,
+    speakingRate: 1.0
+  },
+  turnDetection: 'server_vad',
+  language: 'en',
+  conversationMode: 'mediation'
+};
 ```
 
-#### 3.0.A.6. Implementation with Vercel AI SDK
+**Hume AI Emotional Analysis Integration:**
+```typescript
+// Real-time emotional analysis with mediation context
+export class HumeEmotionalIntelligence {
+  async analyzeAndAdapt(
+    audioBuffer: ArrayBuffer,
+    currentPhase: MediationPhase
+  ): Promise<EmotionalAnalysis> {
+    const analysis = await this.client.empathicVoice.analyze({
+      audio: audioBuffer,
+      models: ['prosody', 'language'],
+      transcription: true
+    });
 
-The multimodal LLM analysis engine can be efficiently implemented using the Vercel AI SDK, which provides a unified interface for working with various AI models and services. This approach offers several advantages:
+    return {
+      ...this.processEmotionalResponse(analysis),
+      mediationContext: this.generateMediationContext(analysis, currentPhase)
+    };
+  }
+}
+```
 
-1. **Unified API:** The AI SDK provides a consistent interface for working with different LLM providers.
-2. **Streaming Responses:** Built-in support for streaming responses, which is crucial for real-time conversation.
-3. **Cross-Platform Support:** Works across different platforms, including React Native through libraries like `react-native-ai`.
-4. **Integration with ElevenLabs:** The AI SDK has built-in support for ElevenLabs integration.
-5. **TypeScript Support:** Strong typing for better development experience and fewer runtime errors.
+### A.2. Data Storage & Privacy
 
-Here's how to implement the core of the multimodal analysis engine using the Vercel AI SDK:
+**Client-Side Storage Strategy:**
+- **User Profiles**: AsyncStorage (mobile) / localStorage (web)
+- **Session State**: In-memory with optional local persistence
+- **Conversation History**: Local storage with user-controlled retention
+- **Emotional Data**: Temporary analysis, privacy-first approach
+- **Voice Recordings**: Processed in memory, not persisted by default
+
+**Privacy Controls:**
+- User-controlled data retention policies
+- Local-first data storage approach
+- Transparent emotional analysis usage
+- Optional conversation history export
+- Clear data deletion capabilities
+
+### A.3. Development Best Practices
+
+**bolt.new Optimization:**
+- Use client-side AI integration patterns
+- Minimize external dependencies
+- Focus on Expo React Native universal compatibility
+- Implement progressive enhancement for advanced features
+
+**Performance Considerations:**
+- Lazy load AI models and voice components
+- Implement efficient state management with Zustand
+- Use React.memo for expensive emotion visualization components
+- Optimize bundle size for web deployment
+
+## 2. Technical Architecture
+
+### 2.1. System Overview
+
+Understand.me is built as a cross-platform application using modern web technologies with a focus on AI-powered communication analysis and voice interaction. The system consists of:
+
+- **Frontend**: Expo-based mobile app with web support
+- **Backend**: Express.js server deployed on Netlify
+- **AI Engine**: Google GenAI 1.5.0 for multimodal analysis
+- **Voice System**: ElevenLabs turn-taking AI with Udine voice
+- **Analysis Engine**: LangChain JS with community plugins for RAG and memory
+- **Emotional Intelligence**: Hume AI integration
+- **Database**: Supabase for data persistence
+- **Storage**: Supabase Storage for media files
+
+### 2.2. Frontend Architecture
+
+#### 2.2.1. Expo Universal App Structure
+
+```
+understand-me/
+├── app/                    # Expo Router app directory (when using Expo Router)
+│   ├── (tabs)/            # Tab-based navigation
+│   ├── session/           # Session-related screens
+│   ├── profile/           # User profile screens
+│   └── _layout.tsx        # Root layout
+├── components/            # Reusable UI components
+│   ├── ui/               # Base UI components
+│   ├── voice/            # Voice interaction components
+│   ├── analysis/         # Analysis visualization components
+│   └── session/          # Session management components
+├── services/             # API and service layer
+│   ├── ai/              # AI-related services
+│   ├── api.ts           # API client configuration
+│   ├── voice.ts         # ElevenLabs integration
+│   ├── analysis.ts      # AI analysis services
+│   └── storage.ts       # File upload/download
+├── hooks/               # Custom React hooks
+├── utils/               # Utility functions
+├── types/               # TypeScript type definitions
+├── assets/              # Static assets (images, fonts, etc.)
+├── App.tsx              # Main app component (when not using Expo Router)
+├── app.json             # Expo configuration
+├── package.json         # Dependencies and scripts
+└── tsconfig.json        # TypeScript configuration
+```
+
+#### 2.2.2. Key Technologies
+
+- **Expo SDK 52+**: Universal app platform
+- **Expo Router**: File-based routing system
+- **React Native**: Cross-platform mobile development
+- **TypeScript**: Type-safe development
+- **Expo DOM Components**: Web technologies in native apps
+- **ElevenLabs React SDK**: Voice interaction
+- **Expo AV**: Audio playback and recording
+- **Expo Image Picker**: Media capture
+- **Expo Document Picker**: File selection
+
+### 2.3. Backend Architecture
+
+#### 2.3.1. Netlify Functions Structure
+
+```
+understand-me/
+├── netlify/
+│   └── functions/        # Netlify serverless functions
+│       ├── auth.ts      # Authentication endpoints
+│       ├── sessions.ts  # Session management
+│       ├── analysis.ts  # AI analysis endpoints
+│       ├── voice.ts     # Voice processing
+│       └── shared/      # Shared utilities for functions
+│           ├── aiEngine.ts  # Google GenAI integration
+│           ├── voiceService.ts # ElevenLabs integration
+│           ├── analysisEngine.ts # LangChain orchestration
+│           ├── humeService.ts # Hume AI integration
+│           ├── middleware.ts # Common middleware
+│           ├── models.ts    # Data models and schemas
+│           └── utils.ts     # Utility functions
+├── netlify.toml         # Netlify deployment config
+└── package.json         # Dependencies and scripts
+```
+
+#### 2.3.2. Deployment Configuration
+
+**netlify.toml**:
+```toml
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[functions]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth"
+  status = 200
+
+[[redirects]]
+  from = "/api/sessions/*"
+  to = "/.netlify/functions/sessions"
+  status = 200
+
+[[redirects]]
+  from = "/api/analysis/*"
+  to = "/.netlify/functions/analysis"
+  status = 200
+
+[[redirects]]
+  from = "/api/voice/*"
+  to = "/.netlify/functions/voice"
+  status = 200
+```
+
+### 2.4. AI Engine Architecture
+
+#### 2.4.1. Google GenAI Integration
 
 ```typescript
-// services/aiEngine.ts
+// Core AI service using Google GenAI 1.5.0
+import { GoogleGenAI } from '@google/genai';
 
-import { createAI, createStreamableUI, getMutableAIState } from 'ai/rsc';
-import { nanoid } from 'nanoid';
-import { createElevenLabsStream } from '@ai-sdk/elevenlabs';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
 
-// Initialize Google GenAI for multimodal processing
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
-const multimodalModel = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
-
-// Define the AI state interface
-interface AIState {
-  messages: {
-    id: string;
-    role: 'user' | 'assistant' | 'system';
-    content: string;
-    createdAt: Date;
-  }[];
-  sessionContext: {
-    sessionId: string;
-    sessionType: string;
-    participantIds: string[];
-    conflictType?: string;
-    emotionalStates?: Record<string, any>;
-  };
-  analysis: {
-    emotionalStates: Record<string, any>;
-    communicationPatterns: Record<string, any>;
-    conflictAnalysis: Record<string, any>;
-    resolutionProgress: number;
-  };
-}
-
-// Create the AI engine
-export const AI = createAI<AIState>({
-  initialAIState: {
-    messages: [],
-    sessionContext: {
-      sessionId: '',
-      sessionType: '',
-      participantIds: [],
-    },
-    analysis: {
-      emotionalStates: {},
-      communicationPatterns: {},
-      conflictAnalysis: {},
-      resolutionProgress: 0,
-    },
-  },
-  actions: {
-    submitUserInput: async (userInput: {
-      text?: string;
-      audioUrl?: string;
-      imageUrls?: string[];
-      documentUrls?: string[];
-    }) => {
-      const aiState = getMutableAIState<AIState>();
-      const currentState = aiState.get();
-      
-      // Add user message to the state
-      if (userInput.text) {
-        aiState.update({
-          ...currentState,
-          messages: [
-            ...currentState.messages,
-            {
-              id: nanoid(),
-              role: 'user',
-              content: userInput.text,
-              createdAt: new Date(),
-            },
-          ],
-        });
-      }
-      
-      // Process multimodal input
-      const analysisResult = await performMultimodalAnalysis(userInput, currentState.sessionContext);
-      
-      // Update analysis in the state
-      aiState.update({
-        ...aiState.get(),
-        analysis: analysisResult,
-      });
-      
-      // Generate response based on analysis
-      const responseText = await generateResponse(analysisResult, aiState.get().sessionContext);
-      
-      // Determine emotional tone for voice
-      const emotionalState = determineResponseEmotion(analysisResult);
-      
-      // Add assistant message to the state
-      aiState.update({
-        ...aiState.get(),
-        messages: [
-          ...aiState.get().messages,
-          {
-            id: nanoid(),
-            role: 'assistant',
-            content: responseText,
-            createdAt: new Date(),
-          },
-        ],
-      });
-      
-      // Generate voice response with ElevenLabs
-      const voiceStream = await createElevenLabsStream({
-        model: 'eleven_monolingual_v1',
-        voiceId: getVoiceIdForEmotion(emotionalState),
-        input: responseText,
-        voiceSettings: getVoiceSettingsForEmotion(emotionalState),
-      });
-      
-      return createStreamableUI(
-        <div className="ai-response">
-          <p>{responseText}</p>
-          <audio src={URL.createObjectURL(voiceStream)} controls autoPlay />
-        </div>
-      );
-    },
-    
-    updateSessionContext: async (sessionContext: Partial<AIState['sessionContext']>) => {
-      const aiState = getMutableAIState<AIState>();
-      
-      aiState.update({
-        ...aiState.get(),
-        sessionContext: {
-          ...aiState.get().sessionContext,
-          ...sessionContext,
-        },
-      });
-      
-      return 'Session context updated';
-    },
-  },
+// Multimodal analysis model
+const multimodalModel = genAI.getGenerativeModel({
+  model: 'gemini-1.5-pro'
 });
 
-// Helper functions for multimodal analysis
-async function performMultimodalAnalysis(
-  input: {
-    text?: string;
-    audioUrl?: string;
-    imageUrls?: string[];
-    documentUrls?: string[];
-  },
-  sessionContext: AIState['sessionContext']
-) {
-  // Process text input
-  let textAnalysis = null;
-  if (input.text) {
-    textAnalysis = await analyzeText(input.text, sessionContext);
+// Text analysis model
+const textModel = genAI.getGenerativeModel({
+  model: 'gemini-1.5-flash'
+});
+```
+
+#### 2.4.2. LangChain Analysis Engine
+
+```typescript
+// LangChain community integration for RAG and memory
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { MemoryVectorStore } from 'langchain/vectorstores/memory';
+import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { ConversationChain } from 'langchain/chains';
+import { BufferMemory } from 'langchain/memory';
+
+const llm = new ChatGoogleGenerativeAI({
+  modelName: 'gemini-1.5-pro',
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+});
+
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+});
+
+const vectorStore = new MemoryVectorStore(embeddings);
+const memory = new BufferMemory();
+```
+
+### 2.5. Voice System Architecture
+
+#### 2.5.1. ElevenLabs Turn-Taking Integration
+
+```typescript
+// ElevenLabs turn-taking AI with Udine voice
+import { ElevenLabsClient } from '@elevenlabs/react';
+
+const client = new ElevenLabsClient({
+  apiKey: process.env.ELEVENLABS_API_KEY,
+});
+
+// Udine voice configuration
+const UDINE_VOICE_ID = 'your-udine-voice-id';
+
+const voiceSettings = {
+  stability: 0.5,
+  similarity_boost: 0.8,
+  style: 0.2,
+  use_speaker_boost: true,
+};
+```
+
+#### 2.5.2. Turn-Taking Conversation Flow
+
+```typescript
+// Conversation management with turn-taking
+class ConversationManager {
+  private isListening = false;
+  private isSpeaking = false;
+
+  async startConversation() {
+    // Initialize turn-taking session
+    const session = await client.createConversationSession({
+      voiceId: UDINE_VOICE_ID,
+      turnTaking: true,
+      voiceSettings,
+    });
+
+    return session;
   }
-  
-  // Process audio input (voice tone analysis)
-  let audioAnalysis = null;
-  if (input.audioUrl) {
-    audioAnalysis = await analyzeAudio(input.audioUrl);
-  }
-  
-  // Process image input
-  let imageAnalysis = null;
-  if (input.imageUrls && input.imageUrls.length > 0) {
-    imageAnalysis = await analyzeImages(input.imageUrls);
-  }
-  
-  // Process document input
-  let documentAnalysis = null;
-  if (input.documentUrls && input.documentUrls.length > 0) {
-    documentAnalysis = await analyzeDocuments(input.documentUrls);
-  }
-  
-  // Combine all analyses
-  return fusionLayer(textAnalysis, audioAnalysis, imageAnalysis, documentAnalysis, sessionContext);
-}
 
-// Function to analyze text using Google GenAI
-async function analyzeText(text: string, context: any) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-  
-  const prompt = `
-    Analyze the following text from a conversation:
-    "${text}"
-    
-    Context:
-    ${JSON.stringify(context)}
-    
-    Provide analysis of:
-    1. Emotional states expressed
-    2. Communication patterns
-    3. Potential conflict indicators
-    4. Level of understanding between participants
-    
-    Format the response as JSON.
-  `;
-  
-  const result = await model.generateContent(prompt);
-  const textAnalysis = JSON.parse(result.response.text());
-  return textAnalysis;
-}
+  async handleUserInput(audioData: ArrayBuffer) {
+    if (this.isSpeaking) return; // Don't interrupt AI
 
-// Function to analyze images using Google GenAI Vision
-async function analyzeImages(imageUrls: string[]) {
-  const imageContents = await Promise.all(
-    imageUrls.map(async (url) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return {
-        inlineData: {
-          data: await blobToBase64(blob),
-          mimeType: blob.type,
-        },
-      };
-    })
-  );
-  
-  const prompt = `
-    Analyze these images for:
-    1. Facial expressions and emotions
-    2. Body language
-    3. Environmental context
-    4. Any visible text or documents
-    
-    Format the response as JSON.
-  `;
-  
-  const result = await multimodalModel.generateContent([prompt, ...imageContents]);
-  const imageAnalysis = JSON.parse(result.response.text());
-  return imageAnalysis;
-}
+    this.isListening = true;
+    // Process user input through analysis engine
+    const analysis = await this.analyzeInput(audioData);
 
-// Helper function to convert blob to base64
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
+    // Generate AI response
+    const response = await this.generateResponse(analysis);
 
-// Other helper functions would be implemented similarly
-
-// Get voice ID based on emotional state
-function getVoiceIdForEmotion(emotion: string): string {
-  switch (emotion) {
-    case 'empathetic':
-      return 'pNInz6obpgDQGcFmaJgB'; // Example voice ID for empathetic tone
-    case 'assertive':
-      return 'VR6AewLTigWG4xSOukaG'; // Example voice ID for assertive tone
-    case 'neutral':
-    default:
-      return 'EXAVITQu4vr4xnSDxMaL'; // Example voice ID for neutral tone
-  }
-}
-
-// Get voice settings based on emotional state
-function getVoiceSettingsForEmotion(emotion: string) {
-  switch (emotion) {
-    case 'empathetic':
-      return {
-        stability: 0.75,
-        similarityBoost: 0.6,
-        style: 0.3,
-        speakingRate: 0.9,
-      };
-    case 'assertive':
-      return {
-        stability: 0.4,
-        similarityBoost: 0.8,
-        style: 0.5,
-        speakingRate: 1.1,
-      };
-    case 'neutral':
-    default:
-      return {
-        stability: 0.5,
-        similarityBoost: 0.75,
-        style: 0.0,
-        speakingRate: 1.0,
-      };
+    // Synthesize and play voice response
+    await this.speakResponse(response);
   }
 }
 ```
 
-This implementation leverages the Vercel AI SDK to create a streamlined, efficient multimodal analysis engine that integrates seamlessly with ElevenLabs for voice synthesis. The AI SDK's streaming capabilities ensure that responses are delivered in real-time, enhancing the conversational experience.
+### 2.6. Data Architecture
 
-For React Native integration, the `react-native-ai` library can be used to connect to this backend implementation, providing a cross-platform solution that works on iOS, Android, and web.
 
-#### 3.0.A.6.1. React Native Integration with AI SDK and ElevenLabs
 
-To implement the multimodal LLM analysis engine in a React Native application with Expo, we can use the following approach:
+#### 2.6.2. File Storage Structure
+
+```
+supabase-storage/
+├── sessions/
+│   ├── {session-id}/
+│   │   ├── audio/          # Audio recordings
+│   │   ├── documents/      # Uploaded documents
+│   │   ├── images/         # Image uploads
+│   │   └── transcripts/    # Generated transcripts
+├── users/
+│   └── {user-id}/
+│       ├── profile/        # Profile images
+│       └── uploads/        # User-uploaded content
+└── analysis/
+    └── {session-id}/
+        ├── emotional/      # Emotional analysis data
+        ├── patterns/       # Communication patterns
+        └── summaries/      # Session summaries
+```
+
+## 3. Development Workflow
+
+### 3.1. Bolt.new Development Rules Integration
+
+This project follows specific development patterns optimized for bolt.new workflows:
+
+#### 3.1.1. File Structure Conventions
+
+- **Single-purpose files**: Each file should have a clear, single responsibility
+- **Descriptive naming**: Use clear, descriptive names for files and directories
+- **Consistent imports**: Use absolute imports with path mapping where possible
+- **Type-first development**: Define TypeScript interfaces before implementation
+
+#### 3.1.2. Component Development Patterns
 
 ```typescript
-// components/AIMediator.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
-import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
-import { useAI } from '../hooks/useAI';
+// Component structure template
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
-interface AIMediator {
-  sessionId: string;
-  sessionType: string;
-  participantIds: string[];
+interface ComponentProps {
+  // Define props interface first
 }
 
-export default function AIMediator({ sessionId, sessionType, participantIds }: AIMediator) {
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
-  
-  // Initialize AI context
-  const { submitUserInput, updateSessionContext, analysis } = useAI();
-  
-  // Initialize session context
-  useEffect(() => {
-    const initSession = async () => {
-      await updateSessionContext({
-        sessionId,
-        sessionType,
-        participantIds,
-      });
-    };
-    
-    initSession();
-  }, [sessionId, sessionType, participantIds]);
-  
-  // Request permissions
-  useEffect(() => {
-    const requestPermissions = async () => {
-      const { status: audioStatus } = await Audio.requestPermissionsAsync();
-      const { status: imageStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
-      
-      if (audioStatus !== 'granted' || imageStatus !== 'granted' || cameraStatus !== 'granted') {
-        alert('Permissions are required for full functionality');
-      }
-    };
-    
-    requestPermissions();
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
-  
-  // Start recording
-  const startRecording = async () => {
-    try {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: true,
-      });
-      
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      
-      setRecording(recording);
-      setIsRecording(true);
-    } catch (error) {
-      console.error('Failed to start recording:', error);
-    }
-  };
-  
-  // Stop recording and process audio
-  const stopRecording = async () => {
-    if (!recording) return;
-    
-    setIsRecording(false);
-    setIsProcessing(true);
-    
-    try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      
-      if (uri) {
-        // Upload audio file to backend for processing
-        const audioUrl = await uploadAudioFile(uri);
-        
-        // Submit audio for analysis
-        const response = await submitUserInput({
-          audioUrl,
-        });
-        
-        // Add response to messages
-        setMessages(prev => [...prev, response]);
-        
-        // Play response audio
-        if (response.audioUrl) {
-          setAudioUrl(response.audioUrl);
-          await playResponseAudio(response.audioUrl);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to stop recording:', error);
-    } finally {
-      setRecording(null);
-      setIsProcessing(false);
-    }
-  };
-  
-  // Upload audio file to backend
-  const uploadAudioFile = async (uri: string): Promise<string> => {
-    try {
-      const formData = new FormData();
-      formData.append('file', {
-        uri,
-        type: 'audio/m4a',
-        name: 'recording.m4a',
-      } as any);
-      
-      const response = await fetch('https://your-api-endpoint.com/upload-audio', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error('Failed to upload audio:', error);
-      throw error;
-    }
-  };
-  
-  // Play response audio
-  const playResponseAudio = async (url: string) => {
-    try {
-      // Download audio file if it's a remote URL
-      const fileUri = `${FileSystem.cacheDirectory}response-${Date.now()}.mp3`;
-      await FileSystem.downloadAsync(url, fileUri);
-      
-      // Load and play the sound
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: fileUri },
-        { shouldPlay: true }
-      );
-      
-      soundRef.current = sound;
-      
-      // Unload sound when finished playing
-      sound.setOnPlaybackStatusUpdate(status => {
-        if (status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
-    } catch (error) {
-      console.error('Failed to play audio:', error);
-    }
-  };
-  
-  // Pick image for analysis
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.8,
-      });
-      
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        setIsProcessing(true);
-        
-        // Upload image file
-        const imageUrl = await uploadImageFile(result.assets[0].uri);
-        
-        // Submit image for analysis
-        const response = await submitUserInput({
-          imageUrls: [imageUrl],
-        });
-        
-        // Add response to messages
-        setMessages(prev => [...prev, response]);
-        
-        // Play response audio
-        if (response.audioUrl) {
-          setAudioUrl(response.audioUrl);
-          await playResponseAudio(response.audioUrl);
-        }
-        
-        setIsProcessing(false);
-      }
-    } catch (error) {
-      console.error('Failed to pick image:', error);
-      setIsProcessing(false);
-    }
-  };
-  
-  // Upload image file to backend
-  const uploadImageFile = async (uri: string): Promise<string> => {
-    // Similar implementation to uploadAudioFile
-    return 'https://example.com/uploaded-image.jpg';
-  };
-  
-  // Pick document for analysis
-  const pickDocument = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/pdf', 'text/plain'],
-        copyToCacheDirectory: true,
-      });
-      
-      if (result.type === 'success') {
-        setIsProcessing(true);
-        
-        // Upload document file
-        const documentUrl = await uploadDocumentFile(result.uri);
-        
-        // Submit document for analysis
-        const response = await submitUserInput({
-          documentUrls: [documentUrl],
-        });
-        
-        // Add response to messages
-        setMessages(prev => [...prev, response]);
-        
-        // Play response audio
-        if (response.audioUrl) {
-          setAudioUrl(response.audioUrl);
-          await playResponseAudio(response.audioUrl);
-        }
-        
-        setIsProcessing(false);
-      }
-    } catch (error) {
-      console.error('Failed to pick document:', error);
-      setIsProcessing(false);
-    }
-  };
-  
-  // Upload document file to backend
-  const uploadDocumentFile = async (uri: string): Promise<string> => {
-    // Similar implementation to uploadAudioFile
-    return 'https://example.com/uploaded-document.pdf';
-  };
-  
-  // Submit text input
-  const submitText = async (text: string) => {
-    if (!text.trim()) return;
-    
-    setIsProcessing(true);
-    
-    try {
-      // Submit text for analysis
-      const response = await submitUserInput({
-        text,
-      });
-      
-      // Add response to messages
-      setMessages(prev => [...prev, response]);
-      
-      // Play response audio
-      if (response.audioUrl) {
-        setAudioUrl(response.audioUrl);
-        await playResponseAudio(response.audioUrl);
-      }
-    } catch (error) {
-      console.error('Failed to submit text:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
+export function ComponentName({ ...props }: ComponentProps) {
+  // Component implementation
   return (
     <View style={styles.container}>
-      {/* Display messages */}
-      <View style={styles.messagesContainer}>
-        {messages.map((msg, index) => (
-          <View key={index} style={styles.messageItem}>
-            <Text style={styles.messageSender}>
-              {msg.role === 'assistant' ? 'Alex' : 'You'}:
-            </Text>
-            <Text style={styles.messageContent}>{msg.content}</Text>
-          </View>
-        ))}
-      </View>
-      
-      {/* Analysis insights (optional) */}
-      {analysis && Object.keys(analysis.emotionalStates).length > 0 && (
-        <View style={styles.analysisContainer}>
-          <Text style={styles.analysisTitle}>Insights:</Text>
-          <Text style={styles.analysisText}>
-            Emotional state: {Object.values(analysis.emotionalStates)[0]?.primaryEmotion || 'neutral'}
-          </Text>
-          <Text style={styles.analysisText}>
-            Conflict level: {analysis.conflictAnalysis?.escalationLevel || 0}/5
-          </Text>
-        </View>
-      )}
-      
-      {/* Input controls */}
-      <View style={styles.controlsContainer}>
-        {isProcessing ? (
-          <ActivityIndicator size="large" color="#3B82F6" />
-        ) : (
-          <>
-            <TouchableOpacity
-              style={[styles.recordButton, isRecording && styles.recordingButton]}
-              onPress={isRecording ? stopRecording : startRecording}
-            >
-              <Text style={styles.buttonText}>
-                {isRecording ? 'Stop Recording' : 'Start Recording'}
-              </Text>
-            </TouchableOpacity>
-            
-            <View style={styles.mediaButtonsContainer}>
-              <TouchableOpacity style={styles.mediaButton} onPress={pickImage}>
-                <Text style={styles.mediaButtonText}>Image</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.mediaButton} onPress={pickDocument}>
-                <Text style={styles.mediaButtonText}>Document</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-      </View>
+      {/* Component content */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#F9FAFB',
-  },
-  messagesContainer: {
-    flex: 1,
-    marginBottom: 16,
-  },
-  messageItem: {
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  messageSender: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#4B5563',
-  },
-  messageContent: {
-    color: '#1F2937',
-  },
-  analysisContainer: {
-    marginBottom: 16,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#EFF6FF',
-  },
-  analysisTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#1E40AF',
-  },
-  analysisText: {
-    color: '#1E3A8A',
-    marginBottom: 4,
-  },
-  controlsContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  recordButton: {
-    backgroundColor: '#3B82F6',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 24,
-    marginBottom: 16,
-    width: '80%',
-    alignItems: 'center',
-  },
-  recordingButton: {
-    backgroundColor: '#EF4444',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  mediaButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '80%',
-  },
-  mediaButton: {
-    backgroundColor: '#6B7280',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-  },
-  mediaButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    // Styles
   },
 });
 ```
 
-This React Native component provides a complete interface for interacting with the multimodal LLM analysis engine, allowing users to:
-
-1. Record voice input for analysis
-2. Upload images for visual analysis
-3. Upload documents for content analysis
-4. Submit text input directly
-5. Receive AI responses with voice synthesis via ElevenLabs
-6. View analysis insights about emotional states and conflict dynamics
-
-The component integrates with the AI SDK backend through a custom hook (`useAI`), which would handle the communication with the server-side implementation of the Vercel AI SDK.
-
-#### 3.0.A.7. Sample Implementation of Multimodal Analysis
-
-The following code snippet demonstrates how the multimodal analysis engine processes different types of input:
+#### 3.1.3. Service Layer Patterns
 
 ```typescript
-// services/multimodalAnalysis.ts
+// Service structure template
+export class ServiceName {
+  private config: ServiceConfig;
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { supabase } from './supabaseClient';
-import { processAudio } from './audioProcessing';
-import { processImage } from './imageProcessing';
-import { processDocument } from './documentProcessing';
-
-// Initialize Google GenAI
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-interface AnalysisInput {
-  text?: string;
-  audioUrl?: string;
-  imageUrls?: string[];
-  documentUrls?: string[];
-  sessionContext: {
-    sessionId: string;
-    participantIds: string[];
-    sessionType: string;
-    previousInteractions?: any[];
-  };
-}
-
-interface AnalysisResult {
-  emotionalStates: {
-    [participantId: string]: {
-      primaryEmotion: string;
-      secondaryEmotions: string[];
-      intensity: number;
-      confidence: number;
-    };
-  };
-  communicationPatterns: {
-    dominantSpeaker: string | null;
-    interruptionCount: number;
-    turnTakingBalance: number;
-    listeningQuality: number;
-  };
-  conflictAnalysis: {
-    conflictType: string;
-    rootCauses: string[];
-    escalationLevel: number;
-    suggestedApproaches: string[];
-  };
-  resolutionProgress: number;
-  nextSteps: {
-    recommendedAction: string;
-    alternativeActions: string[];
-    rationale: string;
-  };
-}
-
-export async function performMultimodalAnalysis(
-  input: AnalysisInput
-): Promise<AnalysisResult> {
-  try {
-    // Process each modality in parallel
-    const [textAnalysis, audioAnalysis, imageAnalysis, documentAnalysis] = 
-      await Promise.all([
-        input.text ? analyzeText(input.text, input.sessionContext) : null,
-        input.audioUrl ? processAudio(input.audioUrl) : null,
-        input.imageUrls?.length ? Promise.all(input.imageUrls.map(url => processImage(url))) : null,
-        input.documentUrls?.length ? Promise.all(input.documentUrls.map(url => processDocument(url))) : null,
-      ]);
-    
-    // Fusion layer - combine insights from different modalities
-    const fusedAnalysis = fusionLayer(
-      textAnalysis, 
-      audioAnalysis, 
-      imageAnalysis, 
-      documentAnalysis,
-      input.sessionContext
-    );
-    
-    // Generate strategies based on fused analysis
-    const strategies = await generateStrategies(fusedAnalysis, input.sessionContext);
-    
-    // Store analysis results for future reference
-    await storeAnalysisResults(fusedAnalysis, strategies, input.sessionContext.sessionId);
-    
-    return {
-      ...fusedAnalysis,
-      ...strategies
-    };
-  } catch (error) {
-    console.error('Error in multimodal analysis:', error);
-    throw new Error('Failed to complete multimodal analysis');
+  constructor(config: ServiceConfig) {
+    this.config = config;
   }
-}
 
-async function analyzeText(text: string, context: any) {
-  // Use Google GenAI for text analysis
-  const prompt = `
-    Analyze the following text from a conversation:
-    "${text}"
-    
-    Context:
-    ${JSON.stringify(context)}
-    
-    Provide analysis of:
-    1. Emotional states expressed
-    2. Communication patterns
-    3. Potential conflict indicators
-    4. Level of understanding between participants
-    
-    Format the response as JSON.
-  `;
-  
-  const result = await model.generateContent(prompt);
-  const textAnalysis = JSON.parse(result.response.text());
-  return textAnalysis;
-}
-
-function fusionLayer(textAnalysis: any, audioAnalysis: any, imageAnalysis: any, documentAnalysis: any, context: any) {
-  // Combine insights from different modalities with weighted importance
-  // This is a simplified example - actual implementation would be more sophisticated
-  
-  const emotionalStates = {};
-  const communicationPatterns = {
-    dominantSpeaker: null,
-    interruptionCount: 0,
-    turnTakingBalance: 0,
-    listeningQuality: 0
-  };
-  
-  // Combine emotional analysis from text and voice
-  if (textAnalysis?.emotions && audioAnalysis?.voiceEmotions) {
-    // Weighted combination of text and voice emotional analysis
-    // Voice emotions might be more reliable for certain emotions
-    // Text analysis might be better for complex emotional states
-  }
-  
-  // Add insights from images (facial expressions, body language)
-  if (imageAnalysis) {
-    // Incorporate facial expression analysis
-    // Consider body language cues
-  }
-  
-  // Add context from documents
-  if (documentAnalysis) {
-    // Extract relevant background information
-    // Identify potential topics of contention
-  }
-  
-  // Consider session history and participant profiles from context
-  
-  return {
-    emotionalStates,
-    communicationPatterns,
-    conflictAnalysis: {
-      conflictType: '',
-      rootCauses: [],
-      escalationLevel: 0,
-      suggestedApproaches: []
-    },
-    resolutionProgress: 0
-  };
-}
-
-async function generateStrategies(analysis: any, context: any) {
-  // Generate intervention strategies based on analysis
-  const prompt = `
-    Based on the following analysis of a conversation:
-    ${JSON.stringify(analysis)}
-    
-    And this context:
-    ${JSON.stringify(context)}
-    
-    Generate:
-    1. The most appropriate next action for the AI mediator
-    2. Alternative approaches that could be considered
-    3. Rationale for the recommended action
-    
-    Format the response as JSON.
-  `;
-  
-  const result = await model.generateContent(prompt);
-  const strategies = JSON.parse(result.response.text());
-  
-  return {
-    nextSteps: {
-      recommendedAction: strategies.recommendedAction,
-      alternativeActions: strategies.alternativeActions,
-      rationale: strategies.rationale
+  async methodName(params: MethodParams): Promise<MethodResult> {
+    // Implementation with proper error handling
+    try {
+      // Service logic
+      return result;
+    } catch (error) {
+      console.error(`ServiceName.methodName error:`, error);
+      throw new Error(`Failed to execute methodName: ${error.message}`);
     }
-  };
-}
-
-async function storeAnalysisResults(analysis: any, strategies: any, sessionId: string) {
-  // Store results in Supabase for future reference and learning
-  const { error } = await supabase
-    .from('session_analysis')
-    .insert({
-      session_id: sessionId,
-      timestamp: new Date().toISOString(),
-      analysis_data: analysis,
-      strategies: strategies
-    });
-  
-  if (error) {
-    console.error('Error storing analysis results:', error);
   }
 }
 ```
 
-### 3.0.B. ElevenLabs Voice Integration Technical Implementation
+### 3.2. Development Environment Setup
 
-The ElevenLabs voice integration is a critical component of the "Understand.me" application, providing the voice capabilities for the AI agent "Alex." This section outlines the technical implementation details for developers.
+#### 3.2.1. Prerequisites
 
-#### 3.0.B.1. Integration Between Multimodal LLM and ElevenLabs
+```bash
+# Node.js and package manager
+node --version  # v18.0.0 or higher
+npm --version   # v9.0.0 or higher
 
-The seamless integration between the multimodal LLM analysis engine and ElevenLabs voice synthesis is crucial for creating a natural, emotionally intelligent AI mediator. This integration enables "Alex" to not only understand the content and context of conversations but also respond with appropriate emotional tone and cadence.
+# Expo CLI
+npm install -g @expo/cli
 
-*   **FR-SYS-VOICE-000:** The system must seamlessly integrate the multimodal LLM analysis engine with ElevenLabs voice synthesis.
-    *   **Frontend Development Outline:**
-        *   Create a unified interface that coordinates between analysis results and voice output.
-        *   Implement UI components that reflect the emotional state of "Alex" during voice synthesis.
-        *   Develop feedback mechanisms to indicate when analysis is being processed and voice is being generated.
-    *   **Backend/Serverless Development Outline:**
-        *   **PicaOS Orchestration:** Coordinate the flow of data between the multimodal analysis engine and ElevenLabs.
-        *   **Emotional Mapping Service:** Translate emotional analysis into appropriate voice parameters for ElevenLabs.
-        *   **Response Generation Pipeline:** Generate text responses based on analysis and optimize them for voice synthesis.
-    *   **Key Technical Considerations/Challenges:**
-        *   Ensuring consistent emotional tone between analysis and voice output.
-        *   Minimizing latency in the end-to-end process from analysis to voice output.
-        *   Handling edge cases where emotional analysis might be ambiguous or complex.
-
-The following diagram illustrates the integration flow between the multimodal LLM analysis engine and ElevenLabs:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                  Multimodal Analysis Engine                      │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     Analysis Results                             │
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │   Emotional     │  │  Communication   │  │    Conflict     │  │
-│  │    States       │  │    Patterns     │  │    Analysis     │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Response Generation                           │
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │    Content      │  │   Emotional     │  │   Linguistic     │  │
-│  │   Generation    │  │    Mapping      │  │   Optimization   │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    ElevenLabs Parameters                         │
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │    Voice ID     │  │    Stability    │  │  Similarity     │  │
-│  │    Selection    │  │     Setting     │  │     Boost       │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐                       │
-│  │     Style       │  │   Speaking      │                       │
-│  │    Parameter    │  │      Rate       │                       │
-│  └─────────────────┘  └─────────────────┘                       │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    ElevenLabs API Call                           │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Voice Output to User                          │
-└─────────────────────────────────────────────────────────────────┘
+# Development tools
+npm install -g typescript
+npm install -g @types/node
 ```
 
-The integration code between the multimodal analysis engine and ElevenLabs might look like this:
+#### 3.2.2. Project Initialization
+
+```bash
+# Create Expo project
+npx create-expo-app@latest understand-me --template blank-typescript
+
+# Navigate to project
+cd understand-me
+
+# Install core dependencies
+npx expo install expo-router expo-av expo-image-picker expo-document-picker
+npx expo install @elevenlabs/react expo-dev-client
+npx expo install react-dom react-native-web @expo/metro-runtime
+
+# Install backend dependencies
+npm install express cors helmet morgan
+npm install @google/genai @elevenlabs/client
+npm install @langchain/google-genai langchain
+npm install @supabase/supabase-js
+
+# Install development dependencies
+npm install -D @types/express @types/cors @types/morgan
+npm install -D nodemon ts-node typescript
+```
+
+#### 3.2.3. Environment Configuration
+
+**.env.local**:
+```env
+# Google GenAI
+GOOGLE_GENAI_API_KEY=your_google_genai_api_key
+
+# ElevenLabs
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+ELEVENLABS_VOICE_ID=your_udine_voice_id
+
+# Hume AI
+HUME_API_KEY=your_hume_api_key
+
+# Supabase
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# App Configuration
+NODE_ENV=development
+PORT=3000
+```
+
+### 3.3. Development Scripts
+
+**package.json scripts**:
+```json
+{
+  "scripts": {
+    "start": "expo start",
+    "start:web": "expo start --web",
+    "start:ios": "expo start --ios",
+    "start:android": "expo start --android",
+    "build": "expo build",
+    "build:web": "expo build:web",
+    "server:dev": "nodemon server/src/app.ts",
+    "server:build": "tsc -p server/tsconfig.json",
+    "server:start": "node server/dist/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "type-check": "tsc --noEmit"
+  }
+}
+```
+
+### 3.4. Testing Strategy
+
+#### 3.4.1. Frontend Testing
 
 ```typescript
-// services/voiceResponseGenerator.ts
+// Component testing with React Native Testing Library
+import { render, fireEvent } from '@testing-library/react-native';
+import { VoiceInteractionComponent } from '../VoiceInteractionComponent';
 
-import { performMultimodalAnalysis } from './multimodalAnalysis';
-import { generateVoiceResponse } from './elevenLabsService';
-import { emotionToVoiceMapper } from './emotionMapping';
+describe('VoiceInteractionComponent', () => {
+  it('should start recording when record button is pressed', () => {
+    const { getByTestId } = render(<VoiceInteractionComponent />);
+    const recordButton = getByTestId('record-button');
 
-interface ResponseInput {
-  text?: string;
-  audioUrl?: string;
-  imageUrls?: string[];
-  documentUrls?: string[];
-  sessionContext: {
-    sessionId: string;
-    participantIds: string[];
-    sessionType: string;
-    previousInteractions?: any[];
-  };
-}
+    fireEvent.press(recordButton);
 
-interface VoiceResponseResult {
-  responseText: string;
-  audioUrl: string;
-  emotionalState: string;
-  voiceParameters: {
-    voiceId: string;
-    stability: number;
-    similarityBoost: number;
-    style: number;
-    speakingRate: number;
-  };
-}
+    expect(getByTestId('recording-indicator')).toBeTruthy();
+  });
+});
+```
 
-export async function generateAIResponse(
-  input: ResponseInput
-): Promise<VoiceResponseResult> {
-  try {
-    // Step 1: Perform multimodal analysis
-    const analysisResult = await performMultimodalAnalysis(input);
-    
-    // Step 2: Generate appropriate text response based on analysis
-    const responseText = await generateTextResponse(analysisResult, input.sessionContext);
-    
-    // Step 3: Determine appropriate emotional tone for response
-    const emotionalState = determineResponseEmotion(analysisResult);
-    
-    // Step 4: Map emotional state to voice parameters
-    const voiceParameters = emotionToVoiceMapper(emotionalState);
-    
-    // Step 5: Generate voice response using ElevenLabs
-    const audioUrl = await generateVoiceResponse(responseText, voiceParameters);
-    
-    return {
-      responseText,
-      audioUrl,
-      emotionalState,
-      voiceParameters
-    };
-  } catch (error) {
-    console.error('Error generating AI response:', error);
-    throw new Error('Failed to generate AI response');
+#### 3.4.2. Backend Testing
+
+```typescript
+// Netlify function testing with Jest
+import { handler } from '../netlify/functions/analysis';
+
+describe('POST /api/analysis/voice', () => {
+  it('should analyze voice input and return emotional state', async () => {
+    const response = await request(app)
+      .post('/api/analysis/voice')
+      .attach('audio', 'test-audio.wav')
+      .expect(200);
+
+    expect(response.body).toHaveProperty('emotionalState');
+    expect(response.body).toHaveProperty('confidence');
+  });
+});
+```
+
+### 3.5. Deployment Workflow
+
+#### 3.5.1. Netlify Deployment
+
+```bash
+# Build for production
+npm run server:build
+npm run build:web
+
+# Deploy to Netlify
+netlify deploy --prod --dir=dist
+```
+
+#### 3.5.2. Mobile App Deployment
+
+```bash
+# Build for iOS
+expo build:ios
+
+# Build for Android
+expo build:android
+
+# Submit to app stores
+expo submit:ios
+expo submit:android
+```
+
+### 3.6. Code Quality Standards
+
+#### 3.6.1. TypeScript Configuration
+
+**tsconfig.json**:
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["components/*"],
+      "@/services/*": ["services/*"],
+      "@/utils/*": ["utils/*"],
+      "@/types/*": ["types/*"],
+      "@/hooks/*": ["hooks/*"]
+    }
   }
-}
-
-async function generateTextResponse(analysisResult: any, sessionContext: any) {
-  // Generate appropriate text response based on analysis
-  // This could use Google GenAI or other LLM
-  
-  const responseStrategy = analysisResult.nextSteps.recommendedAction;
-  
-  // Different response strategies based on analysis
-  switch (responseStrategy) {
-    case 'ask_clarifying_question':
-      return generateClarifyingQuestion(analysisResult);
-    case 'summarize_perspectives':
-      return generatePerspectiveSummary(analysisResult);
-    case 'suggest_resolution':
-      return generateResolutionSuggestion(analysisResult);
-    case 'acknowledge_emotion':
-      return generateEmotionalAcknowledgment(analysisResult);
-    case 'redirect_conversation':
-      return generateRedirection(analysisResult);
-    default:
-      return generateGenericResponse(analysisResult);
-  }
-}
-
-function determineResponseEmotion(analysisResult: any) {
-  // Determine appropriate emotional tone for response
-  // Based on participant emotional states and conflict analysis
-  
-  const participantEmotions = Object.values(analysisResult.emotionalStates);
-  const conflictLevel = analysisResult.conflictAnalysis.escalationLevel;
-  
-  // Check for high emotional intensity
-  const highIntensityEmotions = participantEmotions.filter(
-    (emotion: any) => emotion.intensity > 0.7
-  );
-  
-  if (highIntensityEmotions.length > 0) {
-    // If participants are highly emotional, respond with calm, empathetic tone
-    return 'empathetic';
-  } else if (conflictLevel > 3) {
-    // If conflict is escalated but emotions aren't intense, use assertive tone
-    return 'assertive';
-  } else {
-    // Default balanced tone
-    return 'neutral';
-  }
-}
-
-// Helper functions for different response types
-function generateClarifyingQuestion(analysis: any) {
-  // Generate a clarifying question based on analysis
-  return `I notice there might be some uncertainty about ${analysis.conflictAnalysis.rootCauses[0]}. Could you help me understand more about that?`;
-}
-
-function generatePerspectiveSummary(analysis: any) {
-  // Generate a summary of different perspectives
-  return `I'm hearing different perspectives here. On one hand, there's a view that... On the other hand, there's a perspective that...`;
-}
-
-function generateResolutionSuggestion(analysis: any) {
-  // Generate a suggestion for resolution
-  return `Based on what I'm hearing, one possible way forward might be to ${analysis.conflictAnalysis.suggestedApproaches[0]}. How does that sound?`;
-}
-
-function generateEmotionalAcknowledgment(analysis: any) {
-  // Generate an acknowledgment of emotions
-  const primaryEmotion = Object.values(analysis.emotionalStates)[0].primaryEmotion;
-  return `I can hear that this situation is causing some ${primaryEmotion}. That's completely understandable given the circumstances.`;
-}
-
-function generateRedirection(analysis: any) {
-  // Generate a redirection to more productive discussion
-  return `I wonder if it might be helpful to shift our focus to ${analysis.conflictAnalysis.suggestedApproaches[0]}?`;
-}
-
-function generateGenericResponse(analysis: any) {
-  // Generate a generic response
-  return `Thank you for sharing that. Let's continue exploring this together.`;
 }
 ```
 
-#### 3.0.B.2. ElevenLabs Integration Architecture
+#### 3.6.2. ESLint Configuration
 
-*   **FR-SYS-VOICE-001:** The system must integrate with ElevenLabs API for high-quality voice synthesis.
-    *   **Frontend Development Outline:**
-        *   Implement voice playback using `expo-av` Audio component.
-        *   Create a voice service wrapper that handles communication with the backend for voice synthesis requests.
-        *   Implement caching mechanisms for frequently used voice responses to reduce latency and API costs.
-        *   Handle playback states (loading, playing, paused, error) with appropriate UI feedback.
-    *   **Backend/Serverless Development Outline:**
-        *   **PicaOS/Edge Function:** Handles communication with ElevenLabs API, sending text scripts and receiving audio data.
-        *   **Upstash Redis:** Optionally cache common voice responses to improve performance and reduce API costs.
-        *   **Supabase Storage:** Store generated audio files temporarily or permanently as needed.
-    *   **Key Technical Considerations/Challenges:**
-        *   Latency management for real-time conversation flow.
-        *   Bandwidth optimization for mobile networks.
-        *   API usage monitoring and cost control.
-        *   Fallback mechanisms for offline or error scenarios.
+**.eslintrc.js**:
+```javascript
+module.exports = {
+  extends: [
+    'expo',
+    '@react-native-community',
+    'plugin:@typescript-eslint/recommended',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
+  rules: {
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
+    'no-console': 'warn',
+  },
+};
+```
 
-#### 3.0.2. Expo Integration with ElevenLabs
+## 4. Implementation Roadmap
 
-*   **FR-SYS-VOICE-002:** The system must implement cross-platform voice capabilities using Expo's DOM components architecture.
-    *   **Frontend Development Outline:**
-        *   Utilize Expo DOM components with the `use dom` directive to enable web technologies in the native app.
-        *   Implement the ElevenLabs React SDK within DOM components for voice synthesis.
-        *   Configure proper permissions for microphone access in `app.json` for iOS and Android.
-        *   Create a voice interaction component that handles both voice input and output.
-    *   **Backend/Serverless Development Outline:**
-        *   Ensure backend services support the requirements of the Expo DOM components architecture.
-        *   Implement appropriate CORS and security configurations for API endpoints.
-    *   **Key Technical Considerations/Challenges:**
-        *   Cross-platform consistency in voice quality and interaction.
-        *   Proper handling of microphone permissions across platforms.
-        *   Performance optimization for DOM components in native environments.
+### 4.1. Phase 1: Foundation Setup (Week 1-2)
 
-#### 3.0.3. Implementation Steps for ElevenLabs with Expo
+#### 4.1.1. Project Initialization
+- [ ] Set up Expo project with TypeScript template
+- [ ] Configure development environment and dependencies
+- [ ] Set up Supabase database and authentication
+- [ ] Create basic project structure and routing
+- [ ] Implement environment configuration management
 
-1. **Project Setup:**
-   * Create a new Expo project using `npx create-expo-app@latest --template blank-typescript`.
-   * Configure microphone permissions in `app.json` for iOS and Android.
-   * Install required dependencies:
-     ```bash
-npx expo install @elevenlabs/react
-     npx expo install expo-dev-client
-     npx expo install react-native-webview
-     npx expo install react-dom react-native-web @expo/metro-runtime
-     npx expo install expo-av
+#### 4.1.2. Core Infrastructure
+- [ ] Set up Express.js backend with Netlify deployment
+- [ ] Configure CORS and security middleware
+- [ ] Implement basic API structure and error handling
+- [ ] Set up database migrations and seed data
+- [ ] Configure file storage with Supabase Storage
+
+#### 4.1.3. Authentication System
+- [ ] Implement user registration and login
+- [ ] Set up JWT token management
+- [ ] Create protected route middleware
+- [ ] Build user profile management
+- [ ] Implement password reset functionality
+
+### 4.2. Phase 2: AI Engine Development (Week 3-4)
+
+#### 4.2.1. Google GenAI Integration
+- [ ] Set up Google GenAI client and configuration
+- [ ] Implement text analysis service
+- [ ] Create multimodal input processing
+- [ ] Build conversation context management
+- [ ] Add error handling and fallback mechanisms
+
+#### 4.2.2. LangChain Analysis Engine
+- [ ] Configure LangChain with Google GenAI
+- [ ] Implement RAG (Retrieval-Augmented Generation)
+- [ ] Set up conversation memory management
+- [ ] Create document processing pipeline
+- [ ] Build pattern recognition system
+
+#### 4.2.3. Hume AI Emotional Intelligence
+- [ ] Integrate Hume AI API
+- [ ] Implement emotional state detection
+- [ ] Create emotional trend analysis
+- [ ] Build emotional context mapping
+- [ ] Add emotional insights generation
+
+### 4.3. Phase 3: Voice System Implementation (Week 5-6)
+
+#### 4.3.1. ElevenLabs Integration
+- [ ] Set up ElevenLabs client with Udine voice
+- [ ] Implement turn-taking conversation system
+- [ ] Create voice synthesis service
+- [ ] Build audio streaming capabilities
+- [ ] Add voice quality optimization
+
+#### 4.3.2. Audio Processing
+- [ ] Implement audio recording with Expo AV
+- [ ] Create audio file upload and storage
+- [ ] Build real-time audio streaming
+- [ ] Add audio format conversion
+- [ ] Implement noise reduction and enhancement
+
+#### 4.3.3. Voice UI Components
+- [ ] Create voice interaction interface
+- [ ] Build recording state management
+- [ ] Implement playback controls
+- [ ] Add visual feedback for voice activity
+- [ ] Create accessibility features for voice interaction
+
+### 4.4. Phase 4: Session Management (Week 7-8)
+
+#### 4.4.1. Session Creation and Management
+- [ ] Build session creation workflow
+- [ ] Implement participant invitation system
+- [ ] Create session configuration options
+- [ ] Build session state management
+- [ ] Add session scheduling functionality
+
+#### 4.4.2. Real-time Communication
+- [ ] Implement WebSocket connection for real-time updates
+- [ ] Create participant presence indicators
+- [ ] Build real-time message synchronization
+- [ ] Add connection state management
+- [ ] Implement reconnection logic
+
+#### 4.4.3. Session Analytics
+- [ ] Create session progress tracking
+- [ ] Implement participation metrics
+- [ ] Build communication pattern analysis
+- [ ] Add session effectiveness scoring
+- [ ] Create insights dashboard
+
+### 4.5. Phase 5: User Interface Development (Week 9-10)
+
+#### 4.5.1. Mobile App UI
+- [ ] Design and implement main navigation
+- [ ] Create session list and detail screens
+- [ ] Build user profile and settings screens
+- [ ] Implement responsive design patterns
+- [ ] Add dark mode support
+
+#### 4.5.2. Web Interface
+- [ ] Create responsive web layout
+- [ ] Implement web-specific navigation
+- [ ] Build desktop-optimized components
+- [ ] Add keyboard shortcuts and accessibility
+- [ ] Optimize for different screen sizes
+
+#### 4.5.3. Analysis Visualization
+- [ ] Create emotional state visualizations
+- [ ] Build communication pattern charts
+- [ ] Implement progress tracking displays
+- [ ] Add interactive analysis components
+- [ ] Create exportable reports
+
+### 4.6. Phase 6: Testing and Optimization (Week 11-12)
+
+#### 4.6.1. Comprehensive Testing
+- [ ] Write unit tests for all components
+- [ ] Implement integration tests for API endpoints
+- [ ] Create end-to-end tests for user workflows
+- [ ] Add performance testing for AI services
+- [ ] Implement accessibility testing
+
+#### 4.6.2. Performance Optimization
+- [ ] Optimize AI service response times
+- [ ] Implement caching strategies
+- [ ] Reduce bundle size and load times
+- [ ] Optimize database queries
+- [ ] Add monitoring and analytics
+
+#### 4.6.3. Security and Privacy
+- [ ] Implement data encryption at rest and in transit
+- [ ] Add privacy controls and data deletion
+- [ ] Create audit logging system
+- [ ] Implement rate limiting and abuse prevention
+- [ ] Conduct security vulnerability assessment
+
+### 4.7. Phase 7: Deployment and Launch (Week 13-14)
+
+#### 4.7.1. Production Deployment
+- [ ] Set up production Netlify environment
+- [ ] Configure production Supabase instance
+- [ ] Implement CI/CD pipeline
+- [ ] Set up monitoring and alerting
+- [ ] Create backup and disaster recovery plan
+
+#### 4.7.2. Mobile App Store Deployment
+- [ ] Prepare app store listings and metadata
+- [ ] Create app screenshots and promotional materials
+- [ ] Submit to Apple App Store and Google Play Store
+- [ ] Implement app update mechanisms
+- [ ] Set up crash reporting and analytics
+
+#### 4.7.3. Launch Preparation
+- [ ] Create user documentation and tutorials
+- [ ] Set up customer support system
+- [ ] Implement feedback collection mechanisms
+- [ ] Prepare marketing materials
+- [ ] Plan soft launch and beta testing program
+
+### 4.8. Success Metrics and KPIs
+
+#### 4.8.1. Technical Metrics
+- **API Response Time**: < 2 seconds for AI analysis
+- **Voice Latency**: < 500ms for turn-taking conversations
+- **App Load Time**: < 3 seconds on mobile devices
+- **Uptime**: 99.9% availability
+- **Error Rate**: < 1% for critical user flows
+
+#### 4.8.2. User Experience Metrics
+- **Session Completion Rate**: > 80%
+- **User Retention**: > 60% after 30 days
+- **Voice Interaction Success**: > 90% successful voice exchanges
+- **User Satisfaction**: > 4.5/5 average rating
+- **Feature Adoption**: > 70% for core features
+
+#### 4.8.3. Business Metrics
+- **User Acquisition**: Track monthly active users
+- **Session Volume**: Monitor sessions per user per month
+- **Engagement**: Measure time spent in sessions
+- **Conversion**: Track free to paid user conversion
+- **Support Tickets**: < 5% of users requiring support
+
+---
+
+*This PRD provides a comprehensive, technically accurate guide for developing Understand.me with the unified architecture, ensuring consistency between documentation and implementation while optimizing for bolt.new development workflows.*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
