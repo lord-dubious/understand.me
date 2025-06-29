@@ -1,11 +1,16 @@
 import { generateText } from 'ai'
 import { google } from '@ai-sdk/google'
 import { analyzeEmotion, EmotionAnalysis, getEmotionAwareResponseSuggestions } from './emotion'
+import { personalizationService } from '../user/personalization';
+import { userProfileService } from '../user/profile';
+import { ConflictType } from '../../types/user';
 
 export interface ChatOptions {
   includeEmotionAnalysis?: boolean;
   emotionContext?: EmotionAnalysis;
   conflictResolutionMode?: 'mediation' | 'coaching' | 'support';
+  conflictType?: ConflictType;
+  usePersonalization?: boolean;
 }
 
 export interface ChatResponse {
@@ -44,8 +49,21 @@ export async function chatWithUdine(
 		// Use provided emotion context or the analyzed emotions
 		const currentEmotions = options.emotionContext || emotionAnalysis;
 
-		// Build emotion-aware system prompt
-		const systemPrompt = buildEmotionAwareSystemPrompt(currentEmotions, options.conflictResolutionMode);
+		// Build personalized system prompt
+		let systemPrompt = buildEmotionAwareSystemPrompt(currentEmotions, options.conflictResolutionMode);
+		
+		// Apply personalization if enabled and profile exists
+		if (options.usePersonalization !== false && options.conflictType) {
+			try {
+				const personalizedContent = await personalizationService.generatePersonalizedContent(
+					options.conflictType,
+					currentEmotions
+				);
+				systemPrompt = personalizedContent.systemPrompt;
+			} catch (error) {
+				console.warn('Personalization failed, using default prompt:', error);
+			}
+		}
 
 		// Generate AI response
 		const { text } = await generateText({

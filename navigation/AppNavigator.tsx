@@ -11,6 +11,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 import ConflictDashboardScreen from '../screens/ConflictDashboardScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Home: undefined;
   Settings: undefined;
   ConflictDashboard: undefined;
+  Profile: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -49,6 +51,7 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="ConflictDashboard" component={ConflictDashboardScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
           </>
         )}

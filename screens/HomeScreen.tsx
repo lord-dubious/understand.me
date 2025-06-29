@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Platform, Alert, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Brain, Settings, Target } from 'lucide-react-native';
+import { Brain, Settings, Target, User } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -67,6 +67,12 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate('ConflictDashboard')}
           >
             <Target size={20} color="#94A3B8" strokeWidth={2} />
+          </Pressable>
+          <Pressable 
+            style={styles.headerButton} 
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <User size={20} color="#94A3B8" strokeWidth={2} />
           </Pressable>
           <Pressable style={styles.headerButton} onPress={toggleEmotionInsights}>
             <Brain size={20} color={showEmotionInsights ? "#3B82F6" : "#94A3B8"} strokeWidth={2} />
