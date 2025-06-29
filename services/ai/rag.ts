@@ -13,7 +13,7 @@ let chunks: string[] = [];
  */
 export async function loadCorpus(texts: string[]): Promise<void> {
 	chunks = texts.flatMap(t => splitOnToken(t, 500));
-	embeddings = await embedMany({ model: 'voyage-embed', inputs: chunks });
+embeddings = await embedMany({ model: 'voyage-2', inputs: chunks });
 }
 
 /**
