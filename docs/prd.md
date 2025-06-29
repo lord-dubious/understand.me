@@ -203,7 +203,7 @@ export async function chatWithUdine(
 ### 4.2. ElevenLabs Voice Integration
 **Udine Voice Agent Implementation:**
 ```typescript
-// src/services/elevenlabs.ts
+// services/elevenlabs.ts
 import { Conversation } from '@elevenlabs/react';
 
 export const useUdineConversation = () => {
@@ -226,7 +226,7 @@ export const useUdineConversation = () => {
 ### 4.3. Hume AI Emotional Intelligence
 **Real-time Emotional Analysis:**
 ```typescript
-// src/services/hume.ts
+// services/hume.ts
 import { HumeClient } from 'hume';
 
 export class HumeEmotionalIntelligence {
@@ -1020,11 +1020,12 @@ expo submit:android
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/services/*": ["src/services/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
+      "@/*": ["./*"],
+      "@/components/*": ["components/*"],
+      "@/services/*": ["services/*"],
+      "@/utils/*": ["utils/*"],
+      "@/types/*": ["types/*"],
+      "@/hooks/*": ["hooks/*"]
     }
   }
 }
