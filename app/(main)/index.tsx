@@ -175,6 +175,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://elevenlabs.io')}
                   >
+                    <Image
+                      source={{ uri: 'https://elevenlabs.io/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>ElevenLabs</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>Voice AI</Text>
                   </TouchableOpacity>
@@ -183,6 +188,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://hume.ai')}
                   >
+                    <Image
+                      source={{ uri: 'https://hume.ai/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>Hume AI</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>Emotion Analysis</Text>
                   </TouchableOpacity>
@@ -191,6 +201,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://supabase.com')}
                   >
+                    <Image
+                      source={{ uri: 'https://supabase.com/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>Supabase</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>Database & Auth</Text>
                   </TouchableOpacity>
@@ -199,6 +214,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://ai.google.dev')}
                   >
+                    <Image
+                      source={{ uri: 'https://www.google.com/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>Google AI</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>Gemini Models</Text>
                   </TouchableOpacity>
@@ -207,6 +227,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://expo.dev')}
                   >
+                    <Image
+                      source={{ uri: 'https://expo.dev/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>Expo</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>Mobile Platform</Text>
                   </TouchableOpacity>
@@ -215,6 +240,11 @@ export default function MainDashboard() {
                     style={styles.sponsorCard}
                     onPress={() => Linking.openURL('https://vercel.com')}
                   >
+                    <Image
+                      source={{ uri: 'https://vercel.com/favicon.ico' }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.sponsorName, { fontSize: fontSize(12) }]}>Vercel</Text>
                     <Text style={[styles.sponsorDescription, { fontSize: fontSize(10) }]}>AI SDK</Text>
                   </TouchableOpacity>
@@ -409,6 +439,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  sponsorLogo: {
+    width: 24,
+    height: 24,
+    marginBottom: 8,
+    borderRadius: 4,
   },
   sponsorName: {
     fontWeight: '600',

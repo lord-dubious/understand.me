@@ -4,6 +4,22 @@
 
 A voice-first, AI-mediated conflict resolution platform that transforms difficult conversations into opportunities for understanding and connection. Born from personal experience and powered by cutting-edge AI technology.
 
+## 🚀 **Powered By**
+
+<div align="center">
+
+[![ElevenLabs](https://elevenlabs.io/favicon.ico)](https://elevenlabs.io)
+[![Hume AI](https://hume.ai/favicon.ico)](https://hume.ai)
+[![Supabase](https://supabase.com/favicon.ico)](https://supabase.com)
+[![Google AI](https://www.google.com/favicon.ico)](https://ai.google.dev)
+[![Expo](https://expo.dev/favicon.ico)](https://expo.dev)
+[![Vercel](https://vercel.com/favicon.ico)](https://vercel.com)
+[![Bolt.new](https://storage.bolt.army/white_circle_360x360.png)](https://bolt.new/?rid=os72mi)
+
+**ElevenLabs** • **Hume AI** • **Supabase** • **Google AI** • **Expo** • **Vercel** • **Bolt.new**
+
+</div>
+
 ## 💝 The Story Behind understand.me
 
 In my family, I've always been the one people call "their heart"—the person who tries to bridge gaps and bring everyone together. But despite my best efforts, I've seen how deeply misunderstandings can separate people, even cutting me off from those I love. 
@@ -328,29 +344,41 @@ This project was created during the Bolt.new Hackathon, showcasing the power of 
 
 We're grateful to our technology partners who made this vision possible:
 
-### 🎤 **ElevenLabs**
-Powering our natural voice experience with advanced conversational AI and real-time voice synthesis.
-[Learn more →](https://elevenlabs.io)
+<div align="center">
 
-### 🧠 **Hume AI**
-Providing emotional intelligence through advanced emotion analysis and vocal tone recognition.
-[Learn more →](https://hume.ai)
+| Partner | Technology | Description |
+|---------|------------|-------------|
+| [![ElevenLabs](https://elevenlabs.io/favicon.ico)](https://elevenlabs.io) **ElevenLabs** | 🎤 Voice AI | Powering our natural voice experience with advanced conversational AI and real-time voice synthesis |
+| [![Hume AI](https://hume.ai/favicon.ico)](https://hume.ai) **Hume AI** | 🧠 Emotion Analysis | Providing emotional intelligence through advanced emotion analysis and vocal tone recognition |
+| [![Supabase](https://supabase.com/favicon.ico)](https://supabase.com) **Supabase** | 🗄️ Database & Auth | Delivering robust database, authentication, and real-time communication infrastructure |
+| [![Google AI](https://www.google.com/favicon.ico)](https://ai.google.dev) **Google AI** | 🤖 AI Models | Enabling intelligent conversation and context understanding through Gemini models |
+| [![Expo](https://expo.dev/favicon.ico)](https://expo.dev) **Expo** | 📱 Mobile Platform | Simplifying cross-platform mobile development with powerful tools and services |
+| [![Vercel](https://vercel.com/favicon.ico)](https://vercel.com) **Vercel** | ⚡ AI SDK | Orchestrating AI interactions with the powerful Vercel AI SDK |
 
-### 🗄️ **Supabase**
-Delivering robust database, authentication, and real-time communication infrastructure.
-[Learn more →](https://supabase.com)
+</div>
 
-### 🤖 **Google AI**
-Enabling intelligent conversation and context understanding through Gemini models.
-[Learn more →](https://ai.google.dev)
+### 🌟 **Technology Stack Overview**
 
-### 📱 **Expo**
-Simplifying cross-platform mobile development with powerful tools and services.
-[Learn more →](https://expo.dev)
+<div align="center">
 
-### ⚡ **Vercel**
-Orchestrating AI interactions with the powerful Vercel AI SDK.
-[Learn more →](https://vercel.com)
+```mermaid
+graph TB
+    A[understand.me App] --> B[ElevenLabs Voice AI]
+    A --> C[Hume AI Emotion Analysis]
+    A --> D[Supabase Database]
+    A --> E[Google AI Gemini]
+    A --> F[Expo Mobile Platform]
+    A --> G[Vercel AI SDK]
+    
+    B --> H[Natural Voice Interaction]
+    C --> I[Emotional Intelligence]
+    D --> J[Real-time Data & Auth]
+    E --> K[Context Understanding]
+    F --> L[Cross-Platform Mobile]
+    G --> M[AI Orchestration]
+```
+
+</div>
 
 ## 🙏 Acknowledgments
 
