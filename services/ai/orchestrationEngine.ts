@@ -12,8 +12,8 @@ import { elevenLabsConversationalAI, elevenLabsTTS } from '../elevenlabs/convers
 
 // Gemini Models Configuration (ONLY for document analysis)
 export const GEMINI_MODELS = {
-  DOCUMENT_ANALYSIS: google('gemini-1.5-pro'), // ONLY for document analysis
-  CONFLICT_ANALYSIS: google('gemini-1.5-flash'), // For conflict pattern analysis
+  DOCUMENT_ANALYSIS: google('gemini-2.0-flash-exp'), // ONLY for document analysis
+  CONFLICT_ANALYSIS: google('gemini-2.0-flash-exp'), // For conflict pattern analysis
 };
 
 // Orchestration Configuration

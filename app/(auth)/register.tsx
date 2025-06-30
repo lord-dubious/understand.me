@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
 
 import { ResponsiveLayout } from '../../components/layout/ResponsiveLayout';
 import { Card } from '../../components/ui/Card';
@@ -21,27 +21,43 @@ import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 import { Spacing } from '../../constants/Spacing';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  const { login, isLoading } = useAuthStore();
+  const { signup, isLoading } = useAuthStore();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     // Reset errors
+    setNameError('');
     setEmailError('');
     setPasswordError('');
+    setConfirmPasswordError('');
 
     // Validation
     let hasErrors = false;
+
+    if (!name.trim()) {
+      setNameError('Name is required');
+      hasErrors = true;
+    } else if (name.trim().length < 2) {
+      setNameError('Name must be at least 2 characters');
+      hasErrors = true;
+    }
 
     if (!email) {
       setEmailError('Email is required');
@@ -54,28 +70,35 @@ export default function LoginScreen() {
     if (!password) {
       setPasswordError('Password is required');
       hasErrors = true;
-    } else if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+    } else if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      hasErrors = true;
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      setPasswordError('Password must contain uppercase, lowercase, and number');
+      hasErrors = true;
+    }
+
+    if (!confirmPassword) {
+      setConfirmPasswordError('Please confirm your password');
+      hasErrors = true;
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
       hasErrors = true;
     }
 
     if (hasErrors) return;
 
     try {
-      await login(email, password);
-      router.replace('/(main)/dashboard');
+      await signup(email, password, name.trim());
+      // Navigate to onboarding flow
+      router.replace('/(auth)/onboarding/welcome');
     } catch (error) {
-      Alert.alert('Login Failed', 'Please check your credentials and try again.');
+      Alert.alert('Registration Failed', 'Please try again.');
     }
   };
 
-  const handleSignUp = () => {
-    router.push('/(auth)/register');
-  };
-
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password
-    Alert.alert('Forgot Password', 'This feature will be available soon.');
+  const handleSignIn = () => {
+    router.push('/(auth)/login');
   };
 
   return (
@@ -89,14 +112,25 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>
-              Sign in to continue your conflict resolution journey
+              Join understand.me and start your journey to better communication
             </Text>
           </View>
 
           <Card style={styles.card}>
             <View style={styles.form}>
+              <Input
+                label="Full Name"
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter your full name"
+                autoCapitalize="words"
+                autoComplete="name"
+                error={nameError}
+                leftIcon={<User size={20} color={Colors.text.tertiary} />}
+              />
+
               <Input
                 label="Email"
                 value={email}
@@ -113,10 +147,11 @@ export default function LoginScreen() {
                 label="Password"
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Enter your password"
+                placeholder="Create a strong password"
                 secureTextEntry={!showPassword}
-                autoComplete="password"
+                autoComplete="new-password"
                 error={passwordError}
+                hint="Must be 8+ characters with uppercase, lowercase, and number"
                 leftIcon={<Lock size={20} color={Colors.text.tertiary} />}
                 rightIcon={
                   <TouchableOpacity
@@ -132,15 +167,34 @@ export default function LoginScreen() {
                 }
               />
 
-              <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-              </TouchableOpacity>
+              <Input
+                label="Confirm Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Confirm your password"
+                secureTextEntry={!showConfirmPassword}
+                autoComplete="new-password"
+                error={confirmPasswordError}
+                leftIcon={<Lock size={20} color={Colors.text.tertiary} />}
+                rightIcon={
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.eyeButton}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} color={Colors.text.tertiary} />
+                    ) : (
+                      <Eye size={20} color={Colors.text.tertiary} />
+                    )}
+                  </TouchableOpacity>
+                }
+              />
 
               <Button
-                title="Sign In"
-                onPress={handleLogin}
+                title="Create Account"
+                onPress={handleRegister}
                 loading={isLoading}
-                style={styles.loginButton}
+                style={styles.registerButton}
                 fullWidth
               />
 
@@ -151,8 +205,8 @@ export default function LoginScreen() {
               </View>
 
               <Button
-                title="Create New Account"
-                onPress={handleSignUp}
+                title="Sign In Instead"
+                onPress={handleSignIn}
                 variant="outline"
                 fullWidth
               />
@@ -161,7 +215,7 @@ export default function LoginScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              By signing in, you agree to our Terms of Service and Privacy Policy
+              By creating an account, you agree to our Terms of Service and Privacy Policy
             </Text>
           </View>
         </ScrollView>
@@ -197,7 +251,7 @@ const styles = StyleSheet.create({
     ...Typography.styles.body,
     color: Colors.text.secondary,
     textAlign: 'center',
-    maxWidth: 300,
+    maxWidth: 320,
   },
   
   card: {
@@ -213,17 +267,7 @@ const styles = StyleSheet.create({
     padding: Spacing.xs,
   },
   
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: -Spacing.sm,
-  },
-  
-  forgotPasswordText: {
-    ...Typography.styles.caption,
-    color: Colors.primary[500],
-  },
-  
-  loginButton: {
+  registerButton: {
     marginTop: Spacing.sm,
   },
   
@@ -257,4 +301,3 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
 });
-
