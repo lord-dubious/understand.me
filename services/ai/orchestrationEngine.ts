@@ -15,6 +15,7 @@ import {
   ELEVENLABS_CONFIG,
   CONVERSATION_CONFIG 
 } from '../elevenlabs/conversationalAI';
+import { SupabaseService } from '../supabase/supabaseService';
 
 // Gemini Models Configuration (ONLY for document analysis)
 export const GEMINI_MODELS = {
@@ -177,8 +178,30 @@ Generate a specific, actionable insight that would help the user in their curren
       },
 
       updateUserProfile: async (updates: Partial<OrchestrationContext['userProfile']>) => {
-        // This would typically update a database
-        console.log('Updating user profile:', updates);
+        try {
+          // Extract user ID from context or updates
+          const userId = updates.id || 'current-user'; // This should come from context
+          
+          // Map to Supabase profile format
+          const profileUpdates: any = {};
+          
+          if (updates.personalityProfile) {
+            profileUpdates.communication_style = updates.personalityProfile.communicationStyle;
+            profileUpdates.conflict_style = updates.personalityProfile.conflictStyle;
+            profileUpdates.emotional_intelligence = updates.personalityProfile.emotionalIntelligence;
+            profileUpdates.personality_traits = updates.personalityProfile.traits;
+            profileUpdates.personality_recommendations = updates.personalityProfile.recommendations;
+          }
+          
+          if (updates.communicationStyle) {
+            profileUpdates.communication_style = updates.communicationStyle;
+          }
+          
+          await SupabaseService.Profile.updateProfile(userId, profileUpdates);
+          console.log('✅ User profile updated in database');
+        } catch (error) {
+          console.error('❌ Failed to update user profile:', error);
+        }
       },
 
       escalateToHuman: async (reason: string) => {
@@ -290,7 +313,10 @@ Assess communication style, conflict resolution preferences, and personality tra
         }
       }
 
-      // Step 5: Update conversation state
+      // Step 5: Store conversation data in Supabase
+      await this.storeConversationData(input, agentResponse, context, standardResult);
+
+      // Step 6: Update conversation state
       const conversationState = {
         isActive: true,
         mode: 'speaking' as const,
@@ -403,7 +429,7 @@ Assess communication style, conflict resolution preferences, and personality tra
         voiceResponse
       };
     } catch (error) {
-      console.error('❌ AI orchestration failed:', error);
+      console.error('�� AI orchestration failed:', error);
       throw error;
     }
   }
@@ -841,6 +867,98 @@ Be encouraging and educational. Focus on skill development.`;
       console.error(`❌ Tool ${toolCall.name} execution failed:`, error);
       toolCall.status = 'failed';
       toolCall.result = { error: error.message };
+    }
+  }
+
+  /**
+   * Store conversation data in Supabase
+   */
+  private async storeConversationData(
+    input: any,
+    agentResponse: any,
+    context: OrchestrationContext,
+    analysisResult: OrchestrationResult
+  ): Promise<void> {
+    try {
+      // Store user message if provided
+      if (input.userMessage || input.text) {
+        await SupabaseService.Conversation.addMessage({
+          session_id: context.conversationId,
+          sender_id: context.participantIds[0] || 'anonymous',
+          sender_type: 'user',
+          content: input.userMessage || input.text || '',
+          message_type: input.audio ? 'audio' : 'text',
+          emotion_data: analysisResult.emotionAnalysis ? {
+            conflict_level: analysisResult.emotionAnalysis.conflictLevel,
+            resolution_potential: analysisResult.emotionAnalysis.resolutionPotential,
+            dominant_emotions: analysisResult.emotionAnalysis.dominantEmotions,
+          } : null,
+          conflict_level: analysisResult.emotionAnalysis?.conflictLevel,
+        });
+      }
+
+      // Store AI response
+      if (agentResponse?.text) {
+        await SupabaseService.Conversation.addAIResponse(
+          context.conversationId,
+          agentResponse.text,
+          agentResponse.toolCalls,
+          agentResponse.confidence || 0.8
+        );
+      }
+
+      // Store emotion analysis
+      if (analysisResult.emotionAnalysis && context.participantIds[0]) {
+        await SupabaseService.EmotionAnalysis.storeAnalysis({
+          session_id: context.conversationId,
+          user_id: context.participantIds[0],
+          analysis_type: input.audio ? 'voice' : 'text',
+          raw_data: analysisResult.emotionAnalysis.rawData || {},
+          processed_data: {
+            conflict_level: analysisResult.emotionAnalysis.conflictLevel,
+            resolution_potential: analysisResult.emotionAnalysis.resolutionPotential,
+            dominant_emotions: analysisResult.emotionAnalysis.dominantEmotions,
+            recommendations: analysisResult.emotionAnalysis.recommendations,
+          },
+          conflict_level: analysisResult.emotionAnalysis.conflictLevel,
+          resolution_potential: analysisResult.emotionAnalysis.resolutionPotential,
+          emotional_state: analysisResult.emotionAnalysis.dominantEmotions?.[0] || 'neutral',
+          dominant_emotions: analysisResult.emotionAnalysis.dominantEmotions || [],
+          session_phase: context.sessionPhase,
+        });
+      }
+
+      // Store AI insights and recommendations
+      if (analysisResult.recommendations?.length && context.participantIds[0]) {
+        for (const recommendation of analysisResult.recommendations) {
+          await SupabaseService.AIInsights.storeInsight({
+            session_id: context.conversationId,
+            user_id: context.participantIds[0],
+            insight_type: 'recommendation',
+            title: 'AI Recommendation',
+            content: recommendation,
+            confidence_score: 0.8,
+            session_phase: context.sessionPhase,
+            related_emotions: analysisResult.emotionAnalysis?.dominantEmotions,
+          });
+        }
+      }
+
+      // Update user analytics
+      if (context.participantIds[0]) {
+        await SupabaseService.UserAnalytics.updateAnalytics(context.participantIds[0], {
+          ai_interaction_count: (await SupabaseService.UserAnalytics.getUserAnalytics(context.participantIds[0]))?.ai_interaction_count || 0 + 1,
+          last_active_at: new Date().toISOString(),
+        });
+
+        // Update voice usage if applicable
+        if (context.voiceEnabled) {
+          await SupabaseService.UserAnalytics.updateVoiceUsage(context.participantIds[0], true);
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to store conversation data:', error);
     }
   }
 
