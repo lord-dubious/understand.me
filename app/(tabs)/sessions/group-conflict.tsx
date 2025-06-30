@@ -8,6 +8,7 @@ import {
   Alert,
   Modal
 } from 'react-native';
+import ParticipantInviteModal from '../../../components/modals/ParticipantInviteModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useResponsive } from '../../../utils/platform';
@@ -70,6 +71,7 @@ export default function GroupConflictScreen() {
   const [currentSession, setCurrentSession] = useState<GroupSession | null>(null);
   const [showParticipants, setShowParticipants] = useState(false);
   const [showSessionControls, setShowSessionControls] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const currentUserId = 'user_123';
@@ -210,7 +212,16 @@ export default function GroupConflictScreen() {
   };
 
   const addParticipant = () => {
-    Alert.alert('Add Participant', 'This would open the participant invitation flow');
+    setShowInviteModal(true);
+  };
+
+  const handleParticipantAdded = (newParticipant: ConflictParticipant) => {
+    if (conflict) {
+      setConflict(prev => prev ? {
+        ...prev,
+        participants: [...prev.participants, newParticipant]
+      } : null);
+    }
   };
 
   const getPhaseColor = (phase: string) => {
@@ -452,7 +463,7 @@ export default function GroupConflictScreen() {
           <View style={styles.quickActions}>
             <TouchableOpacity 
               style={[styles.actionButton, { padding: spacing(16) }]}
-              onPress={() => Alert.alert('Chat', 'This would open the group chat interface')}
+              onPress={() => router.push('/(tabs)/sessions/group-chat')}
             >
               <MessageCircle size={24} color="#3B82F6" strokeWidth={2} />
               <Text style={[styles.actionText, { fontSize: fontSize(14) }]}>
@@ -462,7 +473,7 @@ export default function GroupConflictScreen() {
 
             <TouchableOpacity 
               style={[styles.actionButton, { padding: spacing(16) }]}
-              onPress={() => Alert.alert('Notes', 'This would open session notes')}
+              onPress={() => router.push('/(tabs)/sessions/session-notes')}
             >
               <FileText size={24} color="#10B981" strokeWidth={2} />
               <Text style={[styles.actionText, { fontSize: fontSize(14) }]}>
@@ -482,6 +493,13 @@ export default function GroupConflictScreen() {
           </View>
         </ResponsiveContainer>
       </ScrollView>
+
+      <ParticipantInviteModal
+        visible={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onParticipantAdded={handleParticipantAdded}
+        conflictTitle={conflict?.title}
+      />
     </SafeAreaView>
   );
 }

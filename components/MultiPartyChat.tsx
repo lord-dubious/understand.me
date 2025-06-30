@@ -13,8 +13,10 @@ import {
   Pressable,
   Alert,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Modal
 } from 'react-native';
+import VoiceMessageRecorder from './VoiceMessageRecorder';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Send,
@@ -58,6 +60,7 @@ export default function MultiPartyChat({
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const currentParticipant = conflict.participants.find(p => p.id === currentUserId);
@@ -111,16 +114,24 @@ export default function MultiPartyChat({
 
   const toggleRecording = () => {
     if (!isSessionActive) return;
+    setShowVoiceRecorder(true);
+  };
 
-    if (isRecording) {
-      // Stop recording and process voice message
-      setIsRecording(false);
-      // TODO: Implement voice message processing
-      Alert.alert('Voice Message', 'Voice message feature coming soon!');
-    } else {
-      // Start recording
-      setIsRecording(true);
-    }
+  const handleVoiceSend = (voiceData: any) => {
+    const voiceMessage: MultiPartyMessage = {
+      id: voiceData.id,
+      senderId: currentUserId,
+      senderName: currentParticipant?.name || 'Unknown',
+      content: `Voice message (${Math.floor(voiceData.duration)}s)`,
+      type: 'voice',
+      timestamp: voiceData.timestamp,
+      isRead: false,
+      voiceData: voiceData
+    };
+
+    setMessages(prev => [...prev, voiceMessage]);
+    setShowVoiceRecorder(false);
+    onMessageSent?.(voiceMessage);
   };
 
   const addReaction = async (messageId: string, reactionType: MessageReaction['type']) => {
@@ -417,6 +428,24 @@ export default function MultiPartyChat({
           </Text>
         </View>
       )}
+
+      {/* Voice Recorder Modal */}
+      <Modal
+        visible={showVoiceRecorder}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowVoiceRecorder(false)}
+      >
+        <View style={styles.voiceModalOverlay}>
+          <View style={styles.voiceModalContent}>
+            <VoiceMessageRecorder
+              onSend={handleVoiceSend}
+              onCancel={() => setShowVoiceRecorder(false)}
+              maxDuration={120}
+            />
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -671,5 +700,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+  voiceModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
+  },
+  voiceModalContent: {
+    backgroundColor: '#111827',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    minHeight: 200,
+  },
 });
-

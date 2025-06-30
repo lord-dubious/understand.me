@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import ConflictCreationModal from './conflict-creation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useResponsive } from '../../../utils/platform';
@@ -68,6 +69,7 @@ export default function ConflictDashboardScreen() {
   const [metrics, setMetrics] = useState<ConflictMetrics | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'in_mediation' | 'resolved' | 'paused'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     loadConflicts();
@@ -176,7 +178,13 @@ export default function ConflictDashboardScreen() {
   });
 
   const handleCreateConflict = () => {
-    Alert.alert('Create Conflict', 'This would open the conflict creation flow');
+    setShowCreateModal(true);
+  };
+
+  const handleConflictCreated = (newConflict: Conflict) => {
+    setConflicts(prev => [newConflict, ...prev]);
+    // Update metrics
+    loadMetrics();
   };
 
   const handleConflictPress = (conflict: Conflict) => {
@@ -342,6 +350,12 @@ export default function ConflictDashboardScreen() {
           </View>
         </ResponsiveContainer>
       </ScrollView>
+
+      <ConflictCreationModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onConflictCreated={handleConflictCreated}
+      />
     </SafeAreaView>
   );
 }
