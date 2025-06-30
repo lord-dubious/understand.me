@@ -7,8 +7,10 @@ import {
   Alert,
   Animated,
   Vibration,
+  Platform,
 } from 'react-native';
 import { useResponsive } from '../utils/platform';
+import { PlatformUtils } from '../utils/platform';
 import {
   Mic,
   MicOff,
@@ -131,16 +133,32 @@ export default function VoiceMessageRecorder({
 
   const startRecording = async () => {
     try {
-      // TODO: Request microphone permissions
-      // TODO: Start actual audio recording
+      // Platform-specific recording implementation
+      if (PlatformUtils.isWeb) {
+        // Web implementation using MediaRecorder API
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          Alert.alert('Error', 'Voice recording is not supported in this browser.');
+          return;
+        }
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // TODO: Implement MediaRecorder setup
+        console.log('Web recording started');
+      } else {
+        // Mobile implementation
+        // TODO: Use expo-av or react-native-audio-recorder-player
+        console.log('Mobile recording started');
+        if (Platform.OS !== 'web') {
+          Vibration.vibrate(50);
+        }
+      }
       
       setIsRecording(true);
       setIsPaused(false);
       setDuration(0);
       setWaveform([]);
-      setAudioUri(`recording_${Date.now()}.m4a`);
+      setAudioUri(`recording_${Date.now()}.${PlatformUtils.isWeb ? 'webm' : 'm4a'}`);
       
-      Vibration.vibrate(50);
     } catch (error) {
       Alert.alert('Error', 'Failed to start recording. Please check microphone permissions.');
     }
@@ -160,8 +178,18 @@ export default function VoiceMessageRecorder({
     setIsRecording(false);
     setIsPaused(false);
     stopRecordingTimer();
-    // TODO: Stop actual recording and save file
-    Vibration.vibrate(50);
+    
+    // Platform-specific stop recording
+    if (PlatformUtils.isWeb) {
+      // TODO: Stop MediaRecorder and get blob
+      console.log('Web recording stopped');
+    } else {
+      // TODO: Stop mobile recording
+      console.log('Mobile recording stopped');
+      if (Platform.OS !== 'web') {
+        Vibration.vibrate(50);
+      }
+    }
   };
 
   const playRecording = async () => {

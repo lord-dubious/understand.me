@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
-  Modal,
 } from 'react-native';
+import CrossPlatformModal from '../../../components/common/CrossPlatformModal';
+import CrossPlatformInput, { CrossPlatformTextArea } from '../../../components/common/CrossPlatformInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useResponsive } from '../../../utils/platform';
@@ -373,16 +373,14 @@ export default function SessionNotesScreen() {
 
       {/* Search and Filter */}
       <View style={[styles.searchContainer, { padding: spacing(16) }]}>
-        <View style={styles.searchBar}>
-          <Search size={20} color="#9CA3AF" strokeWidth={2} />
-          <TextInput
-            style={[styles.searchInput, { fontSize: fontSize(14) }]}
-            placeholder="Search notes..."
-            placeholderTextColor="#6B7280"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+        <CrossPlatformInput
+          leftIcon={<Search size={20} color="#9CA3AF" strokeWidth={2} />}
+          placeholder="Search notes..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          containerStyle={styles.searchContainer}
+          inputStyle={styles.searchInput}
+        />
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryFilter}>
           <TouchableOpacity
@@ -526,32 +524,28 @@ function NoteEditorModal({ visible, note, categories, onClose, onSave }: NoteEdi
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <SafeAreaView style={styles.modalContainer}>
-        <View style={styles.modalHeader}>
-          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <X size={24} color="#FFFFFF" strokeWidth={2} />
-          </TouchableOpacity>
-          <Text style={[styles.modalTitle, { fontSize: fontSize(18) }]}>
-            {note ? 'Edit Note' : 'Create Note'}
-          </Text>
-          <TouchableOpacity style={styles.modalSaveButton} onPress={handleSave}>
-            <Save size={20} color="#FFFFFF" strokeWidth={2} />
-          </TouchableOpacity>
-        </View>
+    <CrossPlatformModal visible={visible} onClose={onClose}>
+      <View style={styles.modalHeader}>
+        <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+          <X size={24} color="#FFFFFF" strokeWidth={2} />
+        </TouchableOpacity>
+        <Text style={[styles.modalTitle, { fontSize: fontSize(18) }]}>
+          {note ? 'Edit Note' : 'Create Note'}
+        </Text>
+        <TouchableOpacity style={styles.modalSaveButton} onPress={handleSave}>
+          <Save size={20} color="#FFFFFF" strokeWidth={2} />
+        </TouchableOpacity>
+      </View>
 
-        <ScrollView style={styles.modalContent}>
-          <ResponsiveContainer style={styles.modalForm}>
-            <View style={styles.formGroup}>
-              <Text style={[styles.formLabel, { fontSize: fontSize(16) }]}>Title</Text>
-              <TextInput
-                style={[styles.formInput, { fontSize: fontSize(16), padding: spacing(16) }]}
-                placeholder="Enter note title..."
-                placeholderTextColor="#6B7280"
-                value={title}
-                onChangeText={setTitle}
-              />
-            </View>
+      <ScrollView style={styles.modalContent}>
+        <ResponsiveContainer style={styles.modalForm}>
+          <CrossPlatformInput
+            label="Title"
+            placeholder="Enter note title..."
+            value={title}
+            onChangeText={setTitle}
+            containerStyle={styles.formGroup}
+          />
 
             <View style={styles.formGroup}>
               <Text style={[styles.formLabel, { fontSize: fontSize(16) }]}>Category</Text>
@@ -589,33 +583,25 @@ function NoteEditorModal({ visible, note, categories, onClose, onSave }: NoteEdi
               </ScrollView>
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={[styles.formLabel, { fontSize: fontSize(16) }]}>Content</Text>
-              <TextInput
-                style={[styles.formTextArea, { fontSize: fontSize(14), padding: spacing(16) }]}
-                placeholder="Write your note here..."
-                placeholderTextColor="#6B7280"
-                value={content}
-                onChangeText={setContent}
-                multiline
-                numberOfLines={8}
-              />
-            </View>
+          <CrossPlatformTextArea
+            label="Content"
+            placeholder="Write your note here..."
+            value={content}
+            onChangeText={setContent}
+            numberOfLines={8}
+            containerStyle={styles.formGroup}
+          />
 
-            <View style={styles.formGroup}>
-              <Text style={[styles.formLabel, { fontSize: fontSize(16) }]}>Tags</Text>
-              <TextInput
-                style={[styles.formInput, { fontSize: fontSize(14), padding: spacing(16) }]}
-                placeholder="Enter tags separated by commas..."
-                placeholderTextColor="#6B7280"
-                value={tags}
-                onChangeText={setTags}
-              />
-            </View>
-          </ResponsiveContainer>
-        </ScrollView>
-      </SafeAreaView>
-    </Modal>
+          <CrossPlatformInput
+            label="Tags"
+            placeholder="Enter tags separated by commas..."
+            value={tags}
+            onChangeText={setTags}
+            containerStyle={styles.formGroup}
+          />
+        </ResponsiveContainer>
+      </ScrollView>
+    </CrossPlatformModal>
   );
 }
 

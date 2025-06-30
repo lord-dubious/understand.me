@@ -17,6 +17,7 @@ import {
   Modal
 } from 'react-native';
 import VoiceMessageRecorder from './VoiceMessageRecorder';
+import { CrossPlatformBottomSheet } from './common/CrossPlatformModal';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Send,
@@ -430,22 +431,16 @@ export default function MultiPartyChat({
       )}
 
       {/* Voice Recorder Modal */}
-      <Modal
+      <CrossPlatformBottomSheet
         visible={showVoiceRecorder}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowVoiceRecorder(false)}
+        onClose={() => setShowVoiceRecorder(false)}
       >
-        <View style={styles.voiceModalOverlay}>
-          <View style={styles.voiceModalContent}>
-            <VoiceMessageRecorder
-              onSend={handleVoiceSend}
-              onCancel={() => setShowVoiceRecorder(false)}
-              maxDuration={120}
-            />
-          </View>
-        </View>
-      </Modal>
+        <VoiceMessageRecorder
+          onSend={handleVoiceSend}
+          onCancel={() => setShowVoiceRecorder(false)}
+          maxDuration={120}
+        />
+      </CrossPlatformBottomSheet>
     </KeyboardAvoidingView>
   );
 }

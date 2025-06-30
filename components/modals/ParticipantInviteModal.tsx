@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
-  Modal,
 } from 'react-native';
+import CrossPlatformModal from '../common/CrossPlatformModal';
+import CrossPlatformInput, { CrossPlatformTextArea } from '../common/CrossPlatformInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsive } from '../../utils/platform';
 import { ResponsiveContainer } from '../layout/ResponsiveContainer';
