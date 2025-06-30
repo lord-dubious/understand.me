@@ -4,12 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useResponsive } from '../../utils/platform';
 import { ResponsiveContainer, ResponsiveGrid } from '../../components/layout/ResponsiveContainer';
-import { User, Settings, Award, TrendingUp, Bell, HelpCircle, Shield, Palette, Volume2, Download } from 'lucide-react-native';
+import NotificationCenter from '../../components/notifications/NotificationCenter';
+import notificationService from '../../services/notifications/notificationService';
+import dataExportService from '../../services/export/dataExportService';
+import { User, Settings, Award, TrendingUp, Bell, HelpCircle, Shield, Palette, Volume2, Download, Share } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const { spacing, fontSize } = useResponsive();
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     // Mock user profile data
@@ -30,7 +35,58 @@ export default function ProfileScreen() {
         theme: 'dark',
       }
     });
+
+    // Load notification count
+    loadUnreadCount();
   }, []);
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await notificationService.getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Failed to load unread count:', error);
+    }
+  };
+
+  const handleDataExport = () => {
+    Alert.alert(
+      'Export Data',
+      'Choose export format:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'JSON', onPress: () => exportData('json') },
+        { text: 'CSV', onPress: () => exportData('csv') },
+        { text: 'PDF Report', onPress: () => exportData('pdf') },
+      ]
+    );
+  };
+
+  const exportData = async (format: 'json' | 'csv' | 'pdf') => {
+    try {
+      const data = await dataExportService.exportAllData(format);
+      const filename = `understand_me_export_${new Date().toISOString().split('T')[0]}.${format}`;
+      await dataExportService.saveExportToDevice(data, filename);
+      Alert.alert('Export Complete', `Your data has been exported as ${filename}`);
+    } catch (error) {
+      Alert.alert('Export Failed', 'Failed to export data. Please try again.');
+    }
+  };
+
+  const handleShareProgress = async () => {
+    try {
+      const progressReport = await dataExportService.generateProgressReport();
+      Alert.alert('Progress Report', progressReport, [
+        { text: 'Close', style: 'cancel' },
+        { text: 'Copy', onPress: () => {
+          // In a real app, you would copy to clipboard
+          Alert.alert('Copied!', 'Progress report copied to clipboard');
+        }},
+      ]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate progress report');
+    }
+  };
 
   const profileSections = [
     {
@@ -70,9 +126,8 @@ export default function ProfileScreen() {
           title: 'Notifications',
           description: 'Manage your notification preferences',
           icon: <Bell size={24} color="#8B5CF6" strokeWidth={2} />,
-          onPress: () => {
-            Alert.alert('Notifications', 'This would open notification settings');
-          },
+          onPress: () => setShowNotifications(true),
+          badge: unreadCount > 0 ? unreadCount : undefined,
         },
         {
           id: 'voice_settings',
@@ -121,9 +176,14 @@ export default function ProfileScreen() {
           title: 'Export Data',
           description: 'Download your session data and progress',
           icon: <Download size={24} color="#6B7280" strokeWidth={2} />,
-          onPress: () => {
-            Alert.alert('Export Data', 'This would allow you to export your data');
-          },
+          onPress: () => handleDataExport(),
+        },
+        {
+          id: 'share_progress',
+          title: 'Share Progress',
+          description: 'Share your conflict resolution journey',
+          icon: <Share size={24} color="#6B7280" strokeWidth={2} />,
+          onPress: () => handleShareProgress(),
         },
         {
           id: 'general_settings',
@@ -255,6 +315,13 @@ export default function ProfileScreen() {
                       </Text>
                     </View>
                     <View style={styles.settingArrow}>
+                      {item.badge && (
+                        <View style={styles.badge}>
+                          <Text style={[styles.badgeText, { fontSize: fontSize(10) }]}>
+                            {item.badge}
+                          </Text>
+                        </View>
+                      )}
                       <Text style={[styles.arrowText, { fontSize: fontSize(18) }]}>›</Text>
                     </View>
                   </TouchableOpacity>
@@ -274,6 +341,15 @@ export default function ProfileScreen() {
           </View>
         </ResponsiveContainer>
       </ScrollView>
+
+      {/* Notification Center */}
+      <NotificationCenter
+        visible={showNotifications}
+        onClose={() => {
+          setShowNotifications(false);
+          loadUnreadCount(); // Refresh count when closing
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -387,6 +463,21 @@ const styles = StyleSheet.create({
   },
   settingArrow: {
     marginLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  badge: {
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginRight: 8,
+    minWidth: 20,
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontFamily: 'Inter-Bold',
   },
   arrowText: {
     color: '#9CA3AF',

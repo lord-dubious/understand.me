@@ -92,7 +92,7 @@ const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'progress' | 'isUnlocked' | 'un
     id: 'master_communicator',
     title: 'Master Communicator',
     description: 'Complete 25 voice-enabled sessions',
-    icon: '🗣️',
+    icon: '����️',
     category: 'communication',
     difficulty: 'gold',
     points: 125,
@@ -265,6 +265,14 @@ class AchievementService {
 
     this.notifications.unshift(notification);
     await this.saveNotifications();
+
+    // Also create a notification in the notification service
+    try {
+      const { notificationService } = await import('../notifications/notificationService');
+      await notificationService.createAchievementNotification(achievement.title, achievement.points);
+    } catch (error) {
+      console.error('Failed to create notification service notification:', error);
+    }
   }
 
   async getNotifications(): Promise<AchievementNotification[]> {
