@@ -196,7 +196,7 @@ export default function SettingsScreen() {
           description: 'Configure microphone and voice recognition',
           type: 'navigation',
           value: 'Configure',
-          onPress: () => Alert.alert('Voice Settings', 'This would open the existing VoiceSettingsScreen'),
+          onPress: () => router.push('/(tabs)/profile/voice-settings'),
         },
         {
           id: 'noise_reduction',

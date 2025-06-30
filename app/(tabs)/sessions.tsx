@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useResponsive } from '../../utils/platform';
 import { ResponsiveContainer, ResponsiveGrid } from '../../components/layout/ResponsiveContainer';
-import { MessageSquare, Plus, Clock, CheckCircle, TrendingUp, Users, Mic, FileText } from 'lucide-react-native';
+import { MessageSquare, Plus, Clock, CheckCircle, TrendingUp, Users, Mic, FileText, BarChart3 } from 'lucide-react-native';
 
 export default function SessionsScreen() {
   const { spacing, fontSize } = useResponsive();
@@ -70,8 +70,16 @@ export default function SessionsScreen() {
       title: 'Group Mediation',
       description: 'Facilitate resolution between multiple parties',
       icon: <Users size={32} color="#8B5CF6" strokeWidth={2} />,
-      route: '/(main)/session/describe',
+      route: '/(tabs)/sessions/group-conflict',
       color: '#8B5CF6',
+    },
+    {
+      id: 'dashboard',
+      title: 'Conflict Dashboard',
+      description: 'Manage and track your ongoing conflicts',
+      icon: <BarChart3 size={32} color="#EC4899" strokeWidth={2} />,
+      route: '/(tabs)/sessions/conflict-dashboard',
+      color: '#EC4899',
     },
     {
       id: 'assessment',
