@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/Colors';
 import { Spacing } from '../../constants/Spacing';
@@ -18,151 +13,141 @@ interface TherapeuticCardProps {
   borderRadius?: 'small' | 'medium' | 'large' | 'xl';
   useGradient?: boolean;
   darkMode?: boolean;
+  testID?: string;
 }
 
-/**
- * Therapeutic Card Component
- * 
- * A calming, supportive card component designed for mental health applications.
- * Provides gentle shadows, therapeutic colors, and accessibility features.
- */
-export default function TherapeuticCard({
+const TherapeuticCard: React.FC<TherapeuticCardProps> = ({
   children,
   style,
   variant = 'default',
-  elevation = 'subtle',
+  elevation = 'medium',
   padding = 'medium',
   borderRadius = 'medium',
   useGradient = false,
-  darkMode = false,
-}: TherapeuticCardProps) {
-  
-  const getBackgroundColor = () => {
-    if (darkMode) {
-      switch (variant) {
-        case 'supportive': return Colors.secondary[800];
-        case 'calming': return Colors.primary[800];
-        case 'growth': return Colors.emotion.grounded;
-        case 'reflection': return Colors.secondary[700];
-        default: return Colors.background.darkSecondary;
-      }
-    }
-    
+  darkMode = true,
+  testID,
+}) => {
+  const getVariantColors = () => {
     switch (variant) {
-      case 'supportive': return Colors.secondary[50];
-      case 'calming': return Colors.primary[50];
-      case 'growth': return Colors.emotion.calm;
-      case 'reflection': return Colors.secondary[100];
-      default: return Colors.background.primary;
+      case 'supportive':
+        return useGradient 
+          ? ['#10B981', '#059669'] 
+          : darkMode ? '#065F46' : '#D1FAE5';
+      case 'calming':
+        return useGradient 
+          ? ['#3B82F6', '#2563EB'] 
+          : darkMode ? '#1E3A8A' : '#DBEAFE';
+      case 'growth':
+        return useGradient 
+          ? ['#8B5CF6', '#7C3AED'] 
+          : darkMode ? '#5B21B6' : '#EDE9FE';
+      case 'reflection':
+        return useGradient 
+          ? ['#F59E0B', '#D97706'] 
+          : darkMode ? '#92400E' : '#FEF3C7';
+      default:
+        return useGradient 
+          ? ['#1F2937', '#374151'] 
+          : darkMode ? '#1F2937' : '#F9FAFB';
     }
   };
 
-  const getGradientColors = () => {
-    if (darkMode) {
-      return variant === 'supportive' 
-        ? Colors.gradients.darkNurturing 
-        : Colors.gradients.darkCalm;
-    }
-    
-    switch (variant) {
-      case 'supportive': return Colors.gradients.softPurple;
-      case 'calming': return Colors.gradients.softBlue;
-      case 'growth': return Colors.gradients.softGreen;
-      case 'reflection': return Colors.gradients.softPurple;
-      default: return [Colors.background.primary, Colors.background.secondary];
+  const getElevationStyle = () => {
+    switch (elevation) {
+      case 'none':
+        return {};
+      case 'subtle':
+        return {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.05,
+          shadowRadius: 2,
+          elevation: 1,
+        };
+      case 'medium':
+        return {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3,
+        };
+      case 'high':
+        return {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 8,
+          elevation: 6,
+        };
+      default:
+        return {};
     }
   };
 
   const cardStyle = [
     styles.base,
-    styles[`radius_${borderRadius}`],
-    styles[`padding_${padding}`],
-    styles[`elevation_${elevation}`],
-    !useGradient && { backgroundColor: getBackgroundColor() },
+    styles[padding],
+    styles[borderRadius],
+    getElevationStyle(),
+    !useGradient && { backgroundColor: getVariantColors() as string },
     style,
   ];
 
-  return (
-    <View style={cardStyle}>
-      {useGradient && (
+  if (useGradient) {
+    return (
+      <View style={cardStyle} testID={testID}>
         <LinearGradient
-          colors={getGradientColors()}
+          colors={getVariantColors() as string[]}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         />
-      )}
-      <View style={styles.content}>
         {children}
       </View>
+    );
+  }
+
+  return (
+    <View style={cardStyle} testID={testID}>
+      {children}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   base: {
-    borderWidth: 1,
-    borderColor: Colors.border.light,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   
-  content: {
-    position: 'relative',
-    zIndex: 1,
-  },
-
-  // Border radius variants
-  radius_small: {
-    borderRadius: 8,
-  },
-  radius_medium: {
-    borderRadius: 12,
-  },
-  radius_large: {
-    borderRadius: 16,
-  },
-  radius_xl: {
-    borderRadius: 20,
-  },
-
   // Padding variants
-  padding_none: {
+  none: {
     padding: 0,
   },
-  padding_small: {
-    padding: Spacing.padding.sm,
+  small: {
+    padding: Spacing.sm,
   },
-  padding_medium: {
-    padding: Spacing.padding.md,
+  medium: {
+    padding: Spacing.md,
   },
-  padding_large: {
-    padding: Spacing.padding.lg,
+  large: {
+    padding: Spacing.lg,
   },
-
-  // Elevation variants - gentle shadows for therapeutic feel
-  elevation_none: {
-    shadowOpacity: 0,
-    elevation: 0,
+  
+  // Border radius variants
+  small: {
+    borderRadius: 8,
   },
-  elevation_subtle: {
-    shadowColor: Colors.primary[300],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+  medium: {
+    borderRadius: 12,
   },
-  elevation_medium: {
-    shadowColor: Colors.primary[400],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
+  large: {
+    borderRadius: 16,
   },
-  elevation_high: {
-    shadowColor: Colors.primary[500],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 16,
-    elevation: 8,
+  xl: {
+    borderRadius: 20,
   },
 });
+
+export default TherapeuticCard;

@@ -1,0 +1,62 @@
+[
+  {
+    "scene_id": 1,
+    "name": "opening_contrast",
+    "prompt": "EXT. CITY PARK \u2014 DAWN. Dew-glazed grass, golden rays filtering through oak branches. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-01-opening_contrast.png"
+  },
+  {
+    "scene_id": 2,
+    "name": "private_hesitation",
+    "prompt": "INT. ALEX'S APARTMENT \u2014 MORNING. Sunlight through sheer curtains, wooden desk. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-02-private_hesitation.png"
+  },
+  {
+    "scene_id": 3,
+    "name": "dual_isolation",
+    "prompt": "SPLIT SCREEN. Alex at desk, Jamie in bedroom, intimate character voices. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-03-dual_isolation.png"
+  },
+  {
+    "scene_id": 4,
+    "name": "emotional_visualization",
+    "prompt": "GRAPHIC INSERT. Glowing waveform animates from deep blue to amber. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-04-emotional_visualization.png"
+  },
+  {
+    "scene_id": 5,
+    "name": "jamie_turn",
+    "prompt": "INT. COFFEE SHOP. Jamie's reflection in glass, phone to ear. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-05-jamie_turn.png"
+  },
+  {
+    "scene_id": 6,
+    "name": "phases_motion",
+    "prompt": "MONTAGE. Multiple panels showing the five-phase process. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-06-phases_motion.png"
+  },
+  {
+    "scene_id": 7,
+    "name": "reunion",
+    "prompt": "EXT. LAKESIDE DOCK \u2014 GOLDEN HOUR. Alex and Jamie approach from opposite ends. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-07-reunion.png"
+  },
+  {
+    "scene_id": 8,
+    "name": "agreement_touch",
+    "prompt": "CLOSE-UP. Hands meet on table, candlelight flickering. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-08-agreement_touch.png"
+  },
+  {
+    "scene_id": 9,
+    "name": "ripple_connection",
+    "prompt": "QUICK CUTS. Friends laughing, colleagues shaking hands, family conversation. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-09-ripple_connection.png"
+  },
+  {
+    "scene_id": 10,
+    "name": "final_promise",
+    "prompt": "EXT. DOCK \u2014 SUNSET. Silhouetted figures, text overlays, logo reveal. Cinematic, therapeutic atmosphere, warm lighting, professional quality",
+    "output_path": "understand-me-video/images/scene-10-final_promise.png"
+  }
+]

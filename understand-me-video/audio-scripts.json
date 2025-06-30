@@ -1,0 +1,82 @@
+[
+  {
+    "scene_id": 1,
+    "name": "opening_contrast",
+    "text": "When the words you need hang in the air\u2026 misunderstandings grow.",
+    "tone_direction": "warm, gender-neutral, soft, breathy",
+    "duration": 10,
+    "output_path": "understand-me-video/audio/voiceover/scene-01-opening_contrast.wav"
+  },
+  {
+    "scene_id": 2,
+    "name": "private_hesitation",
+    "text": "Imagine an impartial guide\u2014always ready, always listening.",
+    "tone_direction": "calm, reassuring, gentle rise on 'always'",
+    "duration": 14,
+    "output_path": "understand-me-video/audio/voiceover/scene-02-private_hesitation.wav"
+  },
+  {
+    "scene_id": 3,
+    "name": "dual_isolation",
+    "text": "I felt overlooked when our plans changed last minute\u2026",
+    "tone_direction": "character voice - Alex, anxious but honest",
+    "duration": 14,
+    "output_path": "understand-me-video/audio/voiceover/scene-03-dual_isolation.wav"
+  },
+  {
+    "scene_id": 4,
+    "name": "emotional_visualization",
+    "text": "An AI that sees beyond words\u2014capturing the emotion beneath.",
+    "tone_direction": "reflective, intimate, echo on 'sees beyond words'",
+    "duration": 14,
+    "output_path": "understand-me-video/audio/voiceover/scene-04-emotional_visualization.wav"
+  },
+  {
+    "scene_id": 5,
+    "name": "jamie_turn",
+    "text": "I was scared you'd be frustrated if I spoke up\u2026",
+    "tone_direction": "character voice - Jamie, vulnerable but hopeful",
+    "duration": 14,
+    "output_path": "understand-me-video/audio/voiceover/scene-05-jamie_turn.wav"
+  },
+  {
+    "scene_id": 6,
+    "name": "phases_motion",
+    "text": "Five phases\u2014set intent, speak freely, reflect, truly listen, then find solutions side by side.",
+    "tone_direction": "steady, encouraging, gentle uplift on 'side by side'",
+    "duration": 19,
+    "output_path": "understand-me-video/audio/voiceover/scene-06-phases_motion.wav"
+  },
+  {
+    "scene_id": 7,
+    "name": "reunion",
+    "text": "No screens. No judgment. Just two hearts guided by gentle AI.",
+    "tone_direction": "warm, intimate, soft falloff on 'gentle AI'",
+    "duration": 19,
+    "output_path": "understand-me-video/audio/voiceover/scene-07-reunion.wav"
+  },
+  {
+    "scene_id": 8,
+    "name": "agreement_touch",
+    "text": "I'm grateful we can move forward\u2014together.",
+    "tone_direction": "character voice - Alex, grateful and peaceful",
+    "duration": 19,
+    "output_path": "understand-me-video/audio/voiceover/scene-08-agreement_touch.wav"
+  },
+  {
+    "scene_id": 9,
+    "name": "ripple_connection",
+    "text": "Small moments\u2014big leaps toward understanding.",
+    "tone_direction": "uplifting, hopeful, whisper 'small moments', confident 'big leaps'",
+    "duration": 14,
+    "output_path": "understand-me-video/audio/voiceover/scene-09-ripple_connection.wav"
+  },
+  {
+    "scene_id": 10,
+    "name": "final_promise",
+    "text": "Understand-me. Your AI companion for heartfelt conversations\u2014anytime, anywhere.",
+    "tone_direction": "invitational, resonant, rise through 'anytime, anywhere'",
+    "duration": 34,
+    "output_path": "understand-me-video/audio/voiceover/scene-10-final_promise.wav"
+  }
+]

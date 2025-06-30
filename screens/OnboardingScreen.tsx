@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useOnboardingStore } from '../stores/onboardingStore';
 import { Mic, MessageCircle, Heart, CheckCircle } from 'lucide-react-native';
-import * as Permissions from 'expo-permissions';
+import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
@@ -51,8 +51,8 @@ export default function OnboardingScreen() {
         setMicPermissionGranted(true);
         return true;
       } else {
-        // Request microphone permission on mobile platforms
-        const { status } = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+        // Request microphone permission on mobile platforms using expo-av
+        const { status } = await Audio.requestPermissionsAsync();
 
         if (status === 'granted') {
           setMicPermissionGranted(true);

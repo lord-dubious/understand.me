@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   StyleSheet,
   SafeAreaView,
   Alert,
@@ -30,9 +29,19 @@ export default function AuthScreen({ navigation }: Props) {
   
   const { login, signup } = useAuthStore();
 
+  // Simple email format validation
+  const isValidEmail = (email: string) => {
+    // Basic regex for email validation
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && !name)) {
       Alert.alert('Please fill in all fields');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
@@ -42,6 +51,7 @@ export default function AuthScreen({ navigation }: Props) {
         await login(email, password);
       } else {
         await signup(email, password, name);
+        setLoading(false);
         navigation.navigate('ProfileSetup');
         return;
       }

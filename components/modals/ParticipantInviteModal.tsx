@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
+  Modal,
 } from 'react-native';
 import CrossPlatformModal from '../common/CrossPlatformModal';
 import CrossPlatformInput, { CrossPlatformTextArea } from '../common/CrossPlatformInput';
