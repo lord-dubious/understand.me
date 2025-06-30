@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { LogOut, User as UserIcon } from 'lucide-react-native';
@@ -9,6 +9,7 @@ import { useAuthStore } from '../../stores/authStore';
 export default function MainDashboard() {
   const [userProfile, setUserProfile] = useState<any>(null);
   const { setUser } = useAuthStore();
+  const [badgeScale] = useState(new Animated.Value(1));
 
   useEffect(() => {
     // Get user profile
@@ -32,6 +33,25 @@ export default function MainDashboard() {
     }
   };
 
+  const handleBadgePress = () => {
+    // Animate badge on press
+    Animated.sequence([
+      Animated.timing(badgeScale, {
+        toValue: 1.1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(badgeScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Open Bolt.new link
+    Linking.openURL('https://bolt.new/?rid=os72mi');
+  };
+
   return (
     <LinearGradient
       colors={['#4ECDC4', '#44A08D', '#45B7D1']}
@@ -39,6 +59,20 @@ export default function MainDashboard() {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
+      {/* Bolt.new Badge */}
+      <TouchableOpacity 
+        style={styles.boltBadge} 
+        onPress={handleBadgePress}
+        activeOpacity={0.8}
+      >
+        <Animated.View style={{ transform: [{ scale: badgeScale }] }}>
+          <Image
+            source={{ uri: 'https://storage.bolt.army/white_circle_360x360.png' }}
+            style={styles.boltBadgeImage}
+            resizeMode="contain"
+          />
+        </Animated.View>
+      </TouchableOpacity>
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <View style={styles.avatar}>
@@ -87,6 +121,25 @@ export default function MainDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  boltBadge: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 50,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  boltBadgeImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
   header: {
     flexDirection: 'row',
