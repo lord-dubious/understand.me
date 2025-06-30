@@ -8,7 +8,13 @@ import { google } from '@ai-sdk/google';
 import { generateText, streamText, generateObject } from 'ai';
 import { z } from 'zod';
 import { humeExpressionMeasurement, HumeExpressionResult } from '../hume/expressionMeasurement';
-import { elevenLabsConversationalAI, elevenLabsTTS } from '../elevenlabs/conversationalAI';
+import { 
+  elevenLabsConversationalAI, 
+  elevenLabsTTS, 
+  elevenLabsSTT,
+  ELEVENLABS_CONFIG,
+  CONVERSATION_CONFIG 
+} from '../elevenlabs/conversationalAI';
 
 // Gemini Models Configuration (ONLY for document analysis)
 export const GEMINI_MODELS = {
@@ -76,6 +82,18 @@ export interface OrchestrationContext {
   sessionPhase: 'opening' | 'exploration' | 'negotiation' | 'resolution' | 'closing';
   emotionHistory: HumeExpressionResult[];
   documents?: File[];
+  // Enhanced context for ElevenLabs agent
+  userProfile?: {
+    name?: string;
+    username?: string;
+    personalityProfile?: any;
+    communicationStyle?: string;
+    conflictHistory?: any[];
+  };
+  sessionType: 'onboarding' | 'conflict-resolution' | 'personality-assessment' | 'practice';
+  voiceEnabled: boolean;
+  agentPersonality: 'udine' | 'neutral' | 'empathetic';
+  toolsEnabled: string[]; // Available tools for the agent
 }
 
 export interface OrchestrationResult {
@@ -85,6 +103,37 @@ export interface OrchestrationResult {
   recommendations: string[];
   nextActions: string[];
   voiceResponse?: ArrayBuffer; // ElevenLabs TTS output
+  // Enhanced agent interaction results
+  agentResponse?: {
+    text: string;
+    audioBuffer?: ArrayBuffer;
+    toolCalls?: ToolCall[];
+    contextUpdate?: Partial<OrchestrationContext>;
+    followUpQuestions?: string[];
+  };
+  conversationState?: {
+    isActive: boolean;
+    mode: 'listening' | 'speaking' | 'thinking' | 'idle';
+    turnCount: number;
+    lastInteraction: Date;
+  };
+}
+
+export interface ToolCall {
+  id: string;
+  name: string;
+  parameters: Record<string, any>;
+  result?: any;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+export interface AgentTools {
+  analyzeEmotion: (text: string, audio?: ArrayBuffer) => Promise<HumeExpressionResult>;
+  generateInsight: (context: OrchestrationContext) => Promise<string>;
+  updateUserProfile: (updates: Partial<OrchestrationContext['userProfile']>) => Promise<void>;
+  escalateToHuman: (reason: string) => Promise<void>;
+  scheduleFollowUp: (timeframe: string, topic: string) => Promise<void>;
+  assessPersonality: (responses: string[]) => Promise<any>;
 }
 
 /**
@@ -93,9 +142,74 @@ export interface OrchestrationResult {
  */
 export class AIOrchestrationEngine {
   private isInitialized = false;
+  private agentTools: AgentTools;
+  private activeConversations = new Map<string, any>();
 
   constructor() {
+    this.agentTools = this.initializeAgentTools();
     this.initialize();
+  }
+
+  /**
+   * Initialize agent tools for ElevenLabs agent
+   */
+  private initializeAgentTools(): AgentTools {
+    return {
+      analyzeEmotion: async (text: string, audio?: ArrayBuffer) => {
+        if (audio) {
+          return await humeExpressionMeasurement.analyzeAudio(audio);
+        } else {
+          return await humeExpressionMeasurement.analyzeText(text);
+        }
+      },
+
+      generateInsight: async (context: OrchestrationContext) => {
+        const result = await generateText({
+          model: GEMINI_MODELS.CONFLICT_ANALYSIS,
+          prompt: `Based on the current context, provide a helpful insight for conflict resolution:
+          
+Context: ${JSON.stringify(context, null, 2)}
+
+Generate a specific, actionable insight that would help the user in their current situation.`,
+          maxTokens: 200
+        });
+        return result.text;
+      },
+
+      updateUserProfile: async (updates: Partial<OrchestrationContext['userProfile']>) => {
+        // This would typically update a database
+        console.log('Updating user profile:', updates);
+      },
+
+      escalateToHuman: async (reason: string) => {
+        console.log('Escalating to human mediator:', reason);
+        // Implementation would notify human mediators
+      },
+
+      scheduleFollowUp: async (timeframe: string, topic: string) => {
+        console.log(`Scheduling follow-up in ${timeframe} about ${topic}`);
+        // Implementation would schedule notifications/reminders
+      },
+
+      assessPersonality: async (responses: string[]) => {
+        const result = await generateObject({
+          model: GEMINI_MODELS.CONFLICT_ANALYSIS,
+          prompt: `Analyze these personality assessment responses and provide insights:
+          
+Responses: ${responses.join('\n')}
+
+Assess communication style, conflict resolution preferences, and personality traits.`,
+          schema: z.object({
+            communicationStyle: z.enum(['direct', 'diplomatic', 'analytical', 'empathetic']),
+            conflictStyle: z.enum(['competitive', 'collaborative', 'accommodating', 'avoiding', 'compromising']),
+            emotionalIntelligence: z.number().min(1).max(10),
+            traits: z.array(z.string()),
+            recommendations: z.array(z.string())
+          })
+        });
+        return result.object;
+      }
+    };
   }
 
   /**
@@ -132,6 +246,70 @@ export class AIOrchestrationEngine {
       }
     } catch (error) {
       console.error('Gemini model test failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Enhanced orchestration with ElevenLabs agent integration
+   * Provides context-aware speech and tool use
+   */
+  async orchestrateWithAgent(
+    input: {
+      text?: string;
+      audio?: ArrayBuffer;
+      documents?: File[];
+      userMessage?: string;
+    },
+    context: OrchestrationContext
+  ): Promise<OrchestrationResult> {
+    try {
+      console.log('🔄 Starting enhanced AI orchestration with agent...');
+
+      // Step 1: Process input through standard pipeline
+      const standardResult = await this.orchestrate(input, context);
+
+      // Step 2: Prepare agent context with tools
+      const agentContext = {
+        ...context,
+        currentAnalysis: standardResult,
+        availableTools: Object.keys(this.agentTools),
+        conversationHistory: this.getConversationHistory(context.conversationId)
+      };
+
+      // Step 3: Generate agent response with tool access
+      const agentResponse = await this.generateAgentResponse(
+        input.userMessage || input.text || 'Audio input received',
+        agentContext
+      );
+
+      // Step 4: Execute any tool calls
+      if (agentResponse.toolCalls) {
+        for (const toolCall of agentResponse.toolCalls) {
+          await this.executeToolCall(toolCall, context);
+        }
+      }
+
+      // Step 5: Update conversation state
+      const conversationState = {
+        isActive: true,
+        mode: 'speaking' as const,
+        turnCount: (this.activeConversations.get(context.conversationId)?.turnCount || 0) + 1,
+        lastInteraction: new Date()
+      };
+
+      this.activeConversations.set(context.conversationId, {
+        ...agentContext,
+        ...conversationState
+      });
+
+      return {
+        ...standardResult,
+        agentResponse,
+        conversationState
+      };
+    } catch (error) {
+      console.error('❌ Enhanced orchestration failed:', error);
       throw error;
     }
   }
@@ -495,6 +673,227 @@ Format as a simple list.`,
         }
       }
     };
+  }
+
+  /**
+   * Generate agent response with context awareness and tool use
+   */
+  private async generateAgentResponse(
+    userMessage: string,
+    context: any
+  ): Promise<{
+    text: string;
+    audioBuffer?: ArrayBuffer;
+    toolCalls?: ToolCall[];
+    contextUpdate?: Partial<OrchestrationContext>;
+    followUpQuestions?: string[];
+  }> {
+    try {
+      // Create system prompt based on session type and context
+      const systemPrompt = this.buildAgentSystemPrompt(context);
+
+      // Generate response with tool calling capability
+      const result = await generateObject({
+        model: GEMINI_MODELS.CONFLICT_ANALYSIS,
+        system: systemPrompt,
+        prompt: `User message: "${userMessage}"
+
+Current context: ${JSON.stringify(context, null, 2)}
+
+Respond as Udine, the AI mediator. Consider:
+1. The user's emotional state and needs
+2. The session type and phase
+3. Available tools and when to use them
+4. Appropriate follow-up questions
+5. Context updates needed
+
+Provide a helpful, empathetic response.`,
+        schema: z.object({
+          text: z.string(),
+          toolCalls: z.array(z.object({
+            id: z.string(),
+            name: z.string(),
+            parameters: z.record(z.any()),
+            status: z.literal('pending')
+          })).optional(),
+          contextUpdate: z.object({
+            userProfile: z.object({
+              communicationStyle: z.string().optional(),
+              personalityProfile: z.any().optional()
+            }).optional()
+          }).optional(),
+          followUpQuestions: z.array(z.string()).optional()
+        })
+      });
+
+      // Generate audio if voice is enabled
+      let audioBuffer: ArrayBuffer | undefined;
+      if (context.voiceEnabled) {
+        try {
+          audioBuffer = await elevenLabsTTS.textToSpeech(result.object.text);
+        } catch (error) {
+          console.warn('Voice generation failed:', error);
+        }
+      }
+
+      return {
+        ...result.object,
+        audioBuffer
+      };
+    } catch (error) {
+      console.error('Agent response generation failed:', error);
+      return {
+        text: "I'm here to help you work through this. Can you tell me more about what's happening?",
+        followUpQuestions: ["What's the main issue you're facing?", "How are you feeling about this situation?"]
+      };
+    }
+  }
+
+  /**
+   * Build system prompt based on session type and context
+   */
+  private buildAgentSystemPrompt(context: any): string {
+    const basePrompt = CONVERSATION_CONFIG.systemPrompt;
+    
+    let sessionSpecificPrompt = '';
+    
+    switch (context.sessionType) {
+      case 'onboarding':
+        sessionSpecificPrompt = `
+ONBOARDING MODE: You are guiding a new user through their first experience with understand.me.
+
+Your goals:
+- Welcome them warmly and explain how you can help
+- Gather basic information about their communication style
+- Conduct a brief personality assessment through conversation
+- Help them feel comfortable with voice interaction
+- Set expectations for conflict resolution sessions
+
+Use a friendly, encouraging tone. Ask one question at a time. Make them feel heard and understood.`;
+        break;
+        
+      case 'personality-assessment':
+        sessionSpecificPrompt = `
+PERSONALITY ASSESSMENT MODE: You are conducting a conversational personality assessment.
+
+Your goals:
+- Ask thoughtful questions about communication preferences
+- Explore conflict resolution styles through scenarios
+- Assess emotional intelligence and self-awareness
+- Identify strengths and growth areas
+- Provide personalized insights and recommendations
+
+Use the assessPersonality tool when you have enough information.`;
+        break;
+        
+      case 'conflict-resolution':
+        sessionSpecificPrompt = `
+CONFLICT RESOLUTION MODE: You are actively mediating a conflict.
+
+Your goals:
+- Facilitate understanding between parties
+- Help identify underlying needs and interests
+- Guide toward collaborative solutions
+- Manage emotions and de-escalate tension
+- Build agreements and action plans
+
+Use emotion analysis tools frequently. Escalate to human if needed.`;
+        break;
+        
+      case 'practice':
+        sessionSpecificPrompt = `
+PRACTICE MODE: You are helping someone practice conflict resolution skills.
+
+Your goals:
+- Create safe scenarios for skill building
+- Provide constructive feedback
+- Teach specific techniques and strategies
+- Build confidence and competence
+- Track progress over time
+
+Be encouraging and educational. Focus on skill development.`;
+        break;
+    }
+
+    return `${basePrompt}\n\n${sessionSpecificPrompt}\n\nAvailable tools: ${context.availableTools?.join(', ') || 'none'}`;
+  }
+
+  /**
+   * Execute tool calls made by the agent
+   */
+  private async executeToolCall(toolCall: ToolCall, context: OrchestrationContext): Promise<void> {
+    try {
+      toolCall.status = 'pending';
+      
+      const tool = this.agentTools[toolCall.name as keyof AgentTools];
+      if (!tool) {
+        throw new Error(`Tool ${toolCall.name} not found`);
+      }
+
+      // Execute the tool with parameters
+      const result = await (tool as any)(...Object.values(toolCall.parameters));
+      
+      toolCall.result = result;
+      toolCall.status = 'completed';
+      
+      console.log(`✅ Tool ${toolCall.name} executed successfully`);
+    } catch (error) {
+      console.error(`❌ Tool ${toolCall.name} execution failed:`, error);
+      toolCall.status = 'failed';
+      toolCall.result = { error: error.message };
+    }
+  }
+
+  /**
+   * Get conversation history for context
+   */
+  private getConversationHistory(conversationId: string): any[] {
+    const conversation = this.activeConversations.get(conversationId);
+    return conversation?.history || [];
+  }
+
+  /**
+   * Start voice-guided onboarding session
+   */
+  async startVoiceOnboarding(userId: string, userProfile?: any): Promise<OrchestrationResult> {
+    const context: OrchestrationContext = {
+      conversationId: `onboarding-${userId}-${Date.now()}`,
+      participantIds: [userId],
+      sessionPhase: 'opening',
+      emotionHistory: [],
+      sessionType: 'onboarding',
+      voiceEnabled: true,
+      agentPersonality: 'udine',
+      toolsEnabled: ['updateUserProfile', 'assessPersonality'],
+      userProfile
+    };
+
+    return await this.orchestrateWithAgent(
+      { userMessage: 'I\'m new to understand.me and would like to get started' },
+      context
+    );
+  }
+
+  /**
+   * Start personality assessment session
+   */
+  async startPersonalityAssessment(userId: string, userProfile?: any): Promise<OrchestrationResult> {
+    const context: OrchestrationContext = {
+      conversationId: `assessment-${userId}-${Date.now()}`,
+      participantIds: [userId],
+      sessionPhase: 'exploration',
+      emotionHistory: [],
+      sessionType: 'personality-assessment',
+      voiceEnabled: true,
+      agentPersonality: 'empathetic',
+      toolsEnabled: ['analyzeEmotion', 'assessPersonality', 'updateUserProfile'],
+      userProfile
+    };
+
+    return await this.orchestrateWithAgent(
+      { userMessage: 'I\'d like to complete a personality assessment' },
+      context
+    );
   }
 
   /**
