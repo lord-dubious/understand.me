@@ -6,8 +6,8 @@ import { Spacing } from '../../constants/Spacing';
 
 interface TherapeuticCardProps {
   children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'accent' | 'neutral';
   style?: ViewStyle;
-  variant?: 'default' | 'supportive' | 'calming' | 'growth' | 'reflection';
   elevation?: 'none' | 'subtle' | 'medium' | 'high';
   padding?: 'none' | 'small' | 'medium' | 'large';
   borderRadius?: 'small' | 'medium' | 'large' | 'xl';
@@ -18,37 +18,42 @@ interface TherapeuticCardProps {
 
 const TherapeuticCard: React.FC<TherapeuticCardProps> = ({
   children,
+  variant = 'primary',
   style,
-  variant = 'default',
-  elevation = 'medium',
+  elevation = 'subtle',
   padding = 'medium',
   borderRadius = 'medium',
   useGradient = false,
-  darkMode = true,
+  darkMode = false,
   testID,
 }) => {
   const getVariantColors = () => {
-    switch (variant) {
-      case 'supportive':
-        return useGradient 
-          ? ['#10B981', '#059669'] 
-          : darkMode ? '#065F46' : '#D1FAE5';
-      case 'calming':
-        return useGradient 
-          ? ['#3B82F6', '#2563EB'] 
-          : darkMode ? '#1E3A8A' : '#DBEAFE';
-      case 'growth':
-        return useGradient 
-          ? ['#8B5CF6', '#7C3AED'] 
-          : darkMode ? '#5B21B6' : '#EDE9FE';
-      case 'reflection':
-        return useGradient 
-          ? ['#F59E0B', '#D97706'] 
-          : darkMode ? '#92400E' : '#FEF3C7';
-      default:
-        return useGradient 
-          ? ['#1F2937', '#374151'] 
-          : darkMode ? '#1F2937' : '#F9FAFB';
+    if (useGradient) {
+      switch (variant) {
+        case 'primary':
+          return darkMode ? Colors.gradients.darkPrimary : Colors.gradients.primary;
+        case 'secondary':
+          return darkMode ? Colors.gradients.darkSecondary : Colors.gradients.secondary;
+        case 'accent':
+          return darkMode ? Colors.gradients.darkAccent : Colors.gradients.accent;
+        case 'neutral':
+          return darkMode ? Colors.gradients.darkNeutral : Colors.gradients.neutral;
+        default:
+          return Colors.gradients.primary;
+      }
+    } else {
+      switch (variant) {
+        case 'primary':
+          return darkMode ? Colors.background.darkPrimary : Colors.background.primary;
+        case 'secondary':
+          return darkMode ? Colors.background.darkSecondary : Colors.background.secondary;
+        case 'accent':
+          return darkMode ? Colors.background.darkAccent : Colors.background.accent;
+        case 'neutral':
+          return darkMode ? Colors.background.darkNeutral : Colors.background.neutral;
+        default:
+          return Colors.background.primary;
+      }
     }
   };
 
@@ -58,25 +63,25 @@ const TherapeuticCard: React.FC<TherapeuticCardProps> = ({
         return {};
       case 'subtle':
         return {
-          shadowColor: '#000',
+          shadowColor: Colors.shadow.primary,
           shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.1,
           shadowRadius: 2,
           elevation: 1,
         };
       case 'medium':
         return {
-          shadowColor: '#000',
+          shadowColor: Colors.shadow.primary,
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
+          shadowOpacity: 0.15,
           shadowRadius: 4,
           elevation: 3,
         };
       case 'high':
         return {
-          shadowColor: '#000',
+          shadowColor: Colors.shadow.primary,
           shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
+          shadowOpacity: 0.2,
           shadowRadius: 8,
           elevation: 6,
         };
@@ -117,16 +122,14 @@ const TherapeuticCard: React.FC<TherapeuticCardProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
     overflow: 'hidden',
+    position: 'relative',
   },
-  
-  // Padding variants
   none: {
     padding: 0,
   },
   small: {
-    padding: Spacing.sm,
+    padding: Spacing.xs,
   },
   medium: {
     padding: Spacing.md,
@@ -134,8 +137,6 @@ const styles = StyleSheet.create({
   large: {
     padding: Spacing.lg,
   },
-  
-  // Border radius variants
   small: {
     borderRadius: 8,
   },
