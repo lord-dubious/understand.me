@@ -1,15 +1,50 @@
 # understand.me 🤝
 
-A comprehensive AI-powered conflict resolution platform that helps individuals and groups navigate conflicts with empathy, understanding, and effective communication strategies.
+**🏆 Built at the Bolt.new Hackathon**
 
-## 🌟 Features
+A voice-first, AI-mediated conflict resolution platform that transforms difficult conversations into opportunities for understanding and connection. Born from personal experience and powered by cutting-edge AI technology.
 
-### Core Capabilities
-- **AI-Powered Mediation**: Advanced AI assistant (Udine) with emotional intelligence and conflict resolution expertise
-- **Emotion Recognition**: Real-time emotion analysis and adaptive responses
-- **Personalized Experiences**: Tailored conflict resolution approaches based on individual preferences and patterns
-- **Multi-Party Conflict Resolution**: Group mediation with structured workflows and facilitation
-- **Advanced Analytics**: Comprehensive insights into conflict patterns, emotional growth, and communication effectiveness
+## 💝 The Story Behind understand.me
+
+In my family, I've always been the one people call "their heart"—the person who tries to bridge gaps and bring everyone together. But despite my best efforts, I've seen how deeply misunderstandings can separate people, even cutting me off from those I love. 
+
+This project was born from a deeply personal place, initially conceived as a way to help fix things and communicate better with my girlfriend, Juanita. Sadly, our relationship ended before I could finish it for us. That loss transformed my motivation. I decided to build "understand.me" not just for myself, but for anyone who has ever felt the pain of being misunderstood, hoping it could be the help for others that I wished I'd had.
+
+## 🏆 Hackathon Journey
+
+This project was a sprint against time and unforeseen circumstances. Starting on the 28th, I was racing against the clock with a heavy heart. Before we began, most of my team and I fell sick, which significantly impacted our momentum and ability to collaborate effectively. Pushing through illness while working on such an emotionally charged project was incredibly difficult.
+
+Despite the immense personal and logistical challenges, I'm incredibly proud of creating a functional prototype that demonstrates the core vision. Building a system where an AI can not only understand words but also react to the emotion behind them feels like a genuine step forward in human-centric technology.
+
+## 🤖 What understand.me Does
+
+"understand.me" is a voice-first, AI-mediated conflict resolution app. It acts as an impartial guide, facilitating difficult conversations through a structured, five-phase process. Users interact with an empathetic AI mediator (Udine) primarily by speaking. The AI manages turn-taking, analyzes the emotional tone of the conversation using Hume AI, and helps users articulate their feelings, hear each other out, and collaboratively find a path forward. It's a private, accessible space designed to turn conflict into clarity and, ultimately, understanding.
+
+## 🛠️ How We Built It
+
+This project was a partnership between human experience and a sophisticated AI stack, planned and architected with the help of models like Google Gemini and GPT-o3.
+
+### 🏗️ Technology Stack
+
+- **Frontend:** **Expo (React Native)** for high-performance, cross-platform native app for iOS and Android
+- **Backend & Orchestration:** **Express.js** backend with **Vercel AI SDK** as the "brain," orchestrating all AI interactions and managing conversational context
+- **Voice Experience:** **ElevenLabs** powers the entire voice experience with natural-sounding AI voice and real-time conversation management
+- **Emotional Intelligence:** **Hume AI** provides crucial emotional analysis, analyzing vocal tone to give the mediator true empathy
+- **Database & Auth:** **Supabase** serves as our robust data layer for user authentication, database storage, and real-time communication
+
+## 🌟 Core Features
+
+### Voice-Guided Experience
+- **Natural Conversation**: Real-time voice interaction with Udine AI mediator
+- **Emotion Analysis**: Live emotional tone analysis during conversations
+- **Turn-Taking Management**: Intelligent conversation flow control
+- **Personalized Assessment**: Voice-based personality and communication style evaluation
+
+### AI-Powered Mediation
+- **Empathetic AI Assistant**: Udine specializes in conflict resolution and emotional intelligence
+- **Context-Aware Responses**: Session-specific AI behavior for different interaction types
+- **Tool Integration**: 6 core AI tools for emotion analysis, insights, and profile updates
+- **Real-Time Processing**: Instant analysis and response generation
 
 ### Key Components
 
@@ -274,12 +309,55 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🚀 What's Next for understand.me
+
+The journey for "understand.me" is just beginning. The next steps are focused on refinement and expansion:
+
+1. **Refining the AI Mediator**: Continuously improve the AI's conversational prompts and its ability to handle more complex and nuanced emotional scenarios
+2. **Building the "Growth Tab"**: Implement the long-term vision of providing users with personalized insights into their communication patterns to help them grow over time
+3. **User Testing & Feedback**: Get the app into the hands of real users to gather feedback and iteratively improve the experience
+4. **Expanding Features**: Introduce features like session summaries, digital sign-offs on agreements, and a library of resources for better communication
+
+## 🏆 Built with Bolt.new
+
+This project was created during the Bolt.new Hackathon, showcasing the power of AI-assisted development and rapid prototyping.
+
+[![Built with Bolt.new](https://storage.bolt.army/white_circle_360x360.png)](https://bolt.new/?rid=os72mi)
+
+## 🤝 Our Technology Partners
+
+We're grateful to our technology partners who made this vision possible:
+
+### 🎤 **ElevenLabs**
+Powering our natural voice experience with advanced conversational AI and real-time voice synthesis.
+[Learn more →](https://elevenlabs.io)
+
+### 🧠 **Hume AI**
+Providing emotional intelligence through advanced emotion analysis and vocal tone recognition.
+[Learn more →](https://hume.ai)
+
+### 🗄️ **Supabase**
+Delivering robust database, authentication, and real-time communication infrastructure.
+[Learn more →](https://supabase.com)
+
+### 🤖 **Google AI**
+Enabling intelligent conversation and context understanding through Gemini models.
+[Learn more →](https://ai.google.dev)
+
+### 📱 **Expo**
+Simplifying cross-platform mobile development with powerful tools and services.
+[Learn more →](https://expo.dev)
+
+### ⚡ **Vercel**
+Orchestrating AI interactions with the powerful Vercel AI SDK.
+[Learn more →](https://vercel.com)
+
 ## 🙏 Acknowledgments
 
-- **Google Generative AI**: Powering our intelligent conversation capabilities
-- **React Native Community**: For the amazing framework and ecosystem
-- **Expo Team**: For simplifying React Native development
+- **Bolt.new Community**: For the incredible hackathon opportunity and platform
+- **All our technology partners**: For providing the tools that made this vision possible
 - **Conflict Resolution Experts**: For guidance on mediation best practices
+- **Everyone who has ever felt misunderstood**: This is for you
 
 ## 📞 Support
 

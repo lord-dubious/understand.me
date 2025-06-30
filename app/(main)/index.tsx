@@ -113,6 +113,70 @@ export default function MainDashboard() {
         <TouchableOpacity style={styles.startButton}>
           <Text style={styles.startButtonText}>Start New Session</Text>
         </TouchableOpacity>
+
+        {/* Hackathon & Sponsors Section */}
+        <View style={styles.hackathonSection}>
+          <Text style={styles.hackathonTitle}>🏆 Built at Bolt.new Hackathon</Text>
+          <Text style={styles.hackathonSubtitle}>Powered by cutting-edge AI technology</Text>
+          
+          <View style={styles.sponsorsContainer}>
+            <Text style={styles.sponsorsTitle}>Our Technology Partners</Text>
+            
+            <View style={styles.sponsorRow}>
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://elevenlabs.io')}
+              >
+                <Text style={styles.sponsorName}>ElevenLabs</Text>
+                <Text style={styles.sponsorDescription}>Voice AI</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://hume.ai')}
+              >
+                <Text style={styles.sponsorName}>Hume AI</Text>
+                <Text style={styles.sponsorDescription}>Emotion Analysis</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.sponsorRow}>
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://supabase.com')}
+              >
+                <Text style={styles.sponsorName}>Supabase</Text>
+                <Text style={styles.sponsorDescription}>Database & Auth</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://ai.google.dev')}
+              >
+                <Text style={styles.sponsorName}>Google AI</Text>
+                <Text style={styles.sponsorDescription}>Gemini Models</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.sponsorRow}>
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://expo.dev')}
+              >
+                <Text style={styles.sponsorName}>Expo</Text>
+                <Text style={styles.sponsorDescription}>Mobile Platform</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.sponsorCard}
+                onPress={() => Linking.openURL('https://vercel.com')}
+              >
+                <Text style={styles.sponsorName}>Vercel</Text>
+                <Text style={styles.sponsorDescription}>AI SDK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </View>
     </LinearGradient>
   );
@@ -248,5 +312,67 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
+  },
+  hackathonSection: {
+    marginTop: 40,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  hackathonTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontFamily: 'Inter-Bold',
+  },
+  hackathonSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    marginBottom: 24,
+    fontFamily: 'Inter-Regular',
+  },
+  sponsorsContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  sponsorsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  sponsorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 12,
+  },
+  sponsorCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  sponsorName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 2,
+    fontFamily: 'Inter-SemiBold',
+  },
+  sponsorDescription: {
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    fontFamily: 'Inter-Regular',
   },
 });
