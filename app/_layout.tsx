@@ -29,7 +29,7 @@ export default function RootLayout() {
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.replace('/(main)');
+        router.replace('/(tabs)');
       } else {
         router.replace('/(auth)/login');
       }
@@ -38,7 +38,7 @@ export default function RootLayout() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        router.replace('/(main)');
+        router.replace('/(tabs)');
       } else {
         router.replace('/(auth)/login');
       }
@@ -56,6 +56,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(main)" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="light" />
