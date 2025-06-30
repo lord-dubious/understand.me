@@ -11,7 +11,7 @@ import { router } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  useFrameworkReady();
+  const isFrameworkReady = useFrameworkReady();
 
   const [fontsLoaded, fontError] = useFonts({
     'Inter-Regular': Inter_400Regular,
@@ -82,6 +82,10 @@ export default function RootLayout() {
   }, []);
 
   if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  if (!isFrameworkReady) {
     return null;
   }
 
